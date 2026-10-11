@@ -1,5 +1,5 @@
 // Kelime Saati — service worker (çevrimdışı çalışma)
-const CACHE = "kelime-saati-v1";
+const CACHE = "kelime-saati-v2";
 const ASSETS = ["./", "./index.html", "./words.json", "./widget.js", "./manifest.json", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {

@@ -12,9 +12,9 @@ const CONFIG = {
 };
 // KS_CONFIG_END
 
-const GOLD = new Color("#d9b46a");
-const WHITE = new Color("#eef1f8");
-const MUTED = new Color("#9aa6c4");
+const GOLD = new Color("#E8793F");   // vurgu (turuncu)
+const WHITE = new Color("#26221F");  // ana metin
+const MUTED = new Color("#8C8077");
 
 function parseParam(p) {
   if (!p) return null;
@@ -98,7 +98,7 @@ function build(word, family) {
 
   // Ana ekran
   const g = new LinearGradient();
-  g.colors = [new Color("#1b2a55"), new Color("#0b1228")];
+  g.colors = [new Color("#FFF8F1"), new Color("#F9E4D2")];
   g.locations = [0, 1];
   w.backgroundGradient = g;
   w.setPadding(14, 16, 14, 16);
@@ -106,13 +106,13 @@ function build(word, family) {
 
   const top = w.addStack();
   top.centerAlignContent();
-  addText(top, "✦ SAATİN KELİMESİ", Font.semiboldSystemFont(9), GOLD);
+  addText(top, "⏰ SAATİN KELİMESİ", Font.heavySystemFont(9), GOLD);
   top.addSpacer();
   addText(top, word.lvl || "", Font.boldSystemFont(9), GOLD);
 
   w.addSpacer();
-  addText(w, word.w, new Font("Georgia-Bold", small ? 24 : 30), WHITE, { scale: 0.45 });
-  addText(w, word.tr, new Font("Georgia", small ? 15 : 18), GOLD, { scale: 0.6, lines: small ? 2 : 1 });
+  addText(w, word.w, Font.heavySystemFont(small ? 24 : 30), WHITE, { scale: 0.45 });
+  addText(w, word.tr, Font.semiboldSystemFont(small ? 15 : 18), GOLD, { scale: 0.6, lines: small ? 2 : 1 });
 
   if (!small) {
     w.addSpacer(4);
@@ -122,7 +122,7 @@ function build(word, family) {
       addText(w, `(${word.pos}) ${word.def}`, Font.systemFont(13), WHITE, { lines: 3, scale: 0.8 });
       w.addSpacer(6);
     }
-    addText(w, word.ex, Font.italicSystemFont(12), WHITE, { lines: 2, scale: 0.8, opacity: 0.85 });
+    addText(w, word.ex, Font.systemFont(12), MUTED, { lines: 2, scale: 0.8 });
   }
   w.addSpacer();
   return w;

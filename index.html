@@ -5,185 +5,239 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Kelime Saati">
-<meta name="theme-color" content="#0b1226">
+<meta name="theme-color" content="#FBEEE2">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>Kelime Saati</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b1226;--gold:#d9b46a;--gold2:#f0d595;--text:#eef1f8;--muted:#9aa6c4;
-  --line:rgba(217,180,106,.38);--ok:#5fc28a;--bad:#e06a6a;
+  --bg:#FBEEE2;--bg2:#F7E3D1;--card:#FFFFFF;--text:#26221F;--muted:#8C8077;--line:#EEDFD1;
+  --gold:#E8793F;--accent:#E8793F;--accent-soft:#FDE6D6;
+  --peach:#F7B596;--sand:#F5D6AE;--sage:#C6E3B6;--sky:#A3D5F7;--lilac:#DED5F6;
+  --green:#34C77B;--blue:#2BA4F0;--ok:#2E9E5E;--bad:#D9534A;
+  --shadow:0 6px 24px rgba(120,80,40,.10);
   --st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;color:var(--text);font-family:Inter,system-ui,sans-serif;overscroll-behavior:none}
-body{background:radial-gradient(120% 70% at 50% 0%,#1b2a55 0%,#0e1631 55%,#080d1d 100%) fixed var(--bg);-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;overscroll-behavior:none}
+body{background:var(--bg);-webkit-user-select:none;user-select:none}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
+  background:
+   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='%23F0D7C0'%3E%3Cpath d='M20 150c30-60 80-90 140-100-20 50-70 90-140 100z'/%3E%3Cpath d='M10 90c20-40 55-60 95-65-15 35-50 60-95 65z' opacity='.7'/%3E%3C/g%3E%3C/svg%3E") -40px -30px/220px no-repeat,
+   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='%23F0D7C0'%3E%3Cpath d='M180 40c-30 60-80 90-140 100 20-50 70-90 140-100z'/%3E%3Cpath d='M190 110c-20 40-55 60-95 65 15-35 50-60 95-65z' opacity='.7'/%3E%3C/g%3E%3C/svg%3E") calc(100% + 50px) calc(100% - 60px)/240px no-repeat}
 button{font:inherit;color:inherit;cursor:pointer}
-#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
 .app{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding-top:var(--st)}
-header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
-.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#1f2e5c,#0c142c);border:1px solid var(--line);display:grid;place-items:center}
-.logo svg{width:22px;height:22px}
-.brand{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:600;flex:1;letter-spacing:.2px}
-.brand span{color:var(--gold)}
-.icon-btn{width:40px;height:40px;border-radius:50%;border:none;background:transparent;display:grid;place-items:center}
-.icon-btn svg{width:23px;height:23px}
-main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 0 calc(100px + var(--sb))}
+header{display:flex;align-items:flex-end;gap:10px;padding:14px 18px 10px}
+.htext{flex:1;min-width:0}
+.hsub{font-size:13px;font-weight:600;color:var(--muted);text-transform:capitalize}
+.htitle{margin:2px 0 0;font-size:30px;font-weight:800;letter-spacing:-.5px;line-height:1.1}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:none;background:#fff;box-shadow:var(--shadow);display:grid;place-items:center;flex:none}
+.icon-btn svg{width:21px;height:21px}
+main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 calc(110px + var(--sb))}
 .view{display:none}.view.on{display:block;animation:fade .25s}
-@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.sec{padding:0 18px}
+.h{font-size:20px;font-weight:800;letter-spacing:-.3px;margin:22px 0 12px}
+
+/* bugün */
+.wcard{background:var(--card);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.wcard h3{margin:0 0 6px;font-size:18px;font-weight:800}
+.rings{display:flex;justify-content:space-around;gap:10px}
+.ring{text-align:center;flex:1;border:none;background:none;padding:0}
+.ring svg{width:116px;height:116px;display:block;margin:0 auto}
+.ring .lbl{font-size:15px;font-weight:700;margin-top:4px}
+.ring .sub{font-size:13px;color:var(--muted)}
+.streak{margin-top:14px;padding:10px 14px;border-radius:14px;background:var(--accent-soft);font-size:14px;font-weight:600;text-align:center;color:#9A4A1E}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{border:none;border-radius:24px;padding:16px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;box-shadow:0 4px 14px rgba(120,80,40,.08);transition:transform .15s}
+.tile:active{transform:scale(.97)}
+.tile .em{font-size:50px;line-height:1;text-align:center;margin:4px 0 10px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.12))}
+.tile b{display:block;font-size:16px;font-weight:700;line-height:1.25}
+.tile small{display:block;font-size:13px;color:rgba(38,34,31,.7);margin-top:2px}
+.tile.wide{grid-column:1/-1;min-height:0;flex-direction:row;align-items:center;gap:14px}
+.tile.wide .em{font-size:40px;margin:0}
+.t-peach{background:var(--peach)}.t-sand{background:var(--sand)}.t-sage{background:var(--sage)}.t-sky{background:var(--sky)}.t-lilac{background:var(--lilac)}
+.hourcard{margin-top:12px;display:flex;align-items:center;gap:14px;border:none;width:100%;text-align:left}
+.hourcard .em{width:52px;height:52px;border-radius:16px;background:var(--accent-soft);display:grid;place-items:center;font-size:28px;flex:none}
+.hourcard .t1{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+.hourcard .t2{font-size:22px;font-weight:800;margin-top:2px}
+.hourcard .t3{font-size:15px;color:var(--accent);font-weight:600}
+.hourcard .arr{margin-left:auto;color:var(--muted)}
+.week{display:flex;align-items:flex-end;gap:8px;height:150px;padding-top:18px}
+.wk{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px}
+.wk .v{font-size:11px;font-weight:700;color:var(--muted)}
+.wk .b{width:100%;max-width:30px;border-radius:9px;background:linear-gradient(180deg,#7FD8A8,var(--green));min-height:4px}
+.wk.today .b{background:linear-gradient(180deg,#7CC6F7,var(--blue))}
+.wk.zero .b{background:var(--line)}
+.wk .d{font-size:12px;font-weight:600;color:var(--muted)}
+.wk.today .d{color:var(--text)}
 
 /* chips */
 .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 16px}
-.chip{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--muted)}
-.chip.on{border-color:var(--gold);color:var(--gold);background:rgba(217,180,106,.1)}
+.chips.left{justify-content:flex-start;padding:0}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;color:var(--muted)}
+.chip.on{border-color:var(--accent);color:#B9531C;background:var(--accent-soft)}
+.chip small{opacity:.7;margin-left:5px;font-weight:500}
 .lvl-row{margin:0 0 14px}
 
-/* card */
-.card-wrap{position:relative;padding:0 26px}
-.nav{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:60px;border:none;background:none;color:var(--gold);display:grid;place-items:center;z-index:2}
-.nav svg{width:20px;height:20px}
+/* kart */
+.card-wrap{position:relative;padding:0 30px}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:64px;border:none;background:none;color:var(--accent);display:grid;place-items:center;z-index:2}
+.nav svg{width:22px;height:22px}
 .nav.prev{left:2px}.nav.next{right:2px}
-.card{position:relative;border-radius:30px;padding:20px 20px 18px;text-align:center;border:1px solid rgba(140,160,220,.25);
-  background:
-   radial-gradient(70% 22% at 50% 60%,rgba(220,160,90,.18),transparent 70%),
-   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200' preserveAspectRatio='none'%3E%3Cpath d='M0 110 L55 78 L105 104 L165 58 L225 100 L285 66 L345 96 L400 72 V200 H0Z' fill='%23131c3b'/%3E%3Cpath d='M0 150 L50 124 L120 150 L190 112 L260 148 L330 122 L400 142 V200 H0Z' fill='%230b1124'/%3E%3C/svg%3E") bottom/100% 40% no-repeat,
-   linear-gradient(180deg,#1a274f 0%,#141e40 55%,#0b1228 100%);
-  box-shadow:0 20px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.07);transition:transform .22s ease,opacity .22s ease}
+.card{position:relative;border-radius:28px;padding:20px 20px 18px;text-align:center;background:var(--card);box-shadow:var(--shadow);transition:transform .22s ease,opacity .22s ease}
 .card.out-l{transform:translateX(-30px);opacity:0}.card.out-r{transform:translateX(30px);opacity:0}
-.mode-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(10,16,36,.5);border-radius:999px;padding:9px 18px;color:var(--gold);font-weight:600;font-size:15px}
+.mode-pill{display:inline-flex;align-items:center;gap:8px;border:none;background:var(--accent-soft);border-radius:999px;padding:9px 16px;color:#B9531C;font-weight:700;font-size:15px}
 .mode-pill svg{width:16px;height:16px}
-.meta{display:flex;justify-content:center;gap:8px;margin:14px 0 4px;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
-.badge{color:var(--gold);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
-.word{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(44px,13vw,64px);line-height:1;margin:10px 0 4px;word-break:break-word;-webkit-user-select:text;user-select:text}
-.tr{font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--gold);font-size:clamp(26px,8vw,36px);line-height:1.1}
-.ipa{display:inline-flex;align-items:center;gap:10px;margin-top:14px;border:1px solid rgba(255,255,255,.1);background:rgba(8,13,30,.55);border-radius:999px;padding:8px 16px;color:var(--muted);font-size:17px;border-style:solid}
-.ipa svg{width:20px;height:20px;color:var(--text)}
-.divider{display:flex;align-items:center;gap:12px;margin:22px 0 18px;color:var(--gold)}
-.divider i{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line))}
-.divider i:last-child{background:linear-gradient(90deg,var(--line),transparent)}
-.row{display:flex;gap:12px;text-align:left;margin-bottom:18px}
-.ri{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--gold)}
-.ri svg{width:16px;height:16px}
-.row h4{margin:6px 0 6px;font-size:12px;letter-spacing:1.6px;color:var(--gold);font-weight:700}
+.meta{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:14px 0 4px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);align-items:center}
+.badge{color:#2F6B45;background:var(--sage);border-radius:7px;padding:3px 7px}
+.lbadge{color:#9C3B32;background:#FBD9D4;border-radius:7px;padding:3px 7px}
+.word{font-weight:800;font-size:clamp(40px,12vw,58px);letter-spacing:-1px;line-height:1.05;margin:10px 0 6px;word-break:break-word;-webkit-user-select:text;user-select:text}
+.tr{font-weight:700;color:var(--accent);font-size:clamp(22px,7vw,30px);line-height:1.15}
+.ipa{display:inline-flex;align-items:center;gap:10px;margin-top:14px;border:none;background:#F4EEE8;border-radius:999px;padding:9px 16px;color:var(--muted);font-size:16px}
+.ipa svg{width:20px;height:20px;color:var(--accent)}
+.divider{height:1px;background:var(--line);margin:22px 0 18px}
+.divider *{display:none}
+.row{display:flex;gap:12px;text-align:left;margin-bottom:16px}
+.ri{flex:none;width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#2F6B45;background:var(--sage)}
+.ri.ri2{background:var(--sky);color:#1F5F8B}
+.ri svg{width:18px;height:18px}
+.row h4{margin:4px 0 4px;font-size:12px;letter-spacing:1.4px;color:var(--muted);font-weight:800}
 .row p{margin:0;font-size:17px;line-height:1.5}
-.row em{font-style:normal;color:var(--gold);font-weight:700}
-.ex{text-decoration:underline dashed rgba(255,255,255,.35);text-underline-offset:5px}
-.ex b{color:var(--gold)}
-.actions{display:flex;justify-content:space-around;margin-top:22px}
-.act{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--line);background:rgba(8,13,30,.35);display:grid;place-items:center;color:var(--gold);transition:transform .15s}
+.row em{font-style:normal;color:var(--accent);font-weight:700}
+.ex{text-decoration:underline dashed rgba(38,34,31,.25);text-underline-offset:5px}
+.ex b,.qinfo b{color:var(--accent)}
+.actions{display:flex;justify-content:space-around;margin-top:20px}
+.act{width:56px;height:56px;border-radius:18px;border:none;display:grid;place-items:center;transition:transform .15s}
 .act:active{transform:scale(.92)}
 .act svg{width:22px;height:22px}
-.act.on{background:var(--gold);color:#121a35}
+#aKnown{background:var(--sage);color:#2F6B45}#aFav{background:var(--sand);color:#9A5B12}#aShare{background:var(--sky);color:#1F5F8B}#aDel{background:#FBD9D4;color:#9C3B32}
+.act.on{box-shadow:inset 0 0 0 2.5px currentColor}
+#aFav.on svg{color:#E8A317}
 .foot{margin-top:14px;font-size:12px;color:var(--muted)}
 .empty{padding:50px 10px;color:var(--muted);font-size:15px;line-height:1.5}
 
 /* sheets */
 .sheet{position:fixed;inset:0;z-index:20;display:none}
 .sheet.on{display:block}
-.sheet .bd{position:absolute;inset:0;background:rgba(3,6,15,.6);animation:fade .2s}
-.panel{position:absolute;left:0;right:0;bottom:0;max-height:82vh;overflow-y:auto;background:#111a36;border-top-left-radius:24px;border-top-right-radius:24px;border-top:1px solid var(--line);padding:10px 18px calc(22px + var(--sb));animation:up .25s ease}
+.sheet .bd{position:absolute;inset:0;background:rgba(60,40,25,.35);animation:fade .2s}
+.panel{position:absolute;left:0;right:0;bottom:0;max-height:84vh;overflow-y:auto;background:#FFFAF5;border-top-left-radius:26px;border-top-right-radius:26px;padding:10px 18px calc(22px + var(--sb));animation:up .25s ease}
 @keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
-.grab{width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.2);margin:0 auto 12px}
-.panel h3{font-family:'Cormorant Garamond',serif;font-size:24px;margin:4px 0 12px;color:var(--gold)}
-.li{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 4px;border:none;background:none;border-bottom:1px solid rgba(255,255,255,.06);font-size:16px;text-align:left}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.panel h3{font-size:22px;font-weight:800;margin:4px 0 12px}
+.li{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 4px;border:none;background:none;border-bottom:1px solid var(--line);font-size:16px;text-align:left}
 .li small{color:var(--muted);font-size:13px}
-.li.on{color:var(--gold)}
-.field{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;color:var(--text);font:16px Inter;outline:none;-webkit-user-select:text;user-select:text}
-.field:focus{border-color:var(--gold)}
-label.lb{display:block;font-size:12px;letter-spacing:1px;color:var(--muted);font-weight:700;margin:16px 0 8px;text-transform:uppercase}
-.primary{width:100%;margin-top:14px;border:none;border-radius:14px;padding:15px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#141c36;font-weight:700;font-size:16px}
+.li.on{color:var(--accent);font-weight:700}
+.field{width:100%;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--text);font:16px -apple-system,sans-serif;outline:none;-webkit-user-select:text;user-select:text;-webkit-appearance:none;appearance:none}
+.field:focus{border-color:var(--accent)}
+label.lb{display:block;font-size:12px;letter-spacing:1px;color:var(--muted);font-weight:800;margin:18px 0 8px;text-transform:uppercase}
+.primary{width:100%;margin-top:14px;border:none;border-radius:16px;padding:15px;background:var(--accent);color:#fff;font-weight:700;font-size:16px;box-shadow:0 6px 16px rgba(232,121,63,.3)}
 .primary:disabled{opacity:.6}
-.ghost{width:100%;margin-top:10px;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:13px;background:none;color:var(--muted);font-weight:600}
+.ghost{width:100%;margin-top:10px;border:1.5px solid var(--line);border-radius:16px;padding:13px;background:#fff;color:var(--muted);font-weight:600}
 .hint{font-size:13px;color:var(--muted);line-height:1.5;margin:8px 0 0}
 .inline{display:flex;gap:8px}.inline>*{flex:1}
 
-/* quiz */
-.seg{display:inline-flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:3px}
-.seg button{border:none;background:none;padding:8px 12px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted)}
-.seg button.on{background:rgba(217,180,106,.16);color:var(--gold)}
-.qtop{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 16px 12px}
-.qstat{text-align:center;color:var(--muted);font-size:13px;margin-bottom:12px}
-.qstat b{color:var(--gold)}
+/* pratik */
 .opts{display:grid;gap:10px;margin-top:22px}
-.opt{border:1px solid rgba(255,255,255,.14);background:rgba(8,13,30,.45);border-radius:14px;padding:15px;font-size:17px;font-weight:500;text-align:center}
-.opt.ok{border-color:var(--ok);background:rgba(95,194,138,.18);color:#bff0d3}
-.opt.bad{border-color:var(--bad);background:rgba(224,106,106,.16);color:#ffd0d0}
-.qinfo{margin-top:16px;font-size:15px;line-height:1.5;color:var(--muted);min-height:0}
+.opt{border:1.5px solid var(--line);background:#fff;border-radius:16px;padding:15px;font-size:17px;font-weight:600;text-align:center}
+.opt.ok{border-color:var(--green);background:#DDF5E7;color:#1E6B41}
+.opt.bad{border-color:var(--bad);background:#FBE1DE;color:#8E2C24}
+.qinfo{margin-top:16px;font-size:15px;line-height:1.5;color:var(--muted)}
+.qstat{text-align:center;color:var(--muted);font-size:13px;margin-bottom:12px}
+.qstat b{color:var(--accent)}
+.ptop{display:flex;align-items:center;gap:10px;padding:0 18px 10px}
+.xbtn{border:none;background:#fff;box-shadow:var(--shadow);border-radius:12px;padding:8px 12px;color:var(--muted);font-size:13px;font-weight:700}
+.pprog{font-size:15px;font-weight:700}
+.pscore{margin-left:auto;font-size:14px;font-weight:700;display:flex;gap:10px}
+.pscore .ok{color:var(--ok)}.pscore .bad{color:var(--bad)}
+.pbar{height:8px;border-radius:4px;background:#fff;overflow:hidden;margin:0 18px 16px;box-shadow:inset 0 0 0 1px var(--line)}
+.pbar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#7FD8A8,var(--green));transition:width .3s}
+.learnbox{border-radius:24px;padding:16px;background:var(--sky);display:flex;align-items:center;gap:14px;box-shadow:0 4px 14px rgba(120,80,40,.08)}
+.learnbox .n{font-weight:800;font-size:40px;color:#1F5F8B;line-height:1;min-width:48px;text-align:center}
+.learnbox .tx{flex:1;font-size:13px;color:rgba(20,50,75,.75);line-height:1.45}
+.learnbox .tx b{display:block;color:#123B57;font-size:17px;margin-bottom:2px}
+.learnbox button{border:none;border-radius:14px;padding:11px 16px;background:#fff;color:#1F5F8B;font-weight:800}
+.learnbox button:disabled{opacity:.45}
+.lmsg{margin-top:12px;font-size:14px;font-weight:700;color:var(--ok)}
+.lmsg.bad{color:var(--bad)}
+.res-big{font-weight:800;font-size:68px;letter-spacing:-2px;color:var(--accent);line-height:1;margin:14px 0 6px}
+.wlist{text-align:left;margin-top:18px}
+.wlist div{display:flex;justify-content:space-between;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line);font-size:15px}
+.wlist span{color:var(--muted);text-align:right}
 
-/* widget tab */
-.sec{padding:0 18px}
-.h{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--gold);margin:6px 0 10px}
-.lock{border-radius:26px;padding:22px 18px;text-align:center;background:linear-gradient(180deg,#26365f,#0f1730);border:1px solid rgba(255,255,255,.08)}
+/* widget sekmesi */
+.lock{border-radius:26px;padding:22px 18px;text-align:center;color:#fff;background:linear-gradient(180deg,#F2B48E,#B9846B 60%,#7B5B4D)}
 .lock .tm{font-size:64px;font-weight:600;letter-spacing:-1px;line-height:1}
-.lock .dt{color:rgba(255,255,255,.75);font-size:15px;margin-bottom:12px}
-.lrect{display:inline-block;text-align:left;background:rgba(255,255,255,.14);border-radius:14px;padding:8px 14px;min-width:170px;backdrop-filter:blur(8px)}
-.lrect b{display:block;font-size:16px}.lrect span{display:block;font-size:14px}.lrect i{display:block;font-size:12px;opacity:.7;font-style:normal}
-.hw{margin-top:14px;border-radius:24px;padding:16px 18px;background:linear-gradient(180deg,#1b2a55,#0b1228);border:1px solid rgba(255,255,255,.08)}
-.hw .top{display:flex;justify-content:space-between;color:var(--gold);font-size:10px;font-weight:700;letter-spacing:1px}
-.hw .w{font-family:Georgia,serif;font-weight:700;font-size:28px;margin-top:10px}
-.hw .t{font-family:Georgia,serif;color:var(--gold);font-size:17px}
-.hw .e{font-size:12px;opacity:.85;margin-top:8px;line-height:1.4}
-.steps{padding-left:20px;margin:8px 0 0;color:var(--text);font-size:15px;line-height:1.55}
+.lock .dt{color:rgba(255,255,255,.85);font-size:15px;margin-bottom:12px;text-transform:capitalize}
+.lrect{display:inline-block;text-align:left;background:rgba(255,255,255,.22);border-radius:14px;padding:8px 14px;min-width:170px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.lrect b{display:block;font-size:16px}.lrect span{display:block;font-size:14px}.lrect i{display:block;font-size:12px;opacity:.75;font-style:normal}
+.hw{margin-top:14px;border-radius:24px;padding:16px 18px;background:linear-gradient(180deg,#FFF8F1,#F9E4D2);box-shadow:var(--shadow)}
+.hw .top{display:flex;justify-content:space-between;color:var(--accent);font-size:10px;font-weight:800;letter-spacing:1px}
+.hw .w{font-weight:800;font-size:28px;margin-top:10px}
+.hw .t{color:var(--accent);font-size:17px;font-weight:700}
+.hw .e{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.4}
+.steps{padding-left:20px;margin:8px 0 0;font-size:15px;line-height:1.55}
 .steps li{margin-bottom:8px}
-.steps b{color:var(--gold)}
-code.param{display:block;margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.3);border:1px dashed var(--line);color:var(--gold2);font-size:14px;word-break:break-all;-webkit-user-select:text;user-select:text}
+.steps b{color:var(--accent)}
+code.param{display:block;margin-top:8px;padding:10px 12px;border-radius:12px;background:#fff;border:1.5px dashed var(--line);color:#B9531C;font-size:14px;word-break:break-all;-webkit-user-select:text;user-select:text}
 
-/* tabs */
-nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;background:rgba(13,20,42,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.07);padding:8px 6px calc(8px + var(--sb))}
-nav.tabs button{flex:1;background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;letter-spacing:.3px}
-nav.tabs svg{width:26px;height:26px}
-nav.tabs button.on{color:var(--gold)}
-.toast{position:fixed;left:50%;bottom:calc(96px + var(--sb));transform:translateX(-50%) translateY(20px);background:#1d2a52;border:1px solid var(--line);color:var(--text);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:86vw;text-align:center}
+/* alt menü */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);padding:8px 6px calc(8px + var(--sb))}
+nav.tabs button{flex:1;background:none;border:none;color:#5E5650;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0}
+nav.tabs svg{width:25px;height:25px}
+nav.tabs button.on{color:var(--accent)}
+.toast{position:fixed;left:50%;bottom:calc(100px + var(--sb));transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:11px 16px;border-radius:14px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:86vw;text-align:center}
 .toast.on{opacity:1;transform:translateX(-50%)}
 .res{max-height:55vh;overflow-y:auto}
-.res .li b{font-family:'Cormorant Garamond',serif;font-size:20px}
-.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(20,28,54,.3);border-top-color:#141c36;border-radius:50%;animation:rot .8s linear infinite;vertical-align:-3px;margin-right:8px}
+.res .li b{font-size:18px}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:rot .8s linear infinite;vertical-align:-3px;margin-right:8px}
 @keyframes rot{to{transform:rotate(360deg)}}
+@media (min-width:700px){.sec,.card-wrap{max-width:640px;margin-left:auto;margin-right:auto}.tiles{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
-<canvas id="stars"></canvas>
 <div class="app">
   <header>
-    <div class="logo"><svg viewBox="0 0 24 24" fill="#d9b46a"><path d="M12 1.5l2.2 7.3 7.3 2.2-7.3 2.2L12 20.5l-2.2-7.3L2.5 11l7.3-2.2z"/></svg></div>
-    <div class="brand">Kelime <span>Saati</span></div>
-    <button class="icon-btn" id="searchBtn" aria-label="Ara"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
-    <button class="icon-btn" id="setBtn" aria-label="Ayarlar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    <div class="htext"><div class="hsub" id="hSub"></div><h1 class="htitle" id="hTitle">Bugünkü Ders</h1></div>
+    <button class="icon-btn" id="searchBtn" aria-label="Ara"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+    <button class="icon-btn" id="setBtn" aria-label="Ayarlar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </header>
 
   <main id="main">
-    <!-- ANA SAYFA -->
-    <section class="view on" id="v-home">
-      <div class="chips lvl-row" id="lvlChips"></div>
-      <div class="card-wrap">
-        <button class="nav prev" id="prevBtn" aria-label="Önceki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-        <article class="card" id="card">
-          <button class="mode-pill" id="modeBtn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 2l1.6 5.4L17 9l-5.4 1.6L10 16l-1.6-5.4L3 9l5.4-1.6zM18.5 13l.8 2.7 2.7.8-2.7.8-.8 2.7-.8-2.7-2.7-.8 2.7-.8z"/></svg><span id="modeLabel">Saatin kelimesi</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
-          <div id="cardBody"></div>
-        </article>
-        <button class="nav next" id="nextBtn" aria-label="Sonraki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    <!-- BUGÜN -->
+    <section class="view on" id="v-today">
+      <div class="sec">
+        <div class="wcard"><h3>İlerleme</h3><div class="rings" id="rings"></div><div class="streak" id="streak"></div></div>
+        <h2 class="h">Öğrenme Yolun</h2>
+        <div class="tiles" id="tiles"></div>
+        <button class="wcard hourcard" id="hourCard"></button>
+        <h2 class="h">Haftalık İlerleme</h2>
+        <div class="wcard"><div class="week" id="week"></div><p class="hint" id="weekSum" style="text-align:center"></p></div>
       </div>
     </section>
 
-    <!-- ALIŞTIRMA -->
-    <section class="view" id="v-quiz">
-      <div class="qtop">
-        <div class="seg" id="qDir"><button data-v="en">EN → TR</button><button data-v="tr">TR → EN</button></div>
-        <div class="seg" id="qSrc"><button data-v="all">Seviyeme göre</button><button data-v="favs">Favoriler</button></div>
+    <!-- KARTLAR -->
+    <section class="view" id="v-home">
+      <div class="chips lvl-row" id="lvlChips"></div>
+      <div class="card-wrap">
+        <button class="nav prev" id="prevBtn" aria-label="Önceki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <article class="card" id="card">
+          <button class="mode-pill" id="modeBtn"><span id="modeLabel">Saatin kelimesi</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div id="cardBody"></div>
+        </article>
+        <button class="nav next" id="nextBtn" aria-label="Sonraki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
       </div>
-      <div class="qstat" id="qStat"></div>
-      <div class="card-wrap"><article class="card" id="qCard"></article></div>
     </section>
+
+    <!-- PRATİK -->
+    <section class="view" id="v-quiz"><div id="pr"></div></section>
 
     <!-- WIDGET -->
     <section class="view" id="v-widget">
       <div class="sec">
-        <h2 class="h">Önizleme</h2>
+        <h2 class="h" style="margin-top:4px">Önizleme</h2>
         <div class="lock">
           <div class="dt" id="lkDate"></div>
           <div class="tm" id="lkTime">--:--</div>
@@ -191,17 +245,17 @@ nav.tabs button.on{color:var(--gold)}
         </div>
         <div class="hw"><div class="top"><span>✦ SAATİN KELİMESİ</span><span id="hwL"></span></div><div class="w" id="hwW"></div><div class="t" id="hwT"></div><div class="e" id="hwE"></div></div>
 
-        <h2 class="h" style="margin-top:24px">Widget konuları</h2>
-        <div class="chips" id="wTopicChips" style="justify-content:flex-start;padding:0"></div>
-        <p class="hint">Hiçbiri seçili değilse tüm konular gelir. Seviyeler ana sayfadaki seviye seçimini kullanır. Saatin kelimesi uygulamada ve widget'ta aynıdır.</p>
+        <h2 class="h">Widget konuları</h2>
+        <div class="chips left" id="wTopicChips"></div>
+        <p class="hint">Hiçbiri seçili değilse tüm konular gelir. Seviyeler Kartlar sekmesindeki seviye seçimini kullanır. Saatin kelimesi uygulamada ve widget'ta aynıdır.</p>
 
-        <h2 class="h" style="margin-top:24px">Kurulum</h2>
+        <h2 class="h">Kurulum</h2>
         <ol class="steps">
           <li>App Store'dan ücretsiz <b>Scriptable</b> uygulamasını indir.</li>
           <li>Aşağıdaki butonla kodu kopyala, Scriptable'da <b>+</b> ile yeni betik aç, yapıştır ve adını <b>Kelime Saati</b> yap.</li>
-          <li><b>Ana ekran:</b> boş yere basılı tut → <b>+</b> → Scriptable → boyutu seç → widget'a dokun → Script: Kelime Saati.</li>
-          <li><b>Kilit ekranı:</b> kilit ekranına basılı tut → Özelleştir → Kilit Ekranı → widget alanı → Scriptable (dikdörtgen veya satır) → Script: Kelime Saati.</li>
-          <li>Farklı seviye/konu istediğin widget'ın <b>Parameter</b> alanına aşağıdaki satırı yapıştır. Boş bırakırsan koddaki ayarlar geçerli olur.</li>
+          <li><b>Ana ekran:</b> boş yere basılı tut → <b>Düzenle → Widget Ekle</b> → Scriptable → boyutu seç → widget'a basılı tut → Widget'ı Düzenle → Script: Kelime Saati.</li>
+          <li><b>Kilit ekranı:</b> kilit ekranına basılı tut → Özelleştir → Kilit Ekranı → widget alanı → Scriptable → Script: Kelime Saati.</li>
+          <li>Farklı seviye/konu istediğin widget'ın <b>Parameter</b> alanına aşağıdaki satırı yapıştır.</li>
         </ol>
         <button class="primary" id="copyCode">Widget kodunu kopyala</button>
         <code class="param" id="paramTxt"></code>
@@ -212,9 +266,10 @@ nav.tabs button.on{color:var(--gold)}
   </main>
 
   <nav class="tabs">
-    <button data-tab="widget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2.2"/></svg>Widget</button>
-    <button data-tab="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Ana Sayfa</button>
-    <button data-tab="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 6.5C10 5 7 4.5 3 5v14c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5z"/><path d="M12 6.5v14"/></svg>Alıştırma</button>
+    <button data-tab="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 6.5C10 5 7 4.5 3 5v14c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5z"/><path d="M12 6.5v14"/></svg>Ders</button>
+    <button data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9 8h6M9 12h6M9 16h4" stroke-linecap="round"/></svg>Kartlar</button>
+    <button data-tab="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg>Pratik</button>
+    <button data-tab="widget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>Widget</button>
   </nav>
 </div>
 
@@ -228,6 +283,11 @@ nav.tabs button.on{color:var(--gold)}
 
 <!-- Ayarlar -->
 <div class="sheet" id="setSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Ayarlar</h3>
+  <label class="lb">Günlük hedef</label>
+  <div class="inline">
+    <select class="field" id="goalN"><option value="5">5 yeni kelime</option><option value="10">10 yeni kelime</option><option value="15">15 yeni kelime</option><option value="20">20 yeni kelime</option><option value="30">30 yeni kelime</option></select>
+    <select class="field" id="goalR"><option value="10">10 tekrar</option><option value="20">20 tekrar</option><option value="30">30 tekrar</option><option value="50">50 tekrar</option></select>
+  </div>
   <label class="lb">AI ile kelime üret</label>
   <input class="field" id="aiTopic" placeholder="Konu (ör. mutfak, futbol, ebeveynlik)">
   <div class="inline" style="margin-top:10px">
@@ -242,6 +302,9 @@ nav.tabs button.on{color:var(--gold)}
   <p class="hint" id="stats"></p>
   <button class="ghost" id="resetKnown">"Biliyorum" işaretlerini sıfırla</button>
   <button class="ghost" id="clearAi">AI kelimelerini sil</button>
+  <label class="lb">Yedek</label>
+  <div class="inline"><button class="ghost" id="bkOut" style="margin-top:0">Yedeği kopyala</button><button class="ghost" id="bkIn" style="margin-top:0">Yedeği geri yükle</button></div>
+  <p class="hint">Favoriler, Öğren grubu, AI kelimeleri ve ilerleme yedeklenir. Kopyaladığın metni Notlar'a yapıştırıp saklayabilirsin.</p>
 </div></div>
 
 <div class="toast" id="toast"></div>
@@ -250,7 +313,7 @@ nav.tabs button.on{color:var(--gold)}
 const TOPICS={daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'};
 const LEVELS=['A2','B1','B2','C1'];
 const KEY='kelimeSaati:v1';
-const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',src:'all',best:0,mode:'hour'};
+const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,daily:{},seenDay:'',seen:[]};
 let S=load(), BASE=[], WIDGET_SRC='';
 let mode=S.mode||'hour', list=[], idx=0, hOff=0, searchList=[];
 
@@ -259,11 +322,32 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const k=w=>w.w.toLowerCase();
-const all=()=>BASE.concat(S.custom);
+const all=()=>{const b=new Set(BASE.map(k));return BASE.concat(S.custom.filter(w=>!b.has(k(w))))};
 const isFav=w=>S.favs.includes(k(w)), isKnown=w=>S.known.includes(k(w));
+const inLearn=w=>Object.prototype.hasOwnProperty.call(S.learn,k(w));
+const learnBadge=w=>inLearn(w)?`<span class="lbadge">Öğren ${S.learn[k(w)]}/3</span>`:'';
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
 function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.88;const v=speechSynthesis.getVoices().find(v=>v.lang==='en-US'&&/Samantha|Ava|Allison|Nicky/i.test(v.name))||speechSynthesis.getVoices().find(v=>v.lang==='en-US');if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+
+/* Günlük ilerleme */
+const pad=n=>String(n).padStart(2,'0');
+const dkey=(d=new Date())=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+function day(key=dkey()){return S.daily[key]||(S.daily[key]={n:0,r:0,ok:0})}
+function prune(){const keys=Object.keys(S.daily).sort();while(keys.length>60)delete S.daily[keys.shift()]}
+function markSeen(w){
+  const t=dkey();if(S.seenDay!==t){S.seenDay=t;S.seen=[]}
+  const key=k(w);if(S.seen.includes(key))return;
+  S.seen.push(key);day(t).n++;prune();save();
+}
+function markAnswer(ok){const d=day();d.r++;if(ok)d.ok++;prune();save()}
+function streakDays(){
+  let n=0;const d=new Date();
+  const act=x=>{const v=S.daily[dkey(x)];return v&&(v.n+v.r)>0};
+  if(!act(d))d.setDate(d.getDate()-1);
+  while(act(d)){n++;d.setDate(d.getDate()-1)}
+  return n;
+}
 
 /* Saatin kelimesi: widget ile birebir aynı algoritma */
 function hourPool(){const p=BASE.filter(w=>S.levels.includes(w.lvl)&&(!S.wTopics.length||S.wTopics.includes(w.t)));return p.length?p:BASE}
@@ -272,14 +356,15 @@ function hourWord(off=0){const p=hourPool();const h=Math.floor(Date.now()/360000
 function listFor(m){
   const lv=w=>S.levels.includes(w.lvl);
   if(m==='mix')return shuffle(all().filter(w=>lv(w)&&!isKnown(w)));
-  if(TOPICS[m])return shuffle(BASE.filter(w=>w.t===m&&lv(w)&&!isKnown(w)));
+  if(TOPICS[m])return shuffle(all().filter(w=>w.t===m&&lv(w)&&!isKnown(w)));
   if(m==='custom')return S.custom.slice().reverse();
   if(m==='favs')return all().filter(isFav);
   if(m==='known')return all().filter(isKnown);
+  if(m==='learn')return shuffle(all().filter(inLearn));
   if(m==='search')return searchList;
   return [];
 }
-function modeName(m){return m==='hour'?'Saatin kelimesi':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'AI kelimelerim':m==='known'?'Bildiklerim':m==='search'?'Arama':TOPICS[m]||m}
+function modeName(m){return m==='hour'?'Saatin kelimesi':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'AI kelimelerim':m==='known'?'Bildiklerim':m==='learn'?'Öğren':m==='search'?'Arama':TOPICS[m]||m}
 function setMode(m,startWord){
   mode=m;hOff=0;idx=0;
   if(m!=='search'){S.mode=m;save()}
@@ -294,31 +379,33 @@ function highlight(w){
   const re=new RegExp('\\b('+stem.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[a-z]*)','i');
   return esc(w.ex).replace(re,'<b>$1</b>');
 }
-function topicName(w){return w.t==='custom'?(w.tl||'AI'):TOPICS[w.t]||''}
+function topicName(w){return TOPICS[w.t]||w.tl||''}
+const aiBadge=w=>w.ai?'<span class="badge">AI</span>':'';
 
 function render(){
   $('modeLabel').textContent=modeName(mode);
   const w=current(), body=$('cardBody');
   $('prevBtn').style.visibility=$('nextBtn').style.visibility=(mode==='hour'||list.length>1)?'visible':'hidden';
   if(!w){
-    const msg=mode==='favs'?'Henüz favori yok. Kartlardaki ★ ile ekleyebilirsin.':mode==='custom'?'AI kelimesi yok. Ayarlar\'dan konu yazıp üretebilirsin.':mode==='known'?'Henüz "biliyorum" dediğin kelime yok.':'Bu seçimde kelime kalmadı. Seviye seçimini değiştirmeyi dene.';
+    const msg=mode==='favs'?'Henüz favori yok. Kartlardaki ★ ile ekleyebilirsin.':mode==='custom'?'AI kelimesi yok. Ayarlar\'dan konu yazıp üretebilirsin.':mode==='known'?'Henüz "biliyorum" dediğin kelime yok.':mode==='learn'?'Öğren grubu boş. Alıştırmada yanlış yaptığın kelimeler burada birikir, üst üste 3 doğru cevapta çıkar.':'Bu seçimde kelime kalmadı. Seviye seçimini değiştirmeyi dene.';
     body.innerHTML=`<div class="empty">${msg}</div>`;return;
   }
+  if($('v-home').classList.contains('on'))markSeen(w);
   body.innerHTML=`
-    <div class="meta"><span class="badge">${esc(w.lvl)}</span><span>${esc(topicName(w))}</span></div>
+    <div class="meta"><span class="badge">${esc(w.lvl)}</span>${aiBadge(w)}${learnBadge(w)}<span>${esc(topicName(w))}</span></div>
     <h1 class="word">${esc(w.w)}</h1>
     <div class="tr">${esc(w.tr)}</div>
     <button class="ipa" id="sayW"><span>/${esc(w.ipa)}/</span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
     <div class="divider"><i></i><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.2 7.3 7.3 2.2-7.3 2.2L12 20.5l-2.2-7.3L2.5 11l7.3-2.2z"/></svg><i></i></div>
     <div class="row"><div class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.5C10 5 7 4.5 3 5v14c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5zM12 6.5v14"/></svg></div>
       <div><h4>TANIM</h4><p><em>(${esc(w.pos)})</em> ${esc(w.def)}</p></div></div>
-    <div class="row"><div class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+    <div class="row"><div class="ri ri2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
       <div><h4>ÖRNEK CÜMLE</h4><p class="ex" id="sayEx">${highlight(w)}</p></div></div>
     <div class="actions">
       <button class="act ${isKnown(w)?'on':''}" id="aKnown" aria-label="Biliyorum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
       <button class="act ${isFav(w)?'on':''}" id="aFav" aria-label="Favori"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg></button>
       <button class="act" id="aShare" aria-label="Paylaş"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
-      ${w.t==='custom'?`<button class="act" id="aDel" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>`:''}
+      ${w.ai?`<button class="act" id="aDel" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>`:''}
     </div>
     <div class="foot" id="foot">${footText()}</div>`;
   $('sayW').onclick=()=>speak(w.w);
@@ -372,8 +459,8 @@ document.querySelectorAll('.sheet .bd').forEach(b=>b.onclick=closeSheets);
 $('modeBtn').onclick=()=>{
   const lv=w=>S.levels.includes(w.lvl);
   const items=[['hour','Saatin kelimesi','her saat değişir'],['mix','Karışık',all().filter(w=>lv(w)&&!isKnown(w)).length+' kelime']]
-    .concat(Object.keys(TOPICS).map(t=>[t,TOPICS[t],BASE.filter(w=>w.t===t&&lv(w)&&!isKnown(w)).length+' kelime']))
-    .concat([['favs','Favorilerim',S.favs.length+''],['custom','AI kelimelerim',S.custom.length+''],['known','Bildiklerim',S.known.length+'']]);
+    .concat(Object.keys(TOPICS).map(t=>{const ws=all().filter(w=>w.t===t&&lv(w)&&!isKnown(w)),ai=ws.filter(w=>w.ai).length;return [t,TOPICS[t],ws.length+' kelime'+(ai?` · ${ai} AI`:'')]}))
+    .concat([['learn','Öğren',Object.keys(S.learn).length+''],['favs','Favorilerim',S.favs.length+''],['custom','AI kelimelerim',S.custom.length+''],['known','Bildiklerim',S.known.length+'']]);
   $('modeList').innerHTML=items.map(([m,n,s])=>`<button class="li ${m===mode?'on':''}" data-m="${m}"><span>${n}</span><small>${s}</small></button>`).join('');
   $('modeList').querySelectorAll('.li').forEach(b=>b.onclick=()=>{closeSheets();setMode(b.dataset.m)});
   openSheet('modeSheet');
@@ -389,11 +476,13 @@ $('q').oninput=()=>{
 };
 
 $('setBtn').onclick=()=>{
-  $('workerUrl').value=S.worker;
-  $('stats').textContent=`${BASE.length} hazır kelime · ${S.custom.length} AI kelimesi · ${S.favs.length} favori · ${S.known.length} biliyorum`;
+  $('workerUrl').value=S.worker;$('goalN').value=S.goalN;$('goalR').value=S.goalR;
+  $('stats').textContent=`${BASE.length} hazır kelime · ${S.custom.length} AI kelimesi · ${S.favs.length} favori · ${S.known.length} biliyorum · ${Object.keys(S.learn).length} öğreniliyor`;
   openSheet('setSheet');
 };
 $('workerUrl').onchange=()=>{S.worker=$('workerUrl').value.trim();save()};
+$('goalN').onchange=()=>{S.goalN=+$('goalN').value;save();renderToday()};
+$('goalR').onchange=()=>{S.goalR=+$('goalR').value;save();renderToday()};
 $('resetKnown').onclick=()=>{if(confirm('Tüm "biliyorum" işaretleri sıfırlansın mı?')){S.known=[];save();toast('Sıfırlandı');setMode(mode);$('setBtn').onclick()}};
 $('clearAi').onclick=()=>{if(confirm('AI ile üretilen tüm kelimeler silinsin mi?')){S.custom=[];save();toast('Silindi');setMode(mode==='custom'?'mix':mode);$('setBtn').onclick()}};
 $('aiGo').onclick=async()=>{
@@ -407,58 +496,220 @@ $('aiGo').onclick=async()=>{
     const d=await r.json().catch(()=>({}));
     if(!r.ok||!Array.isArray(d.words))throw new Error(d.error||('Hata '+r.status));
     const have=new Set(all().map(k));
-    const add=d.words.filter(w=>w.w&&!have.has(w.w.toLowerCase())).map(w=>({w:w.w,tr:w.tr,ipa:w.ipa||'',pos:w.pos||'',def:w.def,ex:w.ex,lvl:level,t:'custom',tl:topic}));
+    const add=d.words.filter(w=>w.w&&!have.has(w.w.toLowerCase())).map(w=>({w:w.w,tr:w.tr,ipa:w.ipa||'',pos:w.pos||'',def:w.def,ex:w.ex,lvl:level,t:TOPICS[w.t]?w.t:'',tl:topic,ai:true}));
     S.custom.push(...add);save();
     toast(add.length?`${add.length} yeni kelime eklendi`:'Yeni kelime gelmedi, tekrar dene');
-    if(add.length){closeSheets();showTab('home');setMode('custom')}
+    if(add.length){closeSheets();showTab('home');setMode('custom');classifyAi()}
   }catch(e){toast('Üretilemedi: '+e.message)}
   finally{b.disabled=false;b.textContent='Kelime üret'}
 };
 
-/* ALIŞTIRMA */
-let Q=null,streak=0;
-function segs(){
-  [['qDir','dir'],['qSrc','src']].forEach(([id,f])=>$(id).querySelectorAll('button').forEach(b=>{
-    b.classList.toggle('on',S[f]===b.dataset.v);
-    b.onclick=()=>{S[f]=b.dataset.v;save();segs();newQ()};
-  }));
+/* AI kelimelerini konu gruplarına yerleştir */
+function migrateAi(){let ch=false;S.custom.forEach(w=>{if(!w.ai){w.ai=true;ch=true}if(!TOPICS[w.t]&&w.t){w.t='';ch=true}});if(ch)save()}
+let classifying=false;
+async function classifyAi(){
+  const todo=S.custom.filter(w=>!TOPICS[w.t]);
+  if(!todo.length||!S.worker||classifying)return;
+  classifying=true;
+  try{
+    const r=await fetch(S.worker,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({classify:todo.map(w=>({w:w.w,def:w.def}))})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.topics)return;
+    let n=0;todo.forEach(w=>{const t=d.topics[w.w];if(TOPICS[t]){w.t=t;n++}});
+    if(n){save();toast(`${n} AI kelimesi konu gruplarına eklendi`);if(TOPICS[mode])setMode(mode);else render()}
+  }catch(e){}finally{classifying=false}
 }
-function quizSource(){return S.src==='favs'?all().filter(isFav):all().filter(w=>S.levels.includes(w.lvl))}
-function newQ(){
-  const src=quizSource(),c=$('qCard');
-  $('qStat').innerHTML=`Seri: <b>${streak}</b> · En iyi: <b>${S.best}</b>`;
-  if(src.length<1||all().length<4){c.innerHTML=`<div class="empty">${S.src==='favs'?'Alıştırma için önce birkaç kelimeyi favorilere ekle.':'Yeterli kelime yok.'}</div>`;return}
-  let ans=src[Math.random()*src.length|0];
-  if(Q&&src.length>1)while(k(ans)===k(Q.ans))ans=src[Math.random()*src.length|0];
-  const field=S.dir==='en'?'tr':'w';
+
+/* ALIŞTIRMA */
+let P=null, pSeq=0;
+const QLENS=[10,20,30,50,0];
+const DIRS=[['en','EN → TR'],['tr','TR → EN'],['mix','Karışık']];
+function srcName(x){return x==='all'?'Tümü':x==='learn'?'Öğren':x==='favs'?'Favoriler':x==='custom'?'AI kelimelerim':x==='retry'?'Yanlışlar':TOPICS[x]||x}
+function srcPool(x){
+  const lv=w=>S.levels.includes(w.lvl);
+  if(x==='learn')return all().filter(inLearn);
+  if(x==='favs')return all().filter(isFav);
+  if(x==='custom')return all().filter(w=>w.ai);
+  if(TOPICS[x])return all().filter(w=>w.t===x&&lv(w));
+  return all().filter(lv);
+}
+function markLearn(w,ok){
+  const key=k(w);
+  if(!ok){const was=inLearn(w);S.learn[key]=0;save();return was?'reset':'added'}
+  if(!inLearn(w))return null;
+  S.learn[key]++;
+  if(S.learn[key]>=3){delete S.learn[key];save();return 'done'}
+  save();return 'step';
+}
+function renderPractice(){P?renderQ():renderSetup()}
+function renderSetup(){
+  const pr=$('pr'),ln=Object.keys(S.learn).length;
+  const srcs=['all',...Object.keys(TOPICS),'favs','custom'];
+  const lvlNote=(S.qSrc==='all'||TOPICS[S.qSrc])?`Seviye: <b style="color:var(--gold)">${S.levels.join(', ')}</b> · ana sayfadaki seviye seçimine göre`:'Bu grupta seviye filtresi uygulanmaz';
+  pr.innerHTML=`<div class="sec">
+    <div class="learnbox"><div class="n">${ln}</div>
+      <div class="tx"><b>Öğren</b>Yanlış yaptığın kelimeler burada birikir. Üst üste 3 doğru cevapta gruptan çıkar. Çalış, grup boşalana kadar sorar.</div>
+      <button id="pLearn" ${ln?'':'disabled'}>Çalış</button></div>
+    <h2 class="h" style="margin-top:22px">Kelime grubu</h2>
+    <div class="chips left">${srcs.map(x=>{const n=srcPool(x).length;return `<button class="chip ${S.qSrc===x?'on':''}" data-s="${x}">${srcName(x)}<small>${n}</small></button>`}).join('')}</div>
+    <p class="hint">${lvlNote}</p>
+    <h2 class="h" style="margin-top:22px">Soru sayısı</h2>
+    <div class="chips left">${QLENS.map(n=>`<button class="chip ${S.qLen===n?'on':''}" data-n="${n}">${n||'Sınırsız'}</button>`).join('')}</div>
+    <h2 class="h" style="margin-top:22px">Yön</h2>
+    <div class="chips left">${DIRS.map(([v,l])=>`<button class="chip ${S.dir===v?'on':''}" data-d="${v}">${l}</button>`).join('')}</div>
+    <button class="primary" id="pStart" style="margin-top:26px">Başla</button>
+    <p class="qstat" style="margin-top:12px">En iyi seri: <b>${S.best}</b></p>
+  </div>`;
+  pr.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{S.qSrc=b.dataset.s;save();renderSetup()});
+  pr.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{S.qLen=+b.dataset.n;save();renderSetup()});
+  pr.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{S.dir=b.dataset.d;save();renderSetup()});
+  $('pStart').onclick=()=>startPractice(S.qSrc,S.qLen);
+  $('pLearn').onclick=()=>startPractice('learn',0);
+}
+function startPractice(src,len,words){
+  if(all().length<4)return toast('Yeterli kelime yok');
+  const pool=words||srcPool(src);
+  if(!pool.length)return toast(src==='learn'?'Öğren grubu boş':src==='favs'?'Önce birkaç kelimeyi favorilere ekle':'Bu grupta kelime yok');
+  let queue=null;
+  if(len>0){
+    const n=Math.min(len,pool.length);
+    let pick=[];
+    if(src!=='learn'&&!words){const lw=shuffle(pool.filter(inLearn)).slice(0,Math.ceil(n*.3));pick=lw.concat(shuffle(pool.filter(w=>!lw.includes(w))))}
+    else pick=shuffle(pool);
+    queue=shuffle(pick.slice(0,n));
+    if(n<len)toast(`Bu grupta ${n} kelime var, ${n} soru soruluyor`);
+  }
+  P={src,len:queue?queue.length:0,pool,queue,i:0,ok:0,bad:0,wrong:[],recent:[],q:null,streak:0,id:++pSeq};
+  nextQ();
+}
+function pickInfinite(){
+  const pool=P.pool,lw=P.src==='learn'?[]:pool.filter(inLearn);
+  let cand=(lw.length&&Math.random()<.25)?lw:pool;
+  let c2=cand.filter(w=>!P.recent.includes(k(w)));if(!c2.length)c2=cand;
+  return c2[Math.random()*c2.length|0];
+}
+function nextQ(){
+  if(P.queue&&P.i>=P.queue.length)return finish();
+  let ans;
+  if(P.queue)ans=P.queue[P.i];
+  else{
+    if(P.src==='learn'){P.pool=all().filter(inLearn);if(!P.pool.length){toast('Öğren grubu bitti, tebrikler!');return finish()}}
+    ans=pickInfinite();
+  }
+  P.recent.push(k(ans));if(P.recent.length>12)P.recent.shift();
+  const dir=S.dir==='mix'?(Math.random()<.5?'en':'tr'):S.dir;
+  const field=dir==='en'?'tr':'w';
   const others=shuffle(all().filter(w=>k(w)!==k(ans)&&w[field]!==ans[field]));
-  const same=others.filter(w=>w.pos===ans.pos);
-  const pick=[];for(const w of same.concat(others)){if(pick.length===3)break;if(!pick.some(p=>p[field]===w[field]))pick.push(w)}
-  Q={ans,opts:shuffle([ans,...pick]),done:false};
-  const prompt=S.dir==='en'?ans.w:ans.tr;
-  c.innerHTML=`
-    <div class="meta"><span class="badge">${esc(ans.lvl)}</span><span>${esc(topicName(ans))}</span></div>
-    <h1 class="word" style="font-size:clamp(38px,11vw,54px)">${esc(prompt)}</h1>
-    ${S.dir==='en'?`<button class="ipa" id="qSay"><span>/${esc(ans.ipa)}/</span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg></button>`:'<div class="hint">İngilizcesi hangisi?</div>'}
-    <div class="opts">${Q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o[field])}</button>`).join('')}</div>
-    <div class="qinfo" id="qInfo"></div>`;
+  const same=others.filter(w=>w.pos===ans.pos&&w.lvl===ans.lvl).concat(others.filter(w=>w.pos===ans.pos),others);
+  const opts=[];for(const w of same){if(opts.length===3)break;if(!opts.some(o=>o[field]===w[field]))opts.push(w)}
+  P.q={ans,dir,field,opts:shuffle([ans,...opts]),done:false};
+  renderQ();
+}
+function renderQ(){
+  const pr=$('pr'),q=P.q,ans=q.ans,n=P.i+(q.done?1:0);
+  const prog=P.len?`${Math.min(P.i+1,P.len)} / ${P.len}`:`${P.i+1}. soru`;
+  pr.innerHTML=`
+    <div class="ptop"><button class="xbtn" id="pEnd">✕ Bitir</button><span class="pprog">${prog}</span>
+      <span class="pscore"><span class="ok">✓ ${P.ok}</span><span class="bad">✗ ${P.bad}</span></span></div>
+    ${P.len?`<div class="pbar"><i style="width:${n/P.len*100}%"></i></div>`:'<div style="height:6px;margin-bottom:16px"></div>'}
+    <div class="card-wrap"><article class="card">
+      <div class="meta"><span>${esc(srcName(P.src))}</span><span class="badge">${esc(ans.lvl)}</span>${aiBadge(ans)}${learnBadge(ans)}</div>
+      <h1 class="word" style="font-size:clamp(36px,10vw,54px)">${esc(q.dir==='en'?ans.w:ans.tr)}</h1>
+      ${q.dir==='en'?`<button class="ipa" id="qSay"><span>/${esc(ans.ipa)}/</span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg></button>`:'<div class="hint">İngilizcesi hangisi?</div>'}
+      <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o[q.field])}</button>`).join('')}</div>
+      <div class="qinfo" id="qInfo"></div>
+    </article></div>
+    <p class="qstat" style="margin-top:14px">Seri: <b>${P.streak}</b> · En iyi: <b>${S.best}</b></p>`;
   if($('qSay'))$('qSay').onclick=()=>speak(ans.w);
-  c.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i,b));
+  $('pEnd').onclick=()=>{(P.ok+P.bad)?finish():(P=null,renderSetup())};
+  pr.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i,b));
 }
 function answer(i,btn){
-  if(Q.done)return;Q.done=true;
-  const ok=k(Q.opts[i])===k(Q.ans);
-  $('qCard').querySelectorAll('.opt').forEach((b,j)=>{if(k(Q.opts[j])===k(Q.ans))b.classList.add('ok')});
-  if(ok){streak++;if(streak>S.best){S.best=streak;save()}}else{btn.classList.add('bad');streak=0}
-  $('qStat').innerHTML=`Seri: <b>${streak}</b> · En iyi: <b>${S.best}</b>`;
-  const a=Q.ans;
-  $('qInfo').innerHTML=`<b style="color:var(--text)">${esc(a.w)}</b> — ${esc(a.tr)}<br><span style="font-size:14px">${highlight(a)}</span>
-    <button class="primary" id="qNext">Sonraki</button>
+  const q=P.q;if(q.done)return;q.done=true;
+  const a=q.ans,ok=k(q.opts[i])===k(a);
+  $('pr').querySelectorAll('.opt').forEach((b,j)=>{if(k(q.opts[j])===k(a))b.classList.add('ok')});
+  if(ok){P.ok++;P.streak++;if(P.streak>S.best){S.best=P.streak;save()}}
+  else{btn.classList.add('bad');P.bad++;P.streak=0;if(!P.wrong.some(w=>k(w)===k(a)))P.wrong.push(a)}
+  const lr=markLearn(a,ok);
+  markAnswer(ok);
+  const lmsg=lr==='added'?'<div class="lmsg bad">Öğren grubuna eklendi · 0/3</div>':lr==='reset'?'<div class="lmsg bad">Öğren sayacı sıfırlandı · 0/3</div>':lr==='step'?`<div class="lmsg">Öğren · ${S.learn[k(a)]}/3</div>`:lr==='done'?'<div class="lmsg">🎉 Öğrenildi! Öğren grubundan çıktı</div>':'';
+  const pt=$('pr').querySelector('.pscore');if(pt)pt.innerHTML=`<span class="ok">✓ ${P.ok}</span><span class="bad">✗ ${P.bad}</span>`;
+  const st=$('pr').querySelectorAll('.qstat');if(st.length)st[st.length-1].innerHTML=`Seri: <b>${P.streak}</b> · En iyi: <b>${S.best}</b>`;
+  const bar=$('pr').querySelector('.pbar i');if(bar)bar.style.width=((P.i+1)/P.len*100)+'%';
+  const last=P.len&&P.i+1>=P.len;
+  $('qInfo').innerHTML=`<b style="color:var(--text)">${esc(a.w)}</b> — ${esc(a.tr)}<br><span style="font-size:14px">${highlight(a)}</span>${lmsg}
+    <button class="primary" id="qNext">${last?'Sonucu gör':'Sonraki'}</button>
     ${!isFav(a)?'<button class="ghost" id="qFav">★ Favorilere ekle</button>':''}`;
   speak(a.w);
-  $('qNext').onclick=newQ;
+  const id=P.id,step=P.i;
+  const go=()=>{if(P&&P.id===id&&P.i===step){P.i++;nextQ()}};
+  $('qNext').onclick=go;
   if($('qFav'))$('qFav').onclick=()=>{toggle('favs',a);toast('Favorilere eklendi');$('qFav').remove()};
-  if(ok)setTimeout(()=>{if(Q&&Q.ans===a)newQ()},1400);
+  if(ok&&!lr)setTimeout(go,1300);
+}
+function finish(){
+  const tot=P.ok+P.bad,okN=P.ok,pct=tot?Math.round(okN/tot*100):0,wr=P.wrong.slice(),src=P.src;
+  const ln=Object.keys(S.learn).length;
+  const msg=pct===100&&tot?'Kusursuz! 🎉':pct>=80?'Çok iyi!':pct>=50?'Fena değil, devam!':'Tekrar zamanı';
+  P=null;
+  $('pr').innerHTML=`<div class="card-wrap"><article class="card">
+    <div class="meta"><span>${esc(srcName(src))}</span></div>
+    <div class="res-big">${tot?`${okN} / ${tot}`:'—'}</div>
+    <div class="tr" style="font-size:26px">${tot?msg:'Hiç soru cevaplanmadı'}</div>
+    <p class="hint" style="margin-top:10px">${tot?`%${pct} doğru · `:''}Öğren grubunda ${ln} kelime var</p>
+    ${wr.length?`<div class="wlist"><h4 style="margin:0 0 4px;font-size:12px;letter-spacing:1.6px;color:var(--gold)">YANLIŞ YAPTIKLARIN</h4>${wr.map(w=>`<div><b>${esc(w.w)}</b><span>${esc(w.tr)}</span></div>`).join('')}</div>
+      <button class="primary" id="fRetry">Yanlışları tekrar çalış</button>`:''}
+    <button class="${wr.length?'ghost':'primary'}" id="fNew">Yeni pratik</button>
+  </article></div>`;
+  if($('fRetry'))$('fRetry').onclick=()=>startPractice('retry',wr.length,wr);
+  $('fNew').onclick=()=>renderSetup();
+}
+
+$('bkOut').onclick=async()=>toast(await copyText(JSON.stringify(S))?'Yedek kopyalandı, Notlar\'a yapıştırıp sakla':'Kopyalanamadı');
+$('bkIn').onclick=()=>{
+  const t=prompt('Yedek metnini buraya yapıştır:');if(!t)return;
+  try{const d=JSON.parse(t);if(typeof d!=='object'||!d)throw 0;S=Object.assign({},DEF,d);save();toast('Yedek geri yüklendi');closeSheets();migrateAi();renderLevels();setMode(S.mode||'hour');showTab('today')}
+  catch(e){toast('Yedek okunamadı, metnin tamamını yapıştırdığından emin ol')}
+};
+
+/* BUGÜN paneli */
+function ring(v,goal,c1,c2,label,id){
+  const r=46,C=2*Math.PI*r,p=Math.min(v/goal,1),done=v>=goal;
+  return `<button class="ring" id="${id}"><svg viewBox="0 0 120 120">
+    <defs><linearGradient id="g${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
+    <filter id="f${id}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter></defs>
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="${c1}" stroke-opacity=".18" stroke-width="11"/>
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="${c2}" stroke-opacity=".45" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C*p} ${C}" transform="rotate(-90 60 60)" filter="url(#f${id})"/>
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="url(#g${id})" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C*p} ${C}" transform="rotate(-90 60 60)"/>
+    <text x="60" y="${done?58:66}" text-anchor="middle" font-size="${done?20:22}" font-weight="700" fill="#26221F" font-family="-apple-system,sans-serif">${v}/${goal}</text>
+    ${done?'<text x="60" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#2E9E5E" font-family="-apple-system,sans-serif">✓ tamam</text>':''}
+  </svg><div class="lbl">${label}</div><div class="sub">(${v}/${goal})</div></button>`;
+}
+function renderToday(){
+  if(!BASE.length)return;
+  const d=day(),ln=Object.keys(S.learn).length,st=streakDays();
+  $('rings').innerHTML=ring(d.n,S.goalN,'#7FE0A8','#22B86A','Yeni Kelime','rN')+ring(d.r,S.goalR,'#8FD3FF','#1E9BEA','Tekrar','rR');
+  $('rN').onclick=()=>{showTab('home');if(mode==='hour'||mode==='search')setMode('mix')};
+  $('rR').onclick=()=>showTab('quiz');
+  const left=Math.max(S.goalN-d.n,0);
+  $('streak').innerHTML=st?`🔥 ${st} günlük seri${d.n+d.r?'':' · bugün devam ettir'}`:'Bugün ilk kartını aç, serini başlat ✨';
+  const tiles=[
+    ['t-peach','📖','Yeni Kelimeler',left?`${left} kelime kaldı bugün`:`${all().length} kelime`,()=>{showTab('home');if(mode==='hour'||mode==='search')setMode('mix')}],
+    ['t-sand','🎲','Pratik & Test',`En iyi seri: ${S.best}`,()=>showTab('quiz')],
+    ['t-sage','📋','Kelime Listem',`${S.favs.length} favori`,()=>{showTab('home');setMode('favs')}],
+    ['t-sky','📅','Öğren & Tekrar',ln?`${ln} kelime bekliyor`:'Bekleyen kelime yok',()=>{if(!ln)return toast('Öğren grubu boş. Pratikte yanlış yaptığın kelimeler buraya gelir.');showTab('quiz');startPractice('learn',0)}],
+    ['t-lilac wide','✨','AI ile kelime üret',`Kendi konunu yaz, ${S.custom.length} AI kelimesi var`,()=>$('setBtn').onclick()],
+  ];
+  $('tiles').innerHTML=tiles.map(([c,e,t,s],i)=>`<button class="tile ${c}" data-i="${i}"><div class="em">${e}</div><div><b>${t}</b><small>${s}</small></div></button>`).join('');
+  $('tiles').querySelectorAll('.tile').forEach(b=>b.onclick=tiles[+b.dataset.i][4]);
+  const hw=hourWord(0),mins=60-new Date().getMinutes();
+  $('hourCard').innerHTML=`<div class="em">⏰</div><div><div class="t1">Saatin kelimesi · ${mins} dk</div><div class="t2">${esc(hw.w)}</div><div class="t3">${esc(hw.tr)}</div></div><svg class="arr" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>`;
+  $('hourCard').onclick=()=>{showTab('home');setMode('hour')};
+  const names=['Pz','Pt','Sa','Ça','Pe','Cu','Ct'],days=[];
+  for(let i=6;i>=0;i--){const x=new Date();x.setDate(x.getDate()-i);const v=S.daily[dkey(x)]||{n:0,r:0};days.push({d:names[x.getDay()],v:v.n+v.r,today:i===0})}
+  const max=Math.max(10,...days.map(x=>x.v)),tot=days.reduce((a,x)=>a+x.v,0);
+  $('week').innerHTML=days.map(x=>`<div class="wk ${x.today?'today':''} ${x.v?'':'zero'}"><span class="v">${x.v||''}</span><div class="b" style="height:${Math.max(x.v/max*100,3)}%"></div><span class="d">${x.d}</span></div>`).join('');
+  $('weekSum').textContent=tot?`Son 7 günde ${tot} etkinlik · kart + soru`:'Bu hafta henüz etkinlik yok';
 }
 
 /* WIDGET sekmesi */
@@ -495,20 +746,22 @@ $('copyCode').onclick=async()=>{
 $('copyParam').onclick=async()=>toast(await copyText(paramStr())?'Parametre kopyalandı':'Kopyalanamadı');
 
 /* sekmeler */
+const TITLES={today:'Bugünkü Ders',home:'Kelime Kartları',quiz:'Pratik',widget:'Widget'};
 function showTab(t){
+  $('hTitle').textContent=TITLES[t];
+  $('hSub').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'});
+  if(t==='today')renderToday();
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   $('v-'+t).classList.add('on');$('main').scrollTop=0;
-  if(t==='quiz'&&!Q){segs();newQ()}
+  if(t==='quiz')renderPractice();
+  if(t==='home')setTimeout(()=>{const w=current();if(w&&$('v-home').classList.contains('on'))markSeen(w)},0);
   if(t==='widget')renderWidgetTab();
 }
 document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 
-/* yıldızlar */
-(function(){const c=$('stars'),x=c.getContext('2d');function d(){const r=devicePixelRatio||1;c.width=innerWidth*r;c.height=innerHeight*r;x.setTransform(r,0,0,r,0,0);for(let i=0;i<150;i++){x.fillStyle=`rgba(255,255,255,${(Math.random()*.6+.15).toFixed(2)})`;x.beginPath();x.arc(Math.random()*innerWidth,Math.random()*innerHeight,Math.random()<.9?.6:1.3,0,7);x.fill()}}d();addEventListener('resize',d)})();
-
 /* saat başı yenile */
-setInterval(()=>{if(mode==='hour'){const f=$('foot');if(f)f.textContent=footText();if(new Date().getMinutes()===0&&hOff===0)render()}},30000);
+setInterval(()=>{if($('v-today').classList.contains('on'))renderToday();if(mode==='hour'){const f=$('foot');if(f)f.textContent=footText();if(new Date().getMinutes()===0&&hOff===0)render()}},30000);
 let lastHour=Math.floor(Date.now()/3600000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){const h=Math.floor(Date.now()/3600000);if(h!==lastHour){lastHour=h;if(mode==='hour'){hOff=0;render()}}}});
 
@@ -516,12 +769,14 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 (async function init(){
   try{BASE=window.__WORDS__||await (await fetch('words.json',{cache:'no-cache'})).json()}
   catch(e){$('cardBody').innerHTML='<div class="empty">Kelimeler yüklenemedi. İnternet bağlantını kontrol et.</div>';return}
+  migrateAi();
   renderLevels();
   const p=new URLSearchParams(location.search).get('w');
   const target=p&&all().find(w=>w.w.toLowerCase()===p.toLowerCase());
-  if(target){searchList=[target];setMode('search')}else setMode(TOPICS[mode]||['hour','mix','favs','custom','known'].includes(mode)?mode:'hour');
+  if(target){searchList=[target];setMode('search');showTab('home')}else{showTab('today');setMode(TOPICS[mode]||['hour','mix','favs','custom','known','learn'].includes(mode)?mode:'hour')}
   try{WIDGET_SRC=window.__WIDGET__||await (await fetch('widget.js',{cache:'no-cache'})).text()}catch(e){}
   speechSynthesis&&speechSynthesis.getVoices();
+  classifyAi();
   if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
 })();
 </script>
