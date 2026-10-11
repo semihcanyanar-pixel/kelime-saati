@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kelime Saati">
+<meta name="theme-color" content="#0b1226">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Kelime Saati</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1226;--gold:#d9b46a;--gold2:#f0d595;--text:#eef1f8;--muted:#9aa6c4;
+  --line:rgba(217,180,106,.38);--ok:#5fc28a;--bad:#e06a6a;
+  --st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;color:var(--text);font-family:Inter,system-ui,sans-serif;overscroll-behavior:none}
+body{background:radial-gradient(120% 70% at 50% 0%,#1b2a55 0%,#0e1631 55%,#080d1d 100%) fixed var(--bg);-webkit-user-select:none;user-select:none}
+button{font:inherit;color:inherit;cursor:pointer}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.app{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding-top:var(--st)}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(145deg,#1f2e5c,#0c142c);border:1px solid var(--line);display:grid;place-items:center}
+.logo svg{width:22px;height:22px}
+.brand{font-family:'Cormorant Garamond',serif;font-size:25px;font-weight:600;flex:1;letter-spacing:.2px}
+.brand span{color:var(--gold)}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:none;background:transparent;display:grid;place-items:center}
+.icon-btn svg{width:23px;height:23px}
+main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 0 calc(100px + var(--sb))}
+.view{display:none}.view.on{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 16px}
+.chip{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--muted)}
+.chip.on{border-color:var(--gold);color:var(--gold);background:rgba(217,180,106,.1)}
+.lvl-row{margin:0 0 14px}
+
+/* card */
+.card-wrap{position:relative;padding:0 26px}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:60px;border:none;background:none;color:var(--gold);display:grid;place-items:center;z-index:2}
+.nav svg{width:20px;height:20px}
+.nav.prev{left:2px}.nav.next{right:2px}
+.card{position:relative;border-radius:30px;padding:20px 20px 18px;text-align:center;border:1px solid rgba(140,160,220,.25);
+  background:
+   radial-gradient(70% 22% at 50% 60%,rgba(220,160,90,.18),transparent 70%),
+   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200' preserveAspectRatio='none'%3E%3Cpath d='M0 110 L55 78 L105 104 L165 58 L225 100 L285 66 L345 96 L400 72 V200 H0Z' fill='%23131c3b'/%3E%3Cpath d='M0 150 L50 124 L120 150 L190 112 L260 148 L330 122 L400 142 V200 H0Z' fill='%230b1124'/%3E%3C/svg%3E") bottom/100% 40% no-repeat,
+   linear-gradient(180deg,#1a274f 0%,#141e40 55%,#0b1228 100%);
+  box-shadow:0 20px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.07);transition:transform .22s ease,opacity .22s ease}
+.card.out-l{transform:translateX(-30px);opacity:0}.card.out-r{transform:translateX(30px);opacity:0}
+.mode-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:rgba(10,16,36,.5);border-radius:999px;padding:9px 18px;color:var(--gold);font-weight:600;font-size:15px}
+.mode-pill svg{width:16px;height:16px}
+.meta{display:flex;justify-content:center;gap:8px;margin:14px 0 4px;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.badge{color:var(--gold);border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+.word{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(44px,13vw,64px);line-height:1;margin:10px 0 4px;word-break:break-word;-webkit-user-select:text;user-select:text}
+.tr{font-family:'Cormorant Garamond',serif;font-weight:600;color:var(--gold);font-size:clamp(26px,8vw,36px);line-height:1.1}
+.ipa{display:inline-flex;align-items:center;gap:10px;margin-top:14px;border:1px solid rgba(255,255,255,.1);background:rgba(8,13,30,.55);border-radius:999px;padding:8px 16px;color:var(--muted);font-size:17px;border-style:solid}
+.ipa svg{width:20px;height:20px;color:var(--text)}
+.divider{display:flex;align-items:center;gap:12px;margin:22px 0 18px;color:var(--gold)}
+.divider i{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--line))}
+.divider i:last-child{background:linear-gradient(90deg,var(--line),transparent)}
+.row{display:flex;gap:12px;text-align:left;margin-bottom:18px}
+.ri{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--gold)}
+.ri svg{width:16px;height:16px}
+.row h4{margin:6px 0 6px;font-size:12px;letter-spacing:1.6px;color:var(--gold);font-weight:700}
+.row p{margin:0;font-size:17px;line-height:1.5}
+.row em{font-style:normal;color:var(--gold);font-weight:700}
+.ex{text-decoration:underline dashed rgba(255,255,255,.35);text-underline-offset:5px}
+.ex b{color:var(--gold)}
+.actions{display:flex;justify-content:space-around;margin-top:22px}
+.act{width:56px;height:56px;border-radius:50%;border:1.5px solid var(--line);background:rgba(8,13,30,.35);display:grid;place-items:center;color:var(--gold);transition:transform .15s}
+.act:active{transform:scale(.92)}
+.act svg{width:22px;height:22px}
+.act.on{background:var(--gold);color:#121a35}
+.foot{margin-top:14px;font-size:12px;color:var(--muted)}
+.empty{padding:50px 10px;color:var(--muted);font-size:15px;line-height:1.5}
+
+/* sheets */
+.sheet{position:fixed;inset:0;z-index:20;display:none}
+.sheet.on{display:block}
+.sheet .bd{position:absolute;inset:0;background:rgba(3,6,15,.6);animation:fade .2s}
+.panel{position:absolute;left:0;right:0;bottom:0;max-height:82vh;overflow-y:auto;background:#111a36;border-top-left-radius:24px;border-top-right-radius:24px;border-top:1px solid var(--line);padding:10px 18px calc(22px + var(--sb));animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.grab{width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.2);margin:0 auto 12px}
+.panel h3{font-family:'Cormorant Garamond',serif;font-size:24px;margin:4px 0 12px;color:var(--gold)}
+.li{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 4px;border:none;background:none;border-bottom:1px solid rgba(255,255,255,.06);font-size:16px;text-align:left}
+.li small{color:var(--muted);font-size:13px}
+.li.on{color:var(--gold)}
+.field{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;color:var(--text);font:16px Inter;outline:none;-webkit-user-select:text;user-select:text}
+.field:focus{border-color:var(--gold)}
+label.lb{display:block;font-size:12px;letter-spacing:1px;color:var(--muted);font-weight:700;margin:16px 0 8px;text-transform:uppercase}
+.primary{width:100%;margin-top:14px;border:none;border-radius:14px;padding:15px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:#141c36;font-weight:700;font-size:16px}
+.primary:disabled{opacity:.6}
+.ghost{width:100%;margin-top:10px;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:13px;background:none;color:var(--muted);font-weight:600}
+.hint{font-size:13px;color:var(--muted);line-height:1.5;margin:8px 0 0}
+.inline{display:flex;gap:8px}.inline>*{flex:1}
+
+/* quiz */
+.seg{display:inline-flex;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:3px}
+.seg button{border:none;background:none;padding:8px 12px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button.on{background:rgba(217,180,106,.16);color:var(--gold)}
+.qtop{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 16px 12px}
+.qstat{text-align:center;color:var(--muted);font-size:13px;margin-bottom:12px}
+.qstat b{color:var(--gold)}
+.opts{display:grid;gap:10px;margin-top:22px}
+.opt{border:1px solid rgba(255,255,255,.14);background:rgba(8,13,30,.45);border-radius:14px;padding:15px;font-size:17px;font-weight:500;text-align:center}
+.opt.ok{border-color:var(--ok);background:rgba(95,194,138,.18);color:#bff0d3}
+.opt.bad{border-color:var(--bad);background:rgba(224,106,106,.16);color:#ffd0d0}
+.qinfo{margin-top:16px;font-size:15px;line-height:1.5;color:var(--muted);min-height:0}
+
+/* widget tab */
+.sec{padding:0 18px}
+.h{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--gold);margin:6px 0 10px}
+.lock{border-radius:26px;padding:22px 18px;text-align:center;background:linear-gradient(180deg,#26365f,#0f1730);border:1px solid rgba(255,255,255,.08)}
+.lock .tm{font-size:64px;font-weight:600;letter-spacing:-1px;line-height:1}
+.lock .dt{color:rgba(255,255,255,.75);font-size:15px;margin-bottom:12px}
+.lrect{display:inline-block;text-align:left;background:rgba(255,255,255,.14);border-radius:14px;padding:8px 14px;min-width:170px;backdrop-filter:blur(8px)}
+.lrect b{display:block;font-size:16px}.lrect span{display:block;font-size:14px}.lrect i{display:block;font-size:12px;opacity:.7;font-style:normal}
+.hw{margin-top:14px;border-radius:24px;padding:16px 18px;background:linear-gradient(180deg,#1b2a55,#0b1228);border:1px solid rgba(255,255,255,.08)}
+.hw .top{display:flex;justify-content:space-between;color:var(--gold);font-size:10px;font-weight:700;letter-spacing:1px}
+.hw .w{font-family:Georgia,serif;font-weight:700;font-size:28px;margin-top:10px}
+.hw .t{font-family:Georgia,serif;color:var(--gold);font-size:17px}
+.hw .e{font-size:12px;opacity:.85;margin-top:8px;line-height:1.4}
+.steps{padding-left:20px;margin:8px 0 0;color:var(--text);font-size:15px;line-height:1.55}
+.steps li{margin-bottom:8px}
+.steps b{color:var(--gold)}
+code.param{display:block;margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.3);border:1px dashed var(--line);color:var(--gold2);font-size:14px;word-break:break-all;-webkit-user-select:text;user-select:text}
+
+/* tabs */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;background:rgba(13,20,42,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.07);padding:8px 6px calc(8px + var(--sb))}
+nav.tabs button{flex:1;background:none;border:none;color:var(--muted);font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0;letter-spacing:.3px}
+nav.tabs svg{width:26px;height:26px}
+nav.tabs button.on{color:var(--gold)}
+.toast{position:fixed;left:50%;bottom:calc(96px + var(--sb));transform:translateX(-50%) translateY(20px);background:#1d2a52;border:1px solid var(--line);color:var(--text);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:86vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.res{max-height:55vh;overflow-y:auto}
+.res .li b{font-family:'Cormorant Garamond',serif;font-size:20px}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(20,28,54,.3);border-top-color:#141c36;border-radius:50%;animation:rot .8s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes rot{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="app">
+  <header>
+    <div class="logo"><svg viewBox="0 0 24 24" fill="#d9b46a"><path d="M12 1.5l2.2 7.3 7.3 2.2-7.3 2.2L12 20.5l-2.2-7.3L2.5 11l7.3-2.2z"/></svg></div>
+    <div class="brand">Kelime <span>Saati</span></div>
+    <button class="icon-btn" id="searchBtn" aria-label="Ara"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+    <button class="icon-btn" id="setBtn" aria-label="Ayarlar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+  </header>
+
+  <main id="main">
+    <!-- ANA SAYFA -->
+    <section class="view on" id="v-home">
+      <div class="chips lvl-row" id="lvlChips"></div>
+      <div class="card-wrap">
+        <button class="nav prev" id="prevBtn" aria-label="Önceki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <article class="card" id="card">
+          <button class="mode-pill" id="modeBtn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 2l1.6 5.4L17 9l-5.4 1.6L10 16l-1.6-5.4L3 9l5.4-1.6zM18.5 13l.8 2.7 2.7.8-2.7.8-.8 2.7-.8-2.7-2.7-.8 2.7-.8z"/></svg><span id="modeLabel">Saatin kelimesi</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div id="cardBody"></div>
+        </article>
+        <button class="nav next" id="nextBtn" aria-label="Sonraki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+    </section>
+
+    <!-- ALIŞTIRMA -->
+    <section class="view" id="v-quiz">
+      <div class="qtop">
+        <div class="seg" id="qDir"><button data-v="en">EN → TR</button><button data-v="tr">TR → EN</button></div>
+        <div class="seg" id="qSrc"><button data-v="all">Seviyeme göre</button><button data-v="favs">Favoriler</button></div>
+      </div>
+      <div class="qstat" id="qStat"></div>
+      <div class="card-wrap"><article class="card" id="qCard"></article></div>
+    </section>
+
+    <!-- WIDGET -->
+    <section class="view" id="v-widget">
+      <div class="sec">
+        <h2 class="h">Önizleme</h2>
+        <div class="lock">
+          <div class="dt" id="lkDate"></div>
+          <div class="tm" id="lkTime">--:--</div>
+          <div style="margin-top:14px"><div class="lrect"><b id="lkW"></b><span id="lkT"></span><i id="lkI"></i></div></div>
+        </div>
+        <div class="hw"><div class="top"><span>✦ SAATİN KELİMESİ</span><span id="hwL"></span></div><div class="w" id="hwW"></div><div class="t" id="hwT"></div><div class="e" id="hwE"></div></div>
+
+        <h2 class="h" style="margin-top:24px">Widget konuları</h2>
+        <div class="chips" id="wTopicChips" style="justify-content:flex-start;padding:0"></div>
+        <p class="hint">Hiçbiri seçili değilse tüm konular gelir. Seviyeler ana sayfadaki seviye seçimini kullanır. Saatin kelimesi uygulamada ve widget'ta aynıdır.</p>
+
+        <h2 class="h" style="margin-top:24px">Kurulum</h2>
+        <ol class="steps">
+          <li>App Store'dan ücretsiz <b>Scriptable</b> uygulamasını indir.</li>
+          <li>Aşağıdaki butonla kodu kopyala, Scriptable'da <b>+</b> ile yeni betik aç, yapıştır ve adını <b>Kelime Saati</b> yap.</li>
+          <li><b>Ana ekran:</b> boş yere basılı tut → <b>+</b> → Scriptable → boyutu seç → widget'a dokun → Script: Kelime Saati.</li>
+          <li><b>Kilit ekranı:</b> kilit ekranına basılı tut → Özelleştir → Kilit Ekranı → widget alanı → Scriptable (dikdörtgen veya satır) → Script: Kelime Saati.</li>
+          <li>Farklı seviye/konu istediğin widget'ın <b>Parameter</b> alanına aşağıdaki satırı yapıştır. Boş bırakırsan koddaki ayarlar geçerli olur.</li>
+        </ol>
+        <button class="primary" id="copyCode">Widget kodunu kopyala</button>
+        <code class="param" id="paramTxt"></code>
+        <button class="ghost" id="copyParam">Parametreyi kopyala</button>
+        <p class="hint">iOS widget yenilemesini kendi planlar; kelime genelde saat başı değişir ama birkaç dakika gecikebilir. AI ile eklenen kelimeler yalnızca uygulamada görünür.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs">
+    <button data-tab="widget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2.2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2.2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2.2"/></svg>Widget</button>
+    <button data-tab="home" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Ana Sayfa</button>
+    <button data-tab="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 6.5C10 5 7 4.5 3 5v14c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5z"/><path d="M12 6.5v14"/></svg>Alıştırma</button>
+  </nav>
+</div>
+
+<!-- Mod seçimi -->
+<div class="sheet" id="modeSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Kelime grubu</h3><div id="modeList"></div></div></div>
+
+<!-- Arama -->
+<div class="sheet" id="searchSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Ara</h3>
+  <input class="field" id="q" placeholder="İngilizce ya da Türkçe yaz…" autocomplete="off" autocapitalize="off">
+  <div class="res" id="qRes"></div></div></div>
+
+<!-- Ayarlar -->
+<div class="sheet" id="setSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Ayarlar</h3>
+  <label class="lb">AI ile kelime üret</label>
+  <input class="field" id="aiTopic" placeholder="Konu (ör. mutfak, futbol, ebeveynlik)">
+  <div class="inline" style="margin-top:10px">
+    <select class="field" id="aiLevel"><option>A2</option><option selected>B1</option><option>B2</option><option>C1</option></select>
+    <select class="field" id="aiCount"><option value="5">5 kelime</option><option value="10" selected>10 kelime</option><option value="15">15 kelime</option></select>
+  </div>
+  <button class="primary" id="aiGo">Kelime üret</button>
+  <label class="lb">Worker adresi</label>
+  <input class="field" id="workerUrl" placeholder="https://kelime-saati-ai.xxx.workers.dev" autocomplete="off" autocapitalize="off">
+  <p class="hint">Cloudflare Worker'ı kurduktan sonra adresini buraya yapıştır.</p>
+  <label class="lb">Veriler</label>
+  <p class="hint" id="stats"></p>
+  <button class="ghost" id="resetKnown">"Biliyorum" işaretlerini sıfırla</button>
+  <button class="ghost" id="clearAi">AI kelimelerini sil</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TOPICS={daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'};
+const LEVELS=['A2','B1','B2','C1'];
+const KEY='kelimeSaati:v1';
+const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',src:'all',best:0,mode:'hour'};
+let S=load(), BASE=[], WIDGET_SRC='';
+let mode=S.mode||'hour', list=[], idx=0, hOff=0, searchList=[];
+
+function load(){try{return Object.assign({},DEF,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return {...DEF}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const k=w=>w.w.toLowerCase();
+const all=()=>BASE.concat(S.custom);
+const isFav=w=>S.favs.includes(k(w)), isKnown=w=>S.known.includes(k(w));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
+function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.88;const v=speechSynthesis.getVoices().find(v=>v.lang==='en-US'&&/Samantha|Ava|Allison|Nicky/i.test(v.name))||speechSynthesis.getVoices().find(v=>v.lang==='en-US');if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+
+/* Saatin kelimesi: widget ile birebir aynı algoritma */
+function hourPool(){const p=BASE.filter(w=>S.levels.includes(w.lvl)&&(!S.wTopics.length||S.wTopics.includes(w.t)));return p.length?p:BASE}
+function hourWord(off=0){const p=hourPool();const h=Math.floor(Date.now()/3600000)+off;const n=p.length;return p[(((h*7919+13)%n)+n)%n]}
+
+function listFor(m){
+  const lv=w=>S.levels.includes(w.lvl);
+  if(m==='mix')return shuffle(all().filter(w=>lv(w)&&!isKnown(w)));
+  if(TOPICS[m])return shuffle(BASE.filter(w=>w.t===m&&lv(w)&&!isKnown(w)));
+  if(m==='custom')return S.custom.slice().reverse();
+  if(m==='favs')return all().filter(isFav);
+  if(m==='known')return all().filter(isKnown);
+  if(m==='search')return searchList;
+  return [];
+}
+function modeName(m){return m==='hour'?'Saatin kelimesi':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'AI kelimelerim':m==='known'?'Bildiklerim':m==='search'?'Arama':TOPICS[m]||m}
+function setMode(m,startWord){
+  mode=m;hOff=0;idx=0;
+  if(m!=='search'){S.mode=m;save()}
+  list=m==='hour'?[]:listFor(m);
+  if(startWord){const i=list.findIndex(w=>k(w)===k(startWord));if(i>=0)idx=i}
+  render();
+}
+function current(){return mode==='hour'?hourWord(hOff):list[idx]}
+
+function highlight(w){
+  const stem=w.w.length>4?w.w.replace(/(e|y)$/,''):w.w;
+  const re=new RegExp('\\b('+stem.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[a-z]*)','i');
+  return esc(w.ex).replace(re,'<b>$1</b>');
+}
+function topicName(w){return w.t==='custom'?(w.tl||'AI'):TOPICS[w.t]||''}
+
+function render(){
+  $('modeLabel').textContent=modeName(mode);
+  const w=current(), body=$('cardBody');
+  $('prevBtn').style.visibility=$('nextBtn').style.visibility=(mode==='hour'||list.length>1)?'visible':'hidden';
+  if(!w){
+    const msg=mode==='favs'?'Henüz favori yok. Kartlardaki ★ ile ekleyebilirsin.':mode==='custom'?'AI kelimesi yok. Ayarlar\'dan konu yazıp üretebilirsin.':mode==='known'?'Henüz "biliyorum" dediğin kelime yok.':'Bu seçimde kelime kalmadı. Seviye seçimini değiştirmeyi dene.';
+    body.innerHTML=`<div class="empty">${msg}</div>`;return;
+  }
+  body.innerHTML=`
+    <div class="meta"><span class="badge">${esc(w.lvl)}</span><span>${esc(topicName(w))}</span></div>
+    <h1 class="word">${esc(w.w)}</h1>
+    <div class="tr">${esc(w.tr)}</div>
+    <button class="ipa" id="sayW"><span>/${esc(w.ipa)}/</span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    <div class="divider"><i></i><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5l2.2 7.3 7.3 2.2-7.3 2.2L12 20.5l-2.2-7.3L2.5 11l7.3-2.2z"/></svg><i></i></div>
+    <div class="row"><div class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.5C10 5 7 4.5 3 5v14c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5zM12 6.5v14"/></svg></div>
+      <div><h4>TANIM</h4><p><em>(${esc(w.pos)})</em> ${esc(w.def)}</p></div></div>
+    <div class="row"><div class="ri"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h16v11H9l-5 4z"/></svg></div>
+      <div><h4>ÖRNEK CÜMLE</h4><p class="ex" id="sayEx">${highlight(w)}</p></div></div>
+    <div class="actions">
+      <button class="act ${isKnown(w)?'on':''}" id="aKnown" aria-label="Biliyorum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+      <button class="act ${isFav(w)?'on':''}" id="aFav" aria-label="Favori"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg></button>
+      <button class="act" id="aShare" aria-label="Paylaş"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
+      ${w.t==='custom'?`<button class="act" id="aDel" aria-label="Sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>`:''}
+    </div>
+    <div class="foot" id="foot">${footText()}</div>`;
+  $('sayW').onclick=()=>speak(w.w);
+  $('sayEx').onclick=()=>speak(w.ex);
+  $('aKnown').onclick=()=>{toggle('known',w);toast(isKnown(w)?'Bildiklerine eklendi — karışık listelerde artık çıkmaz':'Bildiklerinden çıkarıldı');render()};
+  $('aFav').onclick=()=>{toggle('favs',w);toast(isFav(w)?'Favorilere eklendi':'Favorilerden çıkarıldı');render()};
+  $('aShare').onclick=()=>share(w);
+  if($('aDel'))$('aDel').onclick=()=>{if(!confirm(`"${w.w}" silinsin mi?`))return;S.custom=S.custom.filter(x=>k(x)!==k(w));save();setMode(mode)};
+}
+function footText(){
+  if(mode==='hour'){
+    if(hOff===0){const m=60-new Date().getMinutes();return `Yeni kelime ${m} dk sonra`}
+    return hOff<0?`${-hOff} saat önceki kelime`:`${hOff} saat sonraki kelime`;
+  }
+  return list.length?`${idx+1} / ${list.length}`:'';
+}
+function toggle(f,w){const key=k(w);const a=S[f];const i=a.indexOf(key);if(i>=0)a.splice(i,1);else a.push(key);save()}
+async function share(w){
+  const text=`${w.w} /${w.ipa}/ — ${w.tr}\n${w.def}\n“${w.ex}”`;
+  try{if(navigator.share){await navigator.share({text});return}}catch(e){if(e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(text);toast('Kopyalandı')}catch(e){}
+}
+function go(d){
+  const c=$('card');
+  if(mode==='hour')hOff+=d;
+  else{if(list.length<2)return;idx=(idx+d+list.length)%list.length}
+  c.classList.add(d>0?'out-l':'out-r');
+  setTimeout(()=>{render();c.classList.remove('out-l','out-r')},160);
+}
+$('prevBtn').onclick=()=>go(-1);$('nextBtn').onclick=()=>go(1);
+(function swipe(){let x0=null,y0=0;const c=$('card');
+  c.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
+  c.addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3)go(dx<0?1:-1)},{passive:true});
+})();
+
+/* seviye çipleri */
+function renderLevels(){
+  $('lvlChips').innerHTML=LEVELS.map(l=>`<button class="chip ${S.levels.includes(l)?'on':''}" data-l="${l}">${l}</button>`).join('');
+  $('lvlChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
+    const l=b.dataset.l,i=S.levels.indexOf(l);
+    if(i>=0){if(S.levels.length===1)return toast('En az bir seviye seçili olmalı');S.levels.splice(i,1)}else S.levels.push(l);
+    save();renderLevels();setMode(mode==='search'?'mix':mode);renderWidgetTab();
+  });
+}
+
+/* sheets */
+function openSheet(id){$(id).classList.add('on')}
+function closeSheets(){document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on'))}
+document.querySelectorAll('.sheet .bd').forEach(b=>b.onclick=closeSheets);
+
+$('modeBtn').onclick=()=>{
+  const lv=w=>S.levels.includes(w.lvl);
+  const items=[['hour','Saatin kelimesi','her saat değişir'],['mix','Karışık',all().filter(w=>lv(w)&&!isKnown(w)).length+' kelime']]
+    .concat(Object.keys(TOPICS).map(t=>[t,TOPICS[t],BASE.filter(w=>w.t===t&&lv(w)&&!isKnown(w)).length+' kelime']))
+    .concat([['favs','Favorilerim',S.favs.length+''],['custom','AI kelimelerim',S.custom.length+''],['known','Bildiklerim',S.known.length+'']]);
+  $('modeList').innerHTML=items.map(([m,n,s])=>`<button class="li ${m===mode?'on':''}" data-m="${m}"><span>${n}</span><small>${s}</small></button>`).join('');
+  $('modeList').querySelectorAll('.li').forEach(b=>b.onclick=()=>{closeSheets();setMode(b.dataset.m)});
+  openSheet('modeSheet');
+};
+
+$('searchBtn').onclick=()=>{openSheet('searchSheet');$('q').value='';$('qRes').innerHTML='';setTimeout(()=>$('q').focus(),250)};
+$('q').oninput=()=>{
+  const q=$('q').value.trim().toLocaleLowerCase('tr');
+  if(!q){$('qRes').innerHTML='';return}
+  searchList=all().filter(w=>w.w.toLowerCase().includes(q)||w.tr.toLocaleLowerCase('tr').includes(q)).slice(0,40);
+  $('qRes').innerHTML=searchList.length?searchList.map((w,i)=>`<button class="li" data-i="${i}"><span><b>${esc(w.w)}</b> &nbsp;<small>${esc(w.tr)}</small></span><small>${esc(w.lvl)}</small></button>`).join(''):'<p class="hint">Sonuç yok.</p>';
+  $('qRes').querySelectorAll('.li').forEach(b=>b.onclick=()=>{closeSheets();showTab('home');setMode('search');idx=+b.dataset.i;render()});
+};
+
+$('setBtn').onclick=()=>{
+  $('workerUrl').value=S.worker;
+  $('stats').textContent=`${BASE.length} hazır kelime · ${S.custom.length} AI kelimesi · ${S.favs.length} favori · ${S.known.length} biliyorum`;
+  openSheet('setSheet');
+};
+$('workerUrl').onchange=()=>{S.worker=$('workerUrl').value.trim();save()};
+$('resetKnown').onclick=()=>{if(confirm('Tüm "biliyorum" işaretleri sıfırlansın mı?')){S.known=[];save();toast('Sıfırlandı');setMode(mode);$('setBtn').onclick()}};
+$('clearAi').onclick=()=>{if(confirm('AI ile üretilen tüm kelimeler silinsin mi?')){S.custom=[];save();toast('Silindi');setMode(mode==='custom'?'mix':mode);$('setBtn').onclick()}};
+$('aiGo').onclick=async()=>{
+  S.worker=$('workerUrl').value.trim();save();
+  const topic=$('aiTopic').value.trim(),level=$('aiLevel').value,count=+$('aiCount').value;
+  if(!S.worker)return toast('Önce Worker adresini gir');
+  if(!topic)return toast('Bir konu yaz');
+  const b=$('aiGo');b.disabled=true;b.innerHTML='<span class="spin"></span>Üretiliyor…';
+  try{
+    const r=await fetch(S.worker,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,level,count,exclude:all().map(w=>w.w)})});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!Array.isArray(d.words))throw new Error(d.error||('Hata '+r.status));
+    const have=new Set(all().map(k));
+    const add=d.words.filter(w=>w.w&&!have.has(w.w.toLowerCase())).map(w=>({w:w.w,tr:w.tr,ipa:w.ipa||'',pos:w.pos||'',def:w.def,ex:w.ex,lvl:level,t:'custom',tl:topic}));
+    S.custom.push(...add);save();
+    toast(add.length?`${add.length} yeni kelime eklendi`:'Yeni kelime gelmedi, tekrar dene');
+    if(add.length){closeSheets();showTab('home');setMode('custom')}
+  }catch(e){toast('Üretilemedi: '+e.message)}
+  finally{b.disabled=false;b.textContent='Kelime üret'}
+};
+
+/* ALIŞTIRMA */
+let Q=null,streak=0;
+function segs(){
+  [['qDir','dir'],['qSrc','src']].forEach(([id,f])=>$(id).querySelectorAll('button').forEach(b=>{
+    b.classList.toggle('on',S[f]===b.dataset.v);
+    b.onclick=()=>{S[f]=b.dataset.v;save();segs();newQ()};
+  }));
+}
+function quizSource(){return S.src==='favs'?all().filter(isFav):all().filter(w=>S.levels.includes(w.lvl))}
+function newQ(){
+  const src=quizSource(),c=$('qCard');
+  $('qStat').innerHTML=`Seri: <b>${streak}</b> · En iyi: <b>${S.best}</b>`;
+  if(src.length<1||all().length<4){c.innerHTML=`<div class="empty">${S.src==='favs'?'Alıştırma için önce birkaç kelimeyi favorilere ekle.':'Yeterli kelime yok.'}</div>`;return}
+  let ans=src[Math.random()*src.length|0];
+  if(Q&&src.length>1)while(k(ans)===k(Q.ans))ans=src[Math.random()*src.length|0];
+  const field=S.dir==='en'?'tr':'w';
+  const others=shuffle(all().filter(w=>k(w)!==k(ans)&&w[field]!==ans[field]));
+  const same=others.filter(w=>w.pos===ans.pos);
+  const pick=[];for(const w of same.concat(others)){if(pick.length===3)break;if(!pick.some(p=>p[field]===w[field]))pick.push(w)}
+  Q={ans,opts:shuffle([ans,...pick]),done:false};
+  const prompt=S.dir==='en'?ans.w:ans.tr;
+  c.innerHTML=`
+    <div class="meta"><span class="badge">${esc(ans.lvl)}</span><span>${esc(topicName(ans))}</span></div>
+    <h1 class="word" style="font-size:clamp(38px,11vw,54px)">${esc(prompt)}</h1>
+    ${S.dir==='en'?`<button class="ipa" id="qSay"><span>/${esc(ans.ipa)}/</span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg></button>`:'<div class="hint">İngilizcesi hangisi?</div>'}
+    <div class="opts">${Q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o[field])}</button>`).join('')}</div>
+    <div class="qinfo" id="qInfo"></div>`;
+  if($('qSay'))$('qSay').onclick=()=>speak(ans.w);
+  c.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i,b));
+}
+function answer(i,btn){
+  if(Q.done)return;Q.done=true;
+  const ok=k(Q.opts[i])===k(Q.ans);
+  $('qCard').querySelectorAll('.opt').forEach((b,j)=>{if(k(Q.opts[j])===k(Q.ans))b.classList.add('ok')});
+  if(ok){streak++;if(streak>S.best){S.best=streak;save()}}else{btn.classList.add('bad');streak=0}
+  $('qStat').innerHTML=`Seri: <b>${streak}</b> · En iyi: <b>${S.best}</b>`;
+  const a=Q.ans;
+  $('qInfo').innerHTML=`<b style="color:var(--text)">${esc(a.w)}</b> — ${esc(a.tr)}<br><span style="font-size:14px">${highlight(a)}</span>
+    <button class="primary" id="qNext">Sonraki</button>
+    ${!isFav(a)?'<button class="ghost" id="qFav">★ Favorilere ekle</button>':''}`;
+  speak(a.w);
+  $('qNext').onclick=newQ;
+  if($('qFav'))$('qFav').onclick=()=>{toggle('favs',a);toast('Favorilere eklendi');$('qFav').remove()};
+  if(ok)setTimeout(()=>{if(Q&&Q.ans===a)newQ()},1400);
+}
+
+/* WIDGET sekmesi */
+function paramStr(){return S.levels.join(',')+(S.wTopics.length?'|'+S.wTopics.join(','):'')}
+function renderWidgetTab(){
+  const w=hourWord(0);if(!w)return;
+  const d=new Date();
+  $('lkTime').textContent=d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+  $('lkDate').textContent=d.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'});
+  $('lkW').textContent=w.w;$('lkT').textContent=w.tr;$('lkI').textContent='/'+w.ipa+'/';
+  $('hwL').textContent=w.lvl;$('hwW').textContent=w.w;$('hwT').textContent=w.tr;$('hwE').textContent=w.ex;
+  $('wTopicChips').innerHTML=Object.keys(TOPICS).map(t=>`<button class="chip ${S.wTopics.includes(t)?'on':''}" data-t="${t}">${TOPICS[t]}</button>`).join('');
+  $('wTopicChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
+    const t=b.dataset.t,i=S.wTopics.indexOf(t);if(i>=0)S.wTopics.splice(i,1);else S.wTopics.push(t);
+    save();renderWidgetTab();if(mode==='hour')render();
+  });
+  $('paramTxt').textContent=paramStr();
+}
+function baseUrl(){return location.href.split(/[?#]/)[0].replace(/index\.html$/,'')}
+function widgetCode(){
+  const cfg={url:baseUrl()+'words.json',appUrl:baseUrl(),levels:S.levels,topics:S.wTopics};
+  return WIDGET_SRC.replace(/\/\/ KS_CONFIG_START[\s\S]*?\/\/ KS_CONFIG_END/,'// KS_CONFIG_START\nconst CONFIG = '+JSON.stringify(cfg,null,2)+';\n// KS_CONFIG_END');
+}
+async function copyText(t){
+  try{await navigator.clipboard.writeText(t);return true}catch(e){
+    const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+    let ok=false;try{ok=document.execCommand('copy')}catch(_){}ta.remove();return ok;
+  }
+}
+$('copyCode').onclick=async()=>{
+  if(!WIDGET_SRC)return toast('Widget kodu yüklenemedi, internet bağlantını kontrol et');
+  toast(await copyText(widgetCode())?'Kod kopyalandı — Scriptable\'a yapıştır':'Kopyalanamadı');
+};
+$('copyParam').onclick=async()=>toast(await copyText(paramStr())?'Parametre kopyalandı':'Kopyalanamadı');
+
+/* sekmeler */
+function showTab(t){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  $('v-'+t).classList.add('on');$('main').scrollTop=0;
+  if(t==='quiz'&&!Q){segs();newQ()}
+  if(t==='widget')renderWidgetTab();
+}
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+
+/* yıldızlar */
+(function(){const c=$('stars'),x=c.getContext('2d');function d(){const r=devicePixelRatio||1;c.width=innerWidth*r;c.height=innerHeight*r;x.setTransform(r,0,0,r,0,0);for(let i=0;i<150;i++){x.fillStyle=`rgba(255,255,255,${(Math.random()*.6+.15).toFixed(2)})`;x.beginPath();x.arc(Math.random()*innerWidth,Math.random()*innerHeight,Math.random()<.9?.6:1.3,0,7);x.fill()}}d();addEventListener('resize',d)})();
+
+/* saat başı yenile */
+setInterval(()=>{if(mode==='hour'){const f=$('foot');if(f)f.textContent=footText();if(new Date().getMinutes()===0&&hOff===0)render()}},30000);
+let lastHour=Math.floor(Date.now()/3600000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){const h=Math.floor(Date.now()/3600000);if(h!==lastHour){lastHour=h;if(mode==='hour'){hOff=0;render()}}}});
+
+/* başlat */
+(async function init(){
+  try{BASE=window.__WORDS__||await (await fetch('words.json',{cache:'no-cache'})).json()}
+  catch(e){$('cardBody').innerHTML='<div class="empty">Kelimeler yüklenemedi. İnternet bağlantını kontrol et.</div>';return}
+  renderLevels();
+  const p=new URLSearchParams(location.search).get('w');
+  const target=p&&all().find(w=>w.w.toLowerCase()===p.toLowerCase());
+  if(target){searchList=[target];setMode('search')}else setMode(TOPICS[mode]||['hour','mix','favs','custom','known'].includes(mode)?mode:'hour');
+  try{WIDGET_SRC=window.__WIDGET__||await (await fetch('widget.js',{cache:'no-cache'})).text()}catch(e){}
+  speechSynthesis&&speechSynthesis.getVoices();
+  if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
+})();
+</script>
+</body>
+</html>
