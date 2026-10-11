@@ -194,6 +194,22 @@ nav.tabs button.on{color:var(--accent)}
 .res .li b{font-size:18px}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:rot .8s linear infinite;vertical-align:-3px;margin-right:8px}
 @keyframes rot{to{transform:rotate(360deg)}}
+/* giriş */
+.login{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.login.on{display:flex}
+.lbox{width:100%;max-width:380px;text-align:center}
+.lbox img{width:96px;height:96px;border-radius:24px;box-shadow:var(--shadow)}
+.lbox h2{font-size:30px;font-weight:800;margin:16px 0 6px;letter-spacing:-.5px}
+.lbox p{color:var(--muted);margin:0 0 22px;line-height:1.45}
+.lbox .field{margin-bottom:10px}
+.lerr{font-size:14px;min-height:20px;margin-top:10px;color:var(--bad)}
+.lerr.ok{color:var(--ok)}
+.linkbtn{background:none;border:none;color:var(--accent);font-weight:700;margin-top:12px;font-size:15px;padding:6px}
+.acct{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:16px;padding:12px 14px}
+.acct>div{flex:1;min-width:0}
+.acct b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct small{color:var(--muted);font-size:13px}
+.acct button{width:auto;margin:0;padding:9px 14px}
 @media (min-width:700px){.sec,.card-wrap{max-width:640px;margin-left:auto;margin-right:auto}.tiles{grid-template-columns:1fr 1fr}}
 </style>
 </head>
@@ -283,6 +299,8 @@ nav.tabs button.on{color:var(--accent)}
 
 <!-- Ayarlar -->
 <div class="sheet" id="setSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Ayarlar</h3>
+  <div id="acctWrap" style="display:none"><label class="lb" style="margin-top:4px">Hesap</label>
+  <div class="acct"><div><b id="acEmail">—</b><small id="acSync"></small></div><button class="ghost" id="logoutBtn">Çıkış yap</button></div></div>
   <label class="lb">Günlük hedef</label>
   <div class="inline">
     <select class="field" id="goalN"><option value="5">5 yeni kelime</option><option value="10">10 yeni kelime</option><option value="15">15 yeni kelime</option><option value="20">20 yeni kelime</option><option value="30">30 yeni kelime</option></select>
@@ -307,6 +325,18 @@ nav.tabs button.on{color:var(--accent)}
   <p class="hint">Favoriler, Öğren grubu, AI kelimeleri ve ilerleme yedeklenir. Kopyaladığın metni Notlar'a yapıştırıp saklayabilirsin.</p>
 </div></div>
 
+<div class="login" id="login"><div class="lbox">
+  <img src="icon-180.png" alt="">
+  <h2>Kelime Saati</h2>
+  <p>Hesabına giriş yap, kelimelerin ve ilerlemen tüm cihazlarında aynı kalsın.</p>
+  <input class="field" id="lEmail" type="email" placeholder="E-posta" autocomplete="email" autocapitalize="off" autocorrect="off">
+  <input class="field" id="lPass" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password">
+  <button class="primary" id="lGo">Giriş yap</button>
+  <div class="lerr" id="lErr"></div>
+  <button class="linkbtn" id="lToggle">Hesabın yok mu? Hesap oluştur</button><br>
+  <button class="linkbtn" id="lForgot" style="font-weight:600;color:var(--muted)">Şifremi unuttum</button>
+</div></div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -314,11 +344,14 @@ const TOPICS={daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emot
 const LEVELS=['A2','B1','B2','C1'];
 const KEY='kelimeSaati:v1';
 const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,daily:{},seenDay:'',seen:[]};
+let C=null;
 let S=load(), BASE=[], WIDGET_SRC='';
 let mode=S.mode||'hour', list=[], idx=0, hOff=0, searchList=[];
 
-function load(){try{return Object.assign({},DEF,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return {...DEF}}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function freshDef(){return JSON.parse(JSON.stringify(DEF))}
+function load(){try{return Object.assign(freshDef(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return freshDef()}}
+function localSave(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){localSave();if(C&&C.auth.currentUser)schedulePush()}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const k=w=>w.w.toLowerCase();
@@ -476,6 +509,7 @@ $('q').oninput=()=>{
 };
 
 $('setBtn').onclick=()=>{
+  updateAcct();
   $('workerUrl').value=S.worker;$('goalN').value=S.goalN;$('goalR').value=S.goalR;
   $('stats').textContent=`${BASE.length} hazır kelime · ${S.custom.length} AI kelimesi · ${S.favs.length} favori · ${S.known.length} biliyorum · ${Object.keys(S.learn).length} öğreniliyor`;
   openSheet('setSheet');
@@ -668,8 +702,98 @@ function finish(){
 $('bkOut').onclick=async()=>toast(await copyText(JSON.stringify(S))?'Yedek kopyalandı, Notlar\'a yapıştırıp sakla':'Kopyalanamadı');
 $('bkIn').onclick=()=>{
   const t=prompt('Yedek metnini buraya yapıştır:');if(!t)return;
-  try{const d=JSON.parse(t);if(typeof d!=='object'||!d)throw 0;S=Object.assign({},DEF,d);save();toast('Yedek geri yüklendi');closeSheets();migrateAi();renderLevels();setMode(S.mode||'hour');showTab('today')}
+  try{const d=JSON.parse(t);if(typeof d!=='object'||!d)throw 0;S=Object.assign(freshDef(),d);save();toast('Yedek geri yüklendi');closeSheets();migrateAi();renderLevels();setMode(S.mode||'hour');showTab('today')}
   catch(e){toast('Yedek okunamadı, metnin tamamını yapıştırdığından emin ol')}
+};
+
+/* HESAP & BULUT EŞİTLEME (Firebase) */
+const DEVICE=(()=>{try{let d=localStorage.getItem('ks:device');if(!d){d=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('ks:device',d)}return d}catch(e){return 'x'+Math.random()}})();
+let unsub=null,pushT=null,firstSnap=true,signUp=false,syncMsg='';
+function userRef(){return C.F.doc(C.db,'users',C.auth.currentUser.uid)}
+function mergeState(loc,rem){
+  const r=Object.assign(freshDef(),rem);
+  const uni=(a,b)=>[...new Set([...(a||[]),...(b||[])])];
+  r.favs=uni(rem.favs,loc.favs);r.known=uni(rem.known,loc.known);
+  const ck=new Set((rem.custom||[]).map(w=>w.w.toLowerCase()));
+  r.custom=(rem.custom||[]).concat((loc.custom||[]).filter(w=>!ck.has(w.w.toLowerCase())));
+  r.learn=Object.assign({},loc.learn||{},rem.learn||{});
+  r.daily=Object.assign({},loc.daily||{});
+  for(const [d,v] of Object.entries(rem.daily||{})){const l=r.daily[d];r.daily[d]=l?{n:Math.max(l.n,v.n),r:Math.max(l.r,v.r),ok:Math.max(l.ok,v.ok)}:v}
+  r.best=Math.max(loc.best||0,rem.best||0);
+  if(!r.worker&&loc.worker)r.worker=loc.worker;
+  return r;
+}
+function pushNow(){
+  if(!C||!C.auth.currentUser)return;
+  clearTimeout(pushT);
+  C.F.setDoc(userRef(),{s:JSON.stringify(S),d:DEVICE,t:C.F.serverTimestamp()})
+    .then(()=>{syncMsg='Eşitlendi ✓';updateAcct()})
+    .catch(e=>{syncMsg='Kaydedilemedi: '+(e.code||e.message);updateAcct()});
+}
+function schedulePush(){clearTimeout(pushT);syncMsg='Kaydediliyor…';updateAcct();pushT=setTimeout(pushNow,1200)}
+function applyState(){
+  migrateAi();renderLevels();
+  if(mode!=='hour'&&mode!=='search'){list=listFor(mode);if(idx>=list.length)idx=0}
+  render();
+  if($('v-today').classList.contains('on'))renderToday();
+  if($('v-quiz').classList.contains('on')&&!P)renderSetup();
+  if($('v-widget').classList.contains('on'))renderWidgetTab();
+}
+function updateAcct(){
+  const u=C&&C.auth.currentUser;
+  $('acctWrap').style.display=u?'block':'none';
+  if(u){$('acEmail').textContent=u.email;$('acSync').textContent=syncMsg||'Eşitlendi ✓'}
+}
+function showLogin(on){$('login').classList.toggle('on',on);if(on){$('lErr').textContent='';closeSheets()}}
+function lerr(t,ok){const e=$('lErr');e.textContent=t;e.classList.toggle('ok',!!ok)}
+function authMsg(c){return({
+  'auth/invalid-email':'E-posta adresi geçersiz','auth/user-not-found':'E-posta ya da şifre hatalı','auth/wrong-password':'E-posta ya da şifre hatalı',
+  'auth/invalid-credential':'E-posta ya da şifre hatalı','auth/invalid-login-credentials':'E-posta ya da şifre hatalı',
+  'auth/email-already-in-use':'Bu e-postayla zaten bir hesap var, giriş yap','auth/weak-password':'Şifre en az 6 karakter olmalı',
+  'auth/network-request-failed':'İnternet bağlantısı yok','auth/too-many-requests':'Çok fazla deneme yapıldı, biraz bekle',
+  'auth/operation-not-allowed':'Firebase\'de E-posta/Şifre girişi açılmamış'})[c]||('Hata: '+c)}
+window.initCloud=function(c){
+  C=c;
+  C.A.onAuthStateChanged(C.auth,user=>{
+    if(unsub){unsub();unsub=null}
+    if(!user){showLogin(true);updateAcct();return}
+    showLogin(false);firstSnap=true;syncMsg='Eşitleniyor…';updateAcct();
+    unsub=C.F.onSnapshot(userRef(),snap=>{
+      if(snap.metadata.hasPendingWrites)return;
+      if(!snap.exists()){if(firstSnap){firstSnap=false;pushNow()}return}
+      const data=snap.data();let rem;try{rem=JSON.parse(data.s)}catch(e){return}
+      if(firstSnap){firstSnap=false;S=mergeState(S,rem);localSave();applyState();pushNow();return}
+      if(data.d===DEVICE)return;
+      S=Object.assign(freshDef(),rem);localSave();applyState();syncMsg='Eşitlendi ✓';updateAcct();
+    },e=>{syncMsg='Eşitleme hatası: '+(e.code||e.message);updateAcct()});
+  });
+};
+$('lToggle').onclick=()=>{
+  signUp=!signUp;
+  $('lGo').textContent=signUp?'Hesap oluştur':'Giriş yap';
+  $('lToggle').textContent=signUp?'Zaten hesabın var mı? Giriş yap':'Hesabın yok mu? Hesap oluştur';
+  $('lPass').autocomplete=signUp?'new-password':'current-password';lerr('');
+};
+$('lGo').onclick=async()=>{
+  if(!C)return lerr('Bağlantı kurulamadı, internetini kontrol et');
+  const e=$('lEmail').value.trim(),p=$('lPass').value,b=$('lGo');
+  if(!e||!p)return lerr('E-posta ve şifreyi gir');
+  b.disabled=true;lerr('');
+  try{signUp?await C.A.createUserWithEmailAndPassword(C.auth,e,p):await C.A.signInWithEmailAndPassword(C.auth,e,p);$('lPass').value=''}
+  catch(x){lerr(authMsg(x.code))}
+  finally{b.disabled=false}
+};
+$('lPass').onkeydown=e=>{if(e.key==='Enter')$('lGo').click()};
+$('lForgot').onclick=async()=>{
+  if(!C)return;
+  const e=$('lEmail').value.trim();if(!e)return lerr('Önce e-posta adresini yaz');
+  try{await C.A.sendPasswordResetEmail(C.auth,e);lerr('Şifre sıfırlama bağlantısı e-postana gönderildi',true)}catch(x){lerr(authMsg(x.code))}
+};
+$('logoutBtn').onclick=async()=>{
+  if(!confirm('Çıkış yapılsın mı? Verilerin hesabında kayıtlı kalır.'))return;
+  pushNow();clearTimeout(pushT);
+  try{await C.A.signOut(C.auth)}catch(e){}
+  S=freshDef();localSave();applyState();showTab('today');
 };
 
 /* BUGÜN paneli */
@@ -779,6 +903,18 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   classifyAi();
   if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
 })();
+</script>
+<script src="firebase-config.js"></script>
+<script type="module">
+const cfg=window.FIREBASE_CONFIG;
+if(cfg&&cfg.apiKey&&!/BURAYA/.test(cfg.apiKey)){
+  try{
+    const V='10.12.2',B=`https://www.gstatic.com/firebasejs/${V}/`;
+    const [{initializeApp},A,F]=await Promise.all([import(B+'firebase-app.js'),import(B+'firebase-auth.js'),import(B+'firebase-firestore.js')]);
+    const app=initializeApp(cfg);
+    window.initCloud({auth:A.getAuth(app),db:F.getFirestore(app),A,F});
+  }catch(e){console.warn('Firebase yüklenemedi',e)}
+}
 </script>
 </body>
 </html>

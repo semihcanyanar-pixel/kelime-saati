@@ -40,3 +40,21 @@ AI kelimeleri telefonda saklanır, "AI kelimelerim" grubunda ve alıştırmada �
 {"w":"forgo","tr":"vazgeçmek","ipa":"fɔːrˈɡoʊ","pos":"v.","def":"To give up something you would like to have.","ex":"We forgo dessert on weekdays.","lvl":"C1","t":"daily"}
 ```
 `lvl`: A2 / B1 / B2 / C1 — `t`: konu anahtarı. Widget en geç 6 saatte bir listeyi yeniler.
+
+## 4. Hesap ve bulut eşitleme (Firebase)
+1. https://console.firebase.google.com → **Add project** → ad: `kelime-saati` (Analytics gerekmez).
+2. **Build → Authentication → Get started → Email/Password → Enable → Save**.
+3. **Build → Firestore Database → Create database** → konum `eur3 (europe-west)` → **production mode**.
+4. **Rules** sekmesine şunu yapıştır → **Publish**:
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
+```
+5. **Project settings (⚙️) → Your apps → </> (Web)** → takma ad `kelime-saati` → Register. Çıkan `firebaseConfig` değerlerini `firebase-config.js` dosyasına yaz.
+6. Uygulamayı aç → **Hesap oluştur**. Cihazdaki veriler hesaba yüklenir; diğer cihazlarda aynı hesapla giriş yapınca hepsi gelir.

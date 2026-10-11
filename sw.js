@@ -1,6 +1,6 @@
 // Kelime Saati — service worker (çevrimdışı çalışma)
-const CACHE = "kelime-saati-v2";
-const ASSETS = ["./", "./index.html", "./words.json", "./widget.js", "./manifest.json", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
+const CACHE = "kelime-saati-v3";
+const ASSETS = ["./", "./index.html", "./words.json", "./widget.js", "./manifest.json", "./firebase-config.js", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
