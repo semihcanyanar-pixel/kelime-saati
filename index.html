@@ -194,6 +194,18 @@ nav.tabs button.on{color:var(--accent)}
 .res .li b{font-size:18px}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:rot .8s linear infinite;vertical-align:-3px;margin-right:8px}
 @keyframes rot{to{transform:rotate(360deg)}}
+/* AI sonuçları & günün kelimeleri */
+.ailist{margin-top:14px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:4px 14px}
+.ailist div{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:15px}
+.ailist div:last-child{border-bottom:none}
+.ailist b{flex:none}.ailist span{flex:1;color:var(--muted);text-align:right}.ailist span.badge{flex:none;text-align:center;color:#2F6B45}
+.daycard{margin-top:12px;width:100%;border:none;text-align:left;display:block}
+.daycard .hd{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.daycard .hd .em{width:44px;height:44px;border-radius:14px;background:var(--lilac);display:grid;place-items:center;font-size:24px}
+.daycard .hd b{display:block;font-size:17px}.daycard .hd small{color:var(--muted);font-size:13px}
+.dwords{display:flex;flex-wrap:wrap;gap:8px}
+.dwords span{background:#F4EEE8;border-radius:12px;padding:7px 11px;font-size:14px;font-weight:600}
+.dwords span i{font-style:normal;color:var(--accent);font-weight:600;margin-left:4px}
 /* giriş */
 .login{position:fixed;inset:0;z-index:50;background:var(--bg);display:none;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
 .login.on{display:flex}
@@ -226,6 +238,7 @@ nav.tabs button.on{color:var(--accent)}
     <section class="view on" id="v-today">
       <div class="sec">
         <div class="wcard"><h3>İlerleme</h3><div class="rings" id="rings"></div><div class="streak" id="streak"></div></div>
+        <button class="wcard daycard" id="dayCard" style="display:none"></button>
         <h2 class="h">Öğrenme Yolun</h2>
         <div class="tiles" id="tiles"></div>
         <button class="wcard hourcard" id="hourCard"></button>
@@ -297,6 +310,21 @@ nav.tabs button.on{color:var(--accent)}
   <input class="field" id="q" placeholder="İngilizce ya da Türkçe yaz…" autocomplete="off" autocapitalize="off">
   <div class="res" id="qRes"></div></div></div>
 
+<!-- AI paneli -->
+<div class="sheet" id="aiSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
+  <h3>✨ AI ile kelime üret</h3>
+  <label class="lb" style="margin-top:4px">Konu</label>
+  <input class="field" id="aiTopic" placeholder="ör. havacılık, mutfak, futbol" autocomplete="off">
+  <div class="chips left" id="aiSug" style="margin-top:10px"></div>
+  <label class="lb">Seviye · birden fazla seçebilirsin</label>
+  <div class="chips left" id="aiLv"></div>
+  <label class="lb">Kelime sayısı</label>
+  <div class="chips left" id="aiCnt"></div>
+  <button class="primary" id="aiGo">Kelime üret</button>
+  <p class="hint" id="aiNote"></p>
+  <div id="aiRes"></div>
+</div></div>
+
 <!-- Ayarlar -->
 <div class="sheet" id="setSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Ayarlar</h3>
   <div id="acctWrap" style="display:none"><label class="lb" style="margin-top:4px">Hesap</label>
@@ -306,13 +334,8 @@ nav.tabs button.on{color:var(--accent)}
     <select class="field" id="goalN"><option value="5">5 yeni kelime</option><option value="10">10 yeni kelime</option><option value="15">15 yeni kelime</option><option value="20">20 yeni kelime</option><option value="30">30 yeni kelime</option></select>
     <select class="field" id="goalR"><option value="10">10 tekrar</option><option value="20">20 tekrar</option><option value="30">30 tekrar</option><option value="50">50 tekrar</option></select>
   </div>
-  <label class="lb">AI ile kelime üret</label>
-  <input class="field" id="aiTopic" placeholder="Konu (ör. mutfak, futbol, ebeveynlik)">
-  <div class="inline" style="margin-top:10px">
-    <select class="field" id="aiLevel"><option>A2</option><option selected>B1</option><option>B2</option><option>C1</option></select>
-    <select class="field" id="aiCount"><option value="5">5 kelime</option><option value="10" selected>10 kelime</option><option value="15">15 kelime</option></select>
-  </div>
-  <button class="primary" id="aiGo">Kelime üret</button>
+  <label class="lb">Günün AI kelimeleri</label>
+  <select class="field" id="autoOn"><option value="1">Açık — her gün rastgele bir konudan 5 kelime ekle</option><option value="0">Kapalı</option></select>
   <label class="lb">Worker adresi</label>
   <input class="field" id="workerUrl" placeholder="https://kelime-saati-ai.xxx.workers.dev" autocomplete="off" autocapitalize="off">
   <p class="hint">Cloudflare Worker'ı kurduktan sonra adresini buraya yapıştır.</p>
@@ -343,7 +366,7 @@ nav.tabs button.on{color:var(--accent)}
 const TOPICS={daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'};
 const LEVELS=['A2','B1','B2','C1'];
 const KEY='kelimeSaati:v1';
-const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,daily:{},seenDay:'',seen:[]};
+const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],aiLv:['B1'],aiCnt:10,autoOn:true,autoDay:'',daily:{},seenDay:'',seen:[]};
 let C=null;
 let S=load(), BASE=[], WIDGET_SRC='';
 let mode=S.mode||'hour', list=[], idx=0, hOff=0, searchList=[];
@@ -394,10 +417,11 @@ function listFor(m){
   if(m==='favs')return all().filter(isFav);
   if(m==='known')return all().filter(isKnown);
   if(m==='learn')return shuffle(all().filter(inLearn));
+  if(m==='daily')return S.custom.filter(w=>w.day===dkey());
   if(m==='search')return searchList;
   return [];
 }
-function modeName(m){return m==='hour'?'Saatin kelimesi':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'AI kelimelerim':m==='known'?'Bildiklerim':m==='learn'?'Öğren':m==='search'?'Arama':TOPICS[m]||m}
+function modeName(m){return m==='hour'?'Saatin kelimesi':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'AI kelimelerim':m==='known'?'Bildiklerim':m==='learn'?'Öğren':m==='daily'?'Günün kelimeleri':m==='search'?'Arama':TOPICS[m]||m}
 function setMode(m,startWord){
   mode=m;hOff=0;idx=0;
   if(m!=='search'){S.mode=m;save()}
@@ -493,7 +517,7 @@ $('modeBtn').onclick=()=>{
   const lv=w=>S.levels.includes(w.lvl);
   const items=[['hour','Saatin kelimesi','her saat değişir'],['mix','Karışık',all().filter(w=>lv(w)&&!isKnown(w)).length+' kelime']]
     .concat(Object.keys(TOPICS).map(t=>{const ws=all().filter(w=>w.t===t&&lv(w)&&!isKnown(w)),ai=ws.filter(w=>w.ai).length;return [t,TOPICS[t],ws.length+' kelime'+(ai?` · ${ai} AI`:'')]}))
-    .concat([['learn','Öğren',Object.keys(S.learn).length+''],['favs','Favorilerim',S.favs.length+''],['custom','AI kelimelerim',S.custom.length+''],['known','Bildiklerim',S.known.length+'']]);
+    .concat([['daily','Günün kelimeleri',S.custom.filter(w=>w.day===dkey()).length+''],['learn','Öğren',Object.keys(S.learn).length+''],['favs','Favorilerim',S.favs.length+''],['custom','AI kelimelerim',S.custom.length+''],['known','Bildiklerim',S.known.length+'']]);
   $('modeList').innerHTML=items.map(([m,n,s])=>`<button class="li ${m===mode?'on':''}" data-m="${m}"><span>${n}</span><small>${s}</small></button>`).join('');
   $('modeList').querySelectorAll('.li').forEach(b=>b.onclick=()=>{closeSheets();setMode(b.dataset.m)});
   openSheet('modeSheet');
@@ -510,37 +534,88 @@ $('q').oninput=()=>{
 
 $('setBtn').onclick=()=>{
   updateAcct();
-  $('workerUrl').value=S.worker;$('goalN').value=S.goalN;$('goalR').value=S.goalR;
+  $('workerUrl').value=S.worker;$('goalN').value=S.goalN;$('goalR').value=S.goalR;$('autoOn').value=S.autoOn?'1':'0';
   $('stats').textContent=`${BASE.length} hazır kelime · ${S.custom.length} AI kelimesi · ${S.favs.length} favori · ${S.known.length} biliyorum · ${Object.keys(S.learn).length} öğreniliyor`;
   openSheet('setSheet');
 };
-$('workerUrl').onchange=()=>{S.worker=$('workerUrl').value.trim();save()};
+const cleanUrl=u=>{u=(u||'').trim();const i=u.indexOf('http');return i>0?u.slice(i):u};
+$('workerUrl').onchange=()=>{S.worker=cleanUrl($('workerUrl').value);$('workerUrl').value=S.worker;save();maybeDaily()};
+$('autoOn').onchange=()=>{S.autoOn=$('autoOn').value==='1';save();renderToday();maybeDaily()};
 $('goalN').onchange=()=>{S.goalN=+$('goalN').value;save();renderToday()};
 $('goalR').onchange=()=>{S.goalR=+$('goalR').value;save();renderToday()};
 $('resetKnown').onclick=()=>{if(confirm('Tüm "biliyorum" işaretleri sıfırlansın mı?')){S.known=[];save();toast('Sıfırlandı');setMode(mode);$('setBtn').onclick()}};
 $('clearAi').onclick=()=>{if(confirm('AI ile üretilen tüm kelimeler silinsin mi?')){S.custom=[];save();toast('Silindi');setMode(mode==='custom'?'mix':mode);$('setBtn').onclick()}};
+/* AI kelime üretimi */
+const TOPIC_EN={daily:'daily life and home',work:'work and career',travel:'travel and holidays',emotions:'feelings and personality',tech:'technology and the internet',health:'health, sport and food',society:'society, news and culture',academic:'study, science and ideas'};
+async function genWords(topic,level,count,tKey,extra){
+  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),60000);
+  let r;
+  try{r=await fetch(cleanUrl(S.worker),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,level,count,exclude:[...S.custom.map(w=>w.w),...shuffle(BASE.filter(w=>w.lvl===level)).slice(0,100).map(w=>w.w)]}),signal:ctl.signal})}
+  catch(x){throw new Error(x.name==='AbortError'?'AI 60 sn içinde cevap vermedi, tekrar dene':'Worker\'a ulaşılamadı ('+(x.message||'bağlantı')+')')}
+  finally{clearTimeout(tm)}
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok||!Array.isArray(d.words))throw new Error(d.error||('Hata '+r.status));
+  return d.words.filter(w=>w.w).map(w=>Object.assign({w:w.w,tr:w.tr,ipa:w.ipa||'',pos:w.pos||'',def:w.def,ex:w.ex,lvl:level,t:tKey||(TOPICS[w.t]?w.t:''),tl:topic,ai:true},extra||{}));
+}
+function addWords(list){
+  const have=new Set(all().map(k)),add=[];
+  for(const w of list){const key=w.w.toLowerCase();if(have.has(key))continue;have.add(key);add.push(w)}
+  S.custom.push(...add);save();return add;
+}
+const AI_SUG=['Havacılık','Mutfak','Futbol','Ebeveynlik','Finans','Film & Dizi','Doğa','Alışveriş','Yazılım','Tarih'];
+function openAi(){
+  if(!S.aiLv||!S.aiLv.length)S.aiLv=['B1'];
+  $('aiSug').innerHTML=AI_SUG.map(t=>`<button class="chip" data-t="${t}">${t}</button>`).join('');
+  $('aiSug').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{$('aiTopic').value=b.dataset.t});
+  const lv=()=>{$('aiLv').innerHTML=LEVELS.map(l=>`<button class="chip ${S.aiLv.includes(l)?'on':''}" data-l="${l}">${l}</button>`).join('');
+    $('aiLv').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const l=b.dataset.l,i=S.aiLv.indexOf(l);if(i>=0){if(S.aiLv.length===1)return toast('En az bir seviye seç');S.aiLv.splice(i,1)}else S.aiLv.push(l);S.aiLv.sort();save();lv()})};
+  const cn=()=>{$('aiCnt').innerHTML=[5,10,15,20].map(n=>`<button class="chip ${S.aiCnt===n?'on':''}" data-n="${n}">${n}</button>`).join('');
+    $('aiCnt').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{S.aiCnt=+b.dataset.n;save();cn()})};
+  lv();cn();
+  $('aiNote').textContent=S.worker?'':'Önce ⚙️ Ayarlar\'dan Worker adresini girmelisin.';
+  $('aiRes').innerHTML='';
+  openSheet('aiSheet');
+}
 $('aiGo').onclick=async()=>{
-  S.worker=$('workerUrl').value.trim();save();
-  const topic=$('aiTopic').value.trim(),level=$('aiLevel').value,count=+$('aiCount').value;
-  if(!S.worker)return toast('Önce Worker adresini gir');
-  if(!topic)return toast('Bir konu yaz');
-  const b=$('aiGo');b.disabled=true;b.innerHTML='<span class="spin"></span>Üretiliyor…';
+  const topic=$('aiTopic').value.trim(),levels=S.aiLv.slice(),n=S.aiCnt;
+  if(!S.worker)return toast('Önce Ayarlar\'dan Worker adresini gir');
+  if(!topic)return toast('Bir konu yaz ya da öneriden seç');
+  const per=levels.map((l,i)=>Math.floor(n/levels.length)+(i<n%levels.length?1:0)).map((c,i)=>[levels[i],c]).filter(x=>x[1]>0);
+  const b=$('aiGo');b.disabled=true;b.innerHTML='<span class="spin"></span>Üretiliyor…';$('aiRes').innerHTML='';
   try{
-    const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),60000);
-    let r;
-    try{r=await fetch(S.worker,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,level,count,exclude:[...S.custom.map(w=>w.w),...shuffle(BASE.filter(w=>w.lvl===level)).slice(0,100).map(w=>w.w)]}),signal:ctl.signal})}
-    catch(x){throw new Error(x.name==='AbortError'?'AI 60 sn içinde cevap vermedi, tekrar dene':'Worker\'a ulaşılamadı ('+(x.message||'bağlantı')+'), tekrar dene')}
-    finally{clearTimeout(tm)}
-    const d=await r.json().catch(()=>({}));
-    if(!r.ok||!Array.isArray(d.words))throw new Error(d.error||('Hata '+r.status));
-    const have=new Set(all().map(k));
-    const add=d.words.filter(w=>w.w&&!have.has(w.w.toLowerCase())).map(w=>({w:w.w,tr:w.tr,ipa:w.ipa||'',pos:w.pos||'',def:w.def,ex:w.ex,lvl:level,t:TOPICS[w.t]?w.t:'',tl:topic,ai:true}));
-    S.custom.push(...add);save();
-    toast(add.length?`${add.length} yeni kelime eklendi`:'Yeni kelime gelmedi, tekrar dene');
-    if(add.length){closeSheets();showTab('home');setMode('custom');classifyAi()}
+    const res=await Promise.allSettled(per.map(([l,c])=>genWords(topic,l,c)));
+    const ok=res.filter(r=>r.status==='fulfilled').flatMap(r=>r.value);
+    if(!ok.length){const e=res.find(r=>r.status==='rejected');throw e?e.reason:new Error('Yeni kelime gelmedi')}
+    const add=addWords(ok);
+    const failN=res.filter(r=>r.status==='rejected').length;
+    $('aiRes').innerHTML=add.length?`<div class="ailist">${add.map(w=>`<div><span class="badge">${esc(w.lvl)}</span><b>${esc(w.w)}</b><span>${esc(w.tr)}</span></div>`).join('')}</div>
+      <button class="ghost" id="aiSee">Kartlarda incele</button>`:'<p class="hint">Gelen kelimelerin hepsi zaten listende vardı, tekrar dene.</p>';
+    if($('aiSee'))$('aiSee').onclick=()=>{closeSheets();showTab('home');setMode('custom')};
+    toast(`${add.length} yeni kelime eklendi${failN?` · ${failN} seviye üretilemedi`:''}`);
+    classifyAi();renderToday();
   }catch(e){toast('Üretilemedi: '+e.message)}
   finally{b.disabled=false;b.textContent='Kelime üret'}
 };
+
+/* Her gün otomatik 5 AI kelimesi */
+let dailyBusy=false;
+async function maybeDaily(){
+  const t=dkey();
+  if(!S.autoOn||!S.worker||!BASE.length||S.autoDay===t||dailyBusy)return;
+  if(C&&!C.auth.currentUser)return;
+  dailyBusy=true;
+  try{
+    const keys=Object.keys(TOPICS),tk=keys[Math.random()*keys.length|0];
+    const lv=(S.levels&&S.levels.length?S.levels:LEVELS)[Math.random()*(S.levels&&S.levels.length?S.levels.length:4)|0];
+    const list=await genWords(TOPIC_EN[tk],lv,5,tk,{day:t});
+    list.forEach(w=>w.tl=TOPICS[tk]);
+    const add=addWords(list.slice(0,5));
+    S.autoDay=t;save();
+    if(add.length)toast(`🌱 Bugünün ${add.length} yeni kelimesi eklendi · ${TOPICS[tk]}`);
+    renderToday();
+  }catch(e){console.warn('günlük kelime',e)}
+  finally{dailyBusy=false}
+}
 
 /* AI kelimelerini konu gruplarına yerleştir */
 function migrateAi(){let ch=false;S.custom.forEach(w=>{if(!w.ai){w.ai=true;ch=true}if(!TOPICS[w.t]&&w.t){w.t='';ch=true}});if(ch)save()}
@@ -564,7 +639,7 @@ const QLENS=[10,20,30,50,0];
 const DIRS=[['en','EN → TR'],['tr','TR → EN'],['mix','Karışık']];
 function srcName(x){return x==='all'?'Tümü':x==='learn'?'Öğren':x==='favs'?'Favoriler':x==='custom'?'AI kelimelerim':x==='retry'?'Yanlışlar':TOPICS[x]||x}
 function srcPool(x){
-  const lv=w=>S.levels.includes(w.lvl);
+  const lv=w=>(S.qLevels&&S.qLevels.length?S.qLevels:LEVELS).includes(w.lvl);
   if(x==='learn')return all().filter(inLearn);
   if(x==='favs')return all().filter(isFav);
   if(x==='custom')return all().filter(w=>w.ai);
@@ -583,14 +658,17 @@ function renderPractice(){P?renderQ():renderSetup()}
 function renderSetup(){
   const pr=$('pr'),ln=Object.keys(S.learn).length;
   const srcs=['all',...Object.keys(TOPICS),'favs','custom'];
-  const lvlNote=(S.qSrc==='all'||TOPICS[S.qSrc])?`Seviye: <b style="color:var(--gold)">${S.levels.join(', ')}</b> · ana sayfadaki seviye seçimine göre`:'Bu grupta seviye filtresi uygulanmaz';
+  if(!S.qLevels||!S.qLevels.length)S.qLevels=[...LEVELS];
+  const lvlNote=(S.qSrc==='all'||TOPICS[S.qSrc])?'':'<p class="hint">Favoriler ve AI kelimelerinde seviye filtresi uygulanmaz.</p>';
   pr.innerHTML=`<div class="sec">
     <div class="learnbox"><div class="n">${ln}</div>
       <div class="tx"><b>Öğren</b>Yanlış yaptığın kelimeler burada birikir. Üst üste 3 doğru cevapta gruptan çıkar. Çalış, grup boşalana kadar sorar.</div>
       <button id="pLearn" ${ln?'':'disabled'}>Çalış</button></div>
     <h2 class="h" style="margin-top:22px">Kelime grubu</h2>
     <div class="chips left">${srcs.map(x=>{const n=srcPool(x).length;return `<button class="chip ${S.qSrc===x?'on':''}" data-s="${x}">${srcName(x)}<small>${n}</small></button>`}).join('')}</div>
-    <p class="hint">${lvlNote}</p>
+    <h2 class="h" style="margin-top:22px">Seviye</h2>
+    <div class="chips left">${LEVELS.map(l=>`<button class="chip ${S.qLevels.includes(l)?'on':''}" data-lv="${l}">${l}</button>`).join('')}</div>
+    ${lvlNote}
     <h2 class="h" style="margin-top:22px">Soru sayısı</h2>
     <div class="chips left">${QLENS.map(n=>`<button class="chip ${S.qLen===n?'on':''}" data-n="${n}">${n||'Sınırsız'}</button>`).join('')}</div>
     <h2 class="h" style="margin-top:22px">Yön</h2>
@@ -600,6 +678,7 @@ function renderSetup(){
   </div>`;
   pr.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{S.qSrc=b.dataset.s;save();renderSetup()});
   pr.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{S.qLen=+b.dataset.n;save();renderSetup()});
+  pr.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{const l=b.dataset.lv,i=S.qLevels.indexOf(l);if(i>=0){if(S.qLevels.length===1)return toast('En az bir seviye seç');S.qLevels.splice(i,1)}else S.qLevels.push(l);S.qLevels.sort();save();renderSetup()});
   pr.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{S.dir=b.dataset.d;save();renderSetup()});
   $('pStart').onclick=()=>startPractice(S.qSrc,S.qLen);
   $('pLearn').onclick=()=>startPractice('learn',0);
@@ -725,6 +804,7 @@ function mergeState(loc,rem){
   for(const [d,v] of Object.entries(rem.daily||{})){const l=r.daily[d];r.daily[d]=l?{n:Math.max(l.n,v.n),r:Math.max(l.r,v.r),ok:Math.max(l.ok,v.ok)}:v}
   r.best=Math.max(loc.best||0,rem.best||0);
   if(!r.worker&&loc.worker)r.worker=loc.worker;
+  if((loc.autoDay||'')>(r.autoDay||''))r.autoDay=loc.autoDay;
   return r;
 }
 function pushNow(){
@@ -764,9 +844,9 @@ window.initCloud=function(c){
     showLogin(false);firstSnap=true;syncMsg='Eşitleniyor…';updateAcct();
     unsub=C.F.onSnapshot(userRef(),snap=>{
       if(snap.metadata.hasPendingWrites)return;
-      if(!snap.exists()){if(firstSnap){firstSnap=false;pushNow()}return}
+      if(!snap.exists()){if(firstSnap){firstSnap=false;pushNow();setTimeout(maybeDaily,1500)}return}
       const data=snap.data();let rem;try{rem=JSON.parse(data.s)}catch(e){return}
-      if(firstSnap){firstSnap=false;S=mergeState(S,rem);localSave();applyState();pushNow();return}
+      if(firstSnap){firstSnap=false;S=mergeState(S,rem);localSave();applyState();pushNow();setTimeout(maybeDaily,1500);return}
       if(data.d===DEVICE)return;
       S=Object.assign(freshDef(),rem);localSave();applyState();syncMsg='Eşitlendi ✓';updateAcct();
     },e=>{syncMsg='Eşitleme hatası: '+(e.code||e.message);updateAcct()});
@@ -807,8 +887,8 @@ function ring(v,goal,c1,c2,label,id){
     <defs><linearGradient id="g${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
     <filter id="f${id}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter></defs>
     <circle cx="60" cy="60" r="${r}" fill="none" stroke="${c1}" stroke-opacity=".18" stroke-width="11"/>
-    <circle cx="60" cy="60" r="${r}" fill="none" stroke="${c2}" stroke-opacity=".45" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C*p} ${C}" transform="rotate(-90 60 60)" filter="url(#f${id})"/>
-    <circle cx="60" cy="60" r="${r}" fill="none" stroke="url(#g${id})" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C*p} ${C}" transform="rotate(-90 60 60)"/>
+    ${p>0?`<circle cx="60" cy="60" r="${r}" fill="none" stroke="${c2}" stroke-opacity=".45" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C*p} ${C}" transform="rotate(-90 60 60)" filter="url(#f${id})"/>
+    <circle cx="60" cy="60" r="${r}" fill="none" stroke="url(#g${id})" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C*p} ${C}" transform="rotate(-90 60 60)"/>`:''}
     <text x="60" y="${done?58:66}" text-anchor="middle" font-size="${done?20:22}" font-weight="700" fill="#26221F" font-family="-apple-system,sans-serif">${v}/${goal}</text>
     ${done?'<text x="60" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#2E9E5E" font-family="-apple-system,sans-serif">✓ tamam</text>':''}
   </svg><div class="lbl">${label}</div><div class="sub">(${v}/${goal})</div></button>`;
@@ -826,13 +906,22 @@ function renderToday(){
     ['t-sand','🎲','Pratik & Test',`En iyi seri: ${S.best}`,()=>showTab('quiz')],
     ['t-sage','📋','Kelime Listem',`${S.favs.length} favori`,()=>{showTab('home');setMode('favs')}],
     ['t-sky','📅','Öğren & Tekrar',ln?`${ln} kelime bekliyor`:'Bekleyen kelime yok',()=>{if(!ln)return toast('Öğren grubu boş. Pratikte yanlış yaptığın kelimeler buraya gelir.');showTab('quiz');startPractice('learn',0)}],
-    ['t-lilac wide','✨','AI ile kelime üret',`Kendi konunu yaz, ${S.custom.length} AI kelimesi var`,()=>$('setBtn').onclick()],
+    ['t-lilac wide','✨','AI ile kelime üret',`Konu ve seviye seç, ${S.custom.length} AI kelimesi var`,()=>openAi()],
   ];
   $('tiles').innerHTML=tiles.map(([c,e,t,s],i)=>`<button class="tile ${c}" data-i="${i}"><div class="em">${e}</div><div><b>${t}</b><small>${s}</small></div></button>`).join('');
   $('tiles').querySelectorAll('.tile').forEach(b=>b.onclick=tiles[+b.dataset.i][4]);
   const hw=hourWord(0),mins=60-new Date().getMinutes();
   $('hourCard').innerHTML=`<div class="em">⏰</div><div><div class="t1">Saatin kelimesi · ${mins} dk</div><div class="t2">${esc(hw.w)}</div><div class="t3">${esc(hw.tr)}</div></div><svg class="arr" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>`;
   $('hourCard').onclick=()=>{showTab('home');setMode('hour')};
+  const dw=S.custom.filter(w=>w.day===dkey()),dc=$('dayCard');
+  if(dw.length){
+    dc.style.display='block';
+    dc.innerHTML=`<div class="hd"><div class="em">🌱</div><div><b>Bugünün kelimeleri</b><small>${esc(dw[0].tl||'')} · AI ile eklendi</small></div></div><div class="dwords">${dw.map(w=>`<span>${esc(w.w)}<i>${esc(w.tr.split(',')[0])}</i></span>`).join('')}</div>`;
+    dc.onclick=()=>{showTab('home');setMode('daily')};
+  }else if(S.autoOn&&S.worker){
+    dc.style.display='block';dc.onclick=()=>maybeDaily();
+    dc.innerHTML=`<div class="hd" style="margin:0"><div class="em">🌱</div><div><b>Bugünün kelimeleri</b><small>${dailyBusy?'Hazırlanıyor…':'Dokun, bugünün 5 kelimesini getir'}</small></div></div>`;
+  }else dc.style.display='none';
   const names=['Pz','Pt','Sa','Ça','Pe','Cu','Ct'],days=[];
   for(let i=6;i>=0;i--){const x=new Date();x.setDate(x.getDate()-i);const v=S.daily[dkey(x)]||{n:0,r:0};days.push({d:names[x.getDay()],v:v.n+v.r,today:i===0})}
   const max=Math.max(10,...days.map(x=>x.v)),tot=days.reduce((a,x)=>a+x.v,0);
@@ -901,10 +990,11 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   renderLevels();
   const p=new URLSearchParams(location.search).get('w');
   const target=p&&all().find(w=>w.w.toLowerCase()===p.toLowerCase());
-  if(target){searchList=[target];setMode('search');showTab('home')}else{showTab('today');setMode(TOPICS[mode]||['hour','mix','favs','custom','known','learn'].includes(mode)?mode:'hour')}
+  if(target){searchList=[target];setMode('search');showTab('home')}else{showTab('today');setMode(TOPICS[mode]||['hour','mix','favs','custom','known','learn','daily'].includes(mode)?mode:'hour')}
   try{WIDGET_SRC=window.__WIDGET__||await (await fetch('widget.js',{cache:'no-cache'})).text()}catch(e){}
   speechSynthesis&&speechSynthesis.getVoices();
   classifyAi();
+  setTimeout(()=>{if(!window.FIREBASE_CONFIG||!C)maybeDaily()},5000);
   if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
 })();
 </script>
