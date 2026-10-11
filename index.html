@@ -526,7 +526,11 @@ $('aiGo').onclick=async()=>{
   if(!topic)return toast('Bir konu yaz');
   const b=$('aiGo');b.disabled=true;b.innerHTML='<span class="spin"></span>Üretiliyor…';
   try{
-    const r=await fetch(S.worker,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,level,count,exclude:all().map(w=>w.w)})});
+    const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),60000);
+    let r;
+    try{r=await fetch(S.worker,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,level,count,exclude:[...S.custom.map(w=>w.w),...shuffle(BASE.filter(w=>w.lvl===level)).slice(0,100).map(w=>w.w)]}),signal:ctl.signal})}
+    catch(x){throw new Error(x.name==='AbortError'?'AI 60 sn içinde cevap vermedi, tekrar dene':'Worker\'a ulaşılamadı ('+(x.message||'bağlantı')+'), tekrar dene')}
+    finally{clearTimeout(tm)}
     const d=await r.json().catch(()=>({}));
     if(!r.ok||!Array.isArray(d.words))throw new Error(d.error||('Hata '+r.status));
     const have=new Set(all().map(k));
