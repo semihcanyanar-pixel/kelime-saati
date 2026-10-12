@@ -1,6 +1,7 @@
 // Kelime Saati — Scriptable widget
 // Ana ekran (küçük / orta / büyük) ve kilit ekranı (dikdörtgen / satır / yuvarlak) widget'larını destekler.
-// Widget'ın "Parameter" alanına  B1,B2|travel,work  gibi bir satır yazarsan aşağıdaki ayarları geçersiz kılar.
+// Widget'ın "Parameter" alanına  B1,B2|travel,work|30  gibi bir satır yazarsan aşağıdaki ayarları geçersiz kılar.
+// Son kısım kelimenin kaç dakikada bir değişeceği: 15, 30 ya da 60.
 // Konu anahtarları: daily, work, travel, emotions, tech, health, society, academic
 
 // KS_CONFIG_START
@@ -8,7 +9,8 @@ const CONFIG = {
   url: "https://KULLANICI_ADIN.github.io/kelime-saati/words.json",
   appUrl: "https://KULLANICI_ADIN.github.io/kelime-saati/",
   levels: ["A2", "B1", "B2", "C1"],
-  topics: []
+  topics: [],
+  interval: 60
 };
 // KS_CONFIG_END
 
@@ -18,10 +20,11 @@ const MUTED = new Color("#8C8077");
 
 function parseParam(p) {
   if (!p) return null;
-  const [l, t] = String(p).split("|");
+  const [l, t, m] = String(p).split("|");
   const levels = (l || "").split(",").map(s => s.trim().toUpperCase()).filter(s => /^(A2|B1|B2|C1)$/.test(s));
   const topics = (t || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
-  return { levels, topics };
+  const iv = parseInt(m);
+  return { levels, topics, interval: [15, 30, 60].includes(iv) ? iv : null };
 }
 
 async function loadWords() {
@@ -50,7 +53,7 @@ function pickWord(words, opts) {
   let pool = words.filter(w => opts.levels.includes(w.lvl) && (!opts.topics.length || opts.topics.includes(w.t)));
   if (!pool.length) pool = words;
   const n = pool.length;
-  const h = Math.floor(Date.now() / 3600000);
+  const h = Math.floor(Date.now() / (SLOT_MIN * 60000));
   return pool[(((h * 7919 + 13) % n) + n) % n];
 }
 
@@ -66,7 +69,8 @@ function addText(stack, text, font, color, opts = {}) {
 
 function build(word, family) {
   const w = new ListWidget();
-  w.refreshAfterDate = new Date(Math.ceil(Date.now() / 3600000) * 3600000 + 10000);
+  const ms = SLOT_MIN * 60000;
+  w.refreshAfterDate = new Date(Math.ceil(Date.now() / ms) * ms + 10000);
   if (word) w.url = CONFIG.appUrl + "?w=" + encodeURIComponent(word.w);
 
   if (!word) {
@@ -106,7 +110,7 @@ function build(word, family) {
 
   const top = w.addStack();
   top.centerAlignContent();
-  addText(top, "⏰ SAATİN KELİMESİ", Font.heavySystemFont(9), GOLD);
+  addText(top, SLOT_MIN === 60 ? "⏰ SAATİN KELİMESİ" : `⏰ ${SLOT_MIN} DK KELİMESİ`, Font.heavySystemFont(9), GOLD);
   top.addSpacer();
   addText(top, word.lvl || "", Font.boldSystemFont(9), GOLD);
 
@@ -128,8 +132,9 @@ function build(word, family) {
   return w;
 }
 
-const opts = parseParam(args.widgetParameter) || { levels: CONFIG.levels, topics: CONFIG.topics };
+const opts = parseParam(args.widgetParameter) || { levels: CONFIG.levels, topics: CONFIG.topics, interval: null };
 if (!opts.levels.length) opts.levels = CONFIG.levels;
+const SLOT_MIN = opts.interval || ([15, 30, 60].includes(CONFIG.interval) ? CONFIG.interval : 60);
 const words = await loadWords();
 const word = words.length ? pickWord(words, opts) : null;
 const family = config.widgetFamily || "medium";
