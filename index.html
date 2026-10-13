@@ -292,7 +292,7 @@ nav.tabs button.on{color:var(--accent)}
 
         <h2 class="h">Widget konuları</h2>
         <div class="chips left" id="wTopicChips"></div>
-        <p class="hint">Hiçbiri seçili değilse tüm konular gelir. Seviyeler Kartlar sekmesindeki seviye seçimini kullanır. Saatin kelimesi uygulamada ve widget'ta aynıdır.</p>
+        <p class="hint">Hiçbiri seçili değilse tüm kategoriler gelir. Kendi eklediğin kategoriler ve AI kelimelerin de widget'ta çıkar. Seviyeler Kartlar sekmesindeki seçimi kullanır. Saatin kelimesi uygulamada ve widget'ta aynıdır.</p>
 
         <h2 class="h">Kurulum</h2>
         <ol class="steps">
@@ -305,7 +305,7 @@ nav.tabs button.on{color:var(--accent)}
         <button class="primary" id="copyCode">Widget kodunu kopyala</button>
         <code class="param" id="paramTxt"></code>
         <button class="ghost" id="copyParam">Parametreyi kopyala</button>
-        <p class="hint">iOS widget yenilemesini kendi planlar; kelime genelde saat başı değişir ama birkaç dakika gecikebilir. AI ile eklenen kelimeler yalnızca uygulamada görünür.</p>
+        <p class="hint">iOS widget yenilemesini kendi planlar; kelime genelde saat başı değişir ama birkaç dakika gecikebilir. Kategori ya da AI kelimesi değişiklikleri widget'a birkaç dakika içinde yansır.</p>
       </div>
     </section>
   </main>
@@ -440,7 +440,7 @@ function streakDays(){
 }
 
 /* Saatin kelimesi: widget ile birebir aynı algoritma */
-function hourPool(){const p=BASE.filter(w=>S.levels.includes(w.lvl)&&(!S.wTopics.length||S.wTopics.includes(w.t)));return p.length?p:BASE}
+function hourPool(){const A=all(),p=A.filter(w=>S.levels.includes(w.lvl)&&(!S.wTopics.length||S.wTopics.includes(catOf(w))));return p.length?p:A}
 const slotMs=()=>([15,30,60].includes(S.wInt)?S.wInt:60)*60000;
 const slotLeft=()=>Math.max(1,Math.ceil((Math.ceil(Date.now()/slotMs())*slotMs()-Date.now())/60000));
 function hourWord(off=0){const p=hourPool();const h=Math.floor(Date.now()/slotMs())+off;const n=p.length;return p[(((h*7919+13)%n)+n)%n]}
@@ -703,7 +703,7 @@ function renderCats(){
 function openCats(){catStat(catBusy?$('catStat').textContent:'');renderCats();openSheet('catSheet')}
 function renameCat(k){
   const n=prompt('Yeni ad:',TOPICS[k]);if(!n||!n.trim())return;
-  const c=S.cats.find(c=>c.k===k);if(c){c.n=n.trim().slice(0,40);afterCats();toast('Ad değiştirildi')}
+  const c=S.cats.find(c=>c.k===k);if(c){c.n=n.replace(/[,|]/g,' ').trim().slice(0,40);afterCats();toast('Ad değiştirildi')}
 }
 async function scanCat(k){
   if(!S.worker)return toast('Önce Ayarlar\'dan Worker adresini gir');
@@ -723,7 +723,7 @@ async function scanCat(k){
   finally{catBusy=false;afterCats()}
 }
 async function addCat(){
-  const n=$('catNew').value.trim().slice(0,40);
+  const n=$('catNew').value.replace(/[,|]/g,' ').trim().slice(0,40);
   if(!n)return toast('Kategori adı yaz');
   if(Object.values(TOPICS).some(x=>x.toLocaleLowerCase('tr')===n.toLocaleLowerCase('tr')))return toast('Bu kategori zaten var');
   const k='c_'+Date.now().toString(36);
@@ -935,15 +935,36 @@ function mergeState(loc,rem){
   r.best=Math.max(loc.best||0,rem.best||0);
   r.cats=(rem.cats&&rem.cats.length)?rem.cats:loc.cats;
   r.catMap=Object.assign({},loc.catMap||{},rem.catMap||{});
+  r.wToken=rem.wToken||loc.wToken||'';
   if(!r.worker&&loc.worker)r.worker=loc.worker;
   if((loc.autoDay||'')>(r.autoDay||''))r.autoDay=loc.autoDay;
   return r;
 }
+/* Widget için yayın: AI kelimeleri + kategori ayarları (gizli anahtarlı, sadece okunabilir kayıt) */
+let lastPubSig='';
+function widgetPayload(){
+  const map={};BASE.forEach(w=>{const c=catOf(w);if(c!==w.t)map[w.w.toLowerCase()]=c});
+  const custom=all().filter(w=>w.ai).map(w=>({w:w.w,tr:w.tr,ipa:w.ipa,pos:w.pos,def:w.def,ex:w.ex,lvl:w.lvl,t:w.t,c:catOf(w)}));
+  return JSON.stringify({cats:S.cats,map,custom});
+}
+function pubUrl(){
+  const pid=window.FIREBASE_CONFIG&&window.FIREBASE_CONFIG.projectId;
+  return (pid&&S.wToken)?`https://firestore.googleapis.com/v1/projects/${pid}/databases/(default)/documents/widget/${S.wToken}`:'';
+}
+function publishWidget(){
+  if(!C||!C.auth.currentUser||!BASE.length)return;
+  if(!S.wToken){S.wToken=Array.from(crypto.getRandomValues(new Uint8Array(18)),b=>b.toString(16).padStart(2,'0')).join('');localSave()}
+  const p=widgetPayload();if(p===lastPubSig)return;
+  C.F.setDoc(C.F.doc(C.db,'widget',S.wToken),{owner:C.auth.currentUser.uid,s:p,t:C.F.serverTimestamp()})
+    .then(()=>{lastPubSig=p})
+    .catch(e=>{console.warn('widget yayını',e);if(/permission/i.test(e.code||'')){syncMsg='Widget kaydı için Firebase kuralı eksik';updateAcct()}});
+}
 function pushNow(){
   if(!C||!C.auth.currentUser)return;
   clearTimeout(pushT);
+  if(!S.wToken)publishWidget();
   C.F.setDoc(userRef(),{s:JSON.stringify(S),d:DEVICE,t:C.F.serverTimestamp()})
-    .then(()=>{syncMsg='Eşitlendi ✓';updateAcct()})
+    .then(()=>{syncMsg='Eşitlendi ✓';updateAcct();publishWidget()})
     .catch(e=>{syncMsg='Kaydedilemedi: '+(e.code||e.message);updateAcct()});
 }
 function schedulePush(){clearTimeout(pushT);syncMsg='Kaydediliyor…';updateAcct();pushT=setTimeout(pushNow,1200)}
@@ -1062,7 +1083,7 @@ function renderToday(){
 }
 
 /* WIDGET sekmesi */
-function paramStr(){const iv=S.wInt||60;return S.levels.join(',')+((S.wTopics.length||iv!==60)?'|'+S.wTopics.join(','):'')+(iv!==60?'|'+iv:'')}
+function paramStr(){const iv=S.wInt||60,tp=S.wTopics.filter(t=>TOPICS[t]).map(t=>TOPICS[t]);return S.levels.join(',')+((tp.length||iv!==60)?'|'+tp.join(','):'')+(iv!==60?'|'+iv:'')}
 function renderWidgetTab(){
   const w=hourWord(0);if(!w)return;
   const d=new Date();
@@ -1070,7 +1091,8 @@ function renderWidgetTab(){
   $('lkDate').textContent=d.toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'});
   $('lkW').textContent=w.w;$('lkT').textContent=w.tr;$('lkI').textContent='/'+w.ipa+'/';
   $('hwH').textContent=(S.wInt||60)===60?'⏰ SAATİN KELİMESİ':`⏰ ${S.wInt} DK KELİMESİ`;$('hwL').textContent=w.lvl;$('hwW').textContent=w.w;$('hwT').textContent=w.tr;$('hwE').textContent=w.ex;
-  $('wTopicChips').innerHTML=Object.keys(BASE_TOPICS).map(t=>`<button class="chip ${S.wTopics.includes(t)?'on':''}" data-t="${t}">${BASE_TOPICS[t]}</button>`).join('');
+  S.wTopics=S.wTopics.filter(t=>TOPICS[t]);
+  $('wTopicChips').innerHTML=Object.keys(TOPICS).map(t=>`<button class="chip ${S.wTopics.includes(t)?'on':''}" data-t="${t}">${esc(TOPICS[t])}</button>`).join('');
   $('wTopicChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
     const t=b.dataset.t,i=S.wTopics.indexOf(t);if(i>=0)S.wTopics.splice(i,1);else S.wTopics.push(t);
     save();renderWidgetTab();if(mode==='hour')render();
@@ -1081,7 +1103,8 @@ function renderWidgetTab(){
 }
 function baseUrl(){return location.href.split(/[?#]/)[0].replace(/index\.html$/,'')}
 function widgetCode(){
-  const cfg={url:baseUrl()+'words.json',appUrl:baseUrl(),levels:S.levels,topics:S.wTopics,interval:S.wInt||60};
+  if(C&&C.auth.currentUser)publishWidget();
+  const cfg={url:baseUrl()+'words.json',appUrl:baseUrl(),levels:S.levels,topics:S.wTopics.filter(t=>TOPICS[t]),interval:S.wInt||60,pub:pubUrl()};
   return WIDGET_SRC.replace(/\/\/ KS_CONFIG_START[\s\S]*?\/\/ KS_CONFIG_END/,'// KS_CONFIG_START\nconst CONFIG = '+JSON.stringify(cfg,null,2)+';\n// KS_CONFIG_END');
 }
 async function copyText(t){
