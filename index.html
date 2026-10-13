@@ -402,7 +402,7 @@ const TOPICS={}; // kullanıcının kategorileri (S.cats'ten kurulur)
 function rebuildTopics(){for(const x of Object.keys(TOPICS))delete TOPICS[x];(S.cats&&S.cats.length?S.cats:Object.entries(BASE_TOPICS).map(([k,n])=>({k,n}))).forEach(c=>TOPICS[c.k]=c.n)}
 const LEVELS=['A2','B1','B2','C1'];
 const KEY='kelimeSaati:v1';
-const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[]};
+const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[]};
 let C=null;
 let S=load(), BASE=[], WIDGET_SRC='';
 rebuildTopics();
@@ -461,13 +461,13 @@ function listFor(m){
   if(m==='favs')return all().filter(isFav);
   if(m==='known')return all().filter(isKnown);
   if(m==='learn')return shuffle(all().filter(inLearn));
-  if(m==='daily')return weekWords();
+  if(m==='_week')return weekWords();
   if(m==='search')return searchList;
   return [];
 }
-function modeName(m){return m==='hour'?'Saatin kelimesi':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'Eklediğim kelimeler':m==='known'?'Bildiklerim':m==='learn'?'Öğren':m==='daily'?'Haftanın kelimeleri':m==='uncat'?'Kategorisiz':m==='search'?'Arama':TOPICS[m]||m}
+function modeName(m){return m==='hour'?'Saatin kelimesi':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'Eklediğim kelimeler':m==='known'?'Bildiklerim':m==='learn'?'Öğren':m==='_week'?'Haftanın kelimeleri':m==='uncat'?'Kategorisiz':m==='search'?'Arama':TOPICS[m]||m}
 function setMode(m,startWord){
-  if(m==='daily')seeWeek();
+  if(m==='_week')seeWeek();
   mode=m;hOff=0;idx=0;
   if(m!=='search'){S.mode=m;save()}
   list=m==='hour'?[]:listFor(m);
@@ -562,7 +562,7 @@ document.querySelectorAll('.sheet .bd').forEach(b=>b.onclick=closeSheets);
 function renderModeList(){
   const lv=w=>S.levels.includes(w.lvl),A=all();
   const li=([m,n,sub])=>`<button class="li ${m===mode?'on':''}" data-m="${m}"><span>${esc(n)}</span><small>${sub}</small></button>`;
-  const top=[['hour','Saatin kelimesi',S.wInt===60?'her saat değişir':`${S.wInt} dakikada bir değişir`],['mix','Karışık',A.filter(w=>lv(w)&&!isKnown(w)).length+' kelime'],['daily','Haftanın kelimeleri',weekWords().length+'']];
+  const top=[['hour','Saatin kelimesi',S.wInt===60?'her saat değişir':`${S.wInt} dakikada bir değişir`],['mix','Karışık',A.filter(w=>lv(w)&&!isKnown(w)).length+' kelime'],['_week','Haftanın kelimeleri',weekWords().length+'']];
   const cats=Object.keys(TOPICS).map(t=>{const ws=A.filter(w=>catOf(w)===t&&lv(w)&&!isKnown(w)),ai=ws.filter(w=>w.ai).length;return [t,TOPICS[t],ws.length+' kelime'+(ai?` · ${ai} AI`:'')]});
   const unc=A.filter(w=>!TOPICS[catOf(w)]).length;if(unc)cats.push(['uncat','Kategorisiz',unc+' kelime']);
   const mine=[['custom','Eklediğim kelimeler',S.custom.length+''],['learn','Öğren',Object.keys(S.learn).length+''],['favs','Favorilerim',S.favs.length+''],['known','Bildiklerim',S.known.length+'']];
@@ -651,25 +651,32 @@ $('aiGo').onclick=async()=>{
 /* Her hafta otomatik AI kelimeleri (S.weekCnt kadar, 5'erli gruplar) */
 let dailyBusy=false,weekProg='';
 async function maybeDaily(){
-  const wk=wkey();
-  if(!S.autoOn||!S.worker||!BASE.length||S.autoWeek===wk||dailyBusy)return;
+  const wk=wkey(),total=[10,20,30,40].includes(S.weekCnt)?S.weekCnt:20;
+  if(!S.autoOn||!S.worker||!BASE.length||dailyBusy)return;
   if(C&&!C.auth.currentUser)return;
+  const have=weekWords();
+  if(S.wkTry&&S.wkTry.wk!==wk)S.wkTry=null;
+  const tries=(S.wkTry&&S.wkTry.n)||0;
+  if(have.length>=total||(S.autoWeek===wk&&tries>=3))return;
   dailyBusy=true;
   try{
-    const total=[10,20,30,40].includes(S.weekCnt)?S.weekCnt:20,all8=shuffle(Object.keys(TOPICS));
-    const keys=all8.slice(0,Math.min(all8.length,Math.ceil(total/5))),lvls=S.levels&&S.levels.length?S.levels:LEVELS;
-    const per=keys.map((_,i)=>Math.floor(total/keys.length)+(i<total%keys.length?1:0));
-    let added=0;const used=[];
+    S.wkTry={wk,n:tries+1};S.autoWeek=wk;save();
+    const missing=total-have.length,usedK=new Set(have.map(w=>catOf(w)));
+    let pool=shuffle(Object.keys(TOPICS).filter(k=>!usedK.has(k)));if(pool.length<Math.ceil(missing/5))pool=pool.concat(shuffle(Object.keys(TOPICS).filter(k=>usedK.has(k))));
+    const keys=pool.slice(0,Math.max(1,Math.ceil(missing/5))),lvls=S.levels&&S.levels.length?S.levels:LEVELS;
+    const per=keys.map((_,i)=>Math.floor(missing/keys.length)+(i<missing%keys.length?1:0));
     for(let i=0;i<keys.length;i++){
       const tk=keys[i];weekProg=`${i+1}/${keys.length}`;renderToday();
+      if(i)await new Promise(r=>setTimeout(r,1500));
       try{
         const lv=lvls[Math.random()*lvls.length|0];
-        const list=await genWords(TOPIC_EN[tk]||TOPICS[tk],lv,per[i],tk,{wk});
+        const list=await genWords(TOPIC_EN[tk]||TOPICS[tk],lv,per[i]+2,tk,{wk}); // birkaç fazla iste, tekrarlar ayıklanınca eksik kalmasın
         list.forEach(w=>w.tl=TOPICS[tk]);
-        const add=addWords(list.slice(0,per[i]));added+=add.length;if(add.length)used.push(TOPICS[tk]);
+        addWords(list.filter(w=>!all().some(x=>k(x)===k(w))).slice(0,per[i]));
       }catch(e){console.warn('haftalık kelime',e)}
     }
-    if(added){S.autoWeek=wk;save();}
+    if(weekWords().length>=total)S.wkTry={wk,n:3};
+    save();
   }finally{dailyBusy=false;weekProg='';renderToday()}
 }
 function seeWeek(){if(S.weekSeen!==wkey()){S.weekSeen=wkey();save()}updateBadge()}
@@ -707,7 +714,7 @@ async function callWorker(body){
 }
 function catStat(t){const e=$('catStat');e.textContent=t||'';e.classList.toggle('on',!!t)}
 function catCount(k){return all().filter(w=>catOf(w)===k).length}
-function afterCats(){rebuildTopics();save();if(!TOPICS[mode]&&!['hour','mix','favs','custom','known','learn','daily','uncat','search'].includes(mode))setMode('mix');else if(TOPICS[mode]||mode==='uncat')setMode(mode);renderCats();if($('v-quiz').classList.contains('on')&&!P)renderSetup()}
+function afterCats(){rebuildTopics();save();if(!TOPICS[mode]&&!['hour','mix','favs','custom','known','learn','_week','uncat','search'].includes(mode))setMode('mix');else if(TOPICS[mode]||mode==='uncat')setMode(mode);renderCats();if($('v-quiz').classList.contains('on')&&!P)renderSetup()}
 function renderCats(){
   const ks=Object.keys(TOPICS);
   $('catList').innerHTML=ks.map(k=>`<div class="catrow"><div class="nm">${esc(TOPICS[k])}<small>${catCount(k)} kelime</small></div>
@@ -954,6 +961,7 @@ function mergeState(loc,rem){
   if(!r.worker&&loc.worker)r.worker=loc.worker;
   if((loc.autoDay||'')>(r.autoDay||''))r.autoDay=loc.autoDay;
   if((loc.autoWeek||'')>(r.autoWeek||''))r.autoWeek=loc.autoWeek;
+  if(loc.wkTry&&(!r.wkTry||(loc.wkTry.wk===r.wkTry.wk&&loc.wkTry.n>r.wkTry.n)||loc.wkTry.wk>r.wkTry.wk))r.wkTry=loc.wkTry;
   if((loc.weekSeen||'')>(r.weekSeen||''))r.weekSeen=loc.weekSeen;
   return r;
 }
@@ -1088,7 +1096,7 @@ function renderToday(){
     const tops=[...new Set(dw.map(w=>TOPICS[catOf(w)]||w.tl).filter(Boolean))].join(', ');
     dc.style.display='block';
     dc.innerHTML=`<div class="hd"><div class="em">🌱</div><div><b>Haftanın kelimeleri</b><small>${dw.length} kelime · ${esc(tops)}</small></div></div><div class="dwords">${dw.slice(0,8).map(w=>`<span>${esc(w.w)}<i>${esc(w.tr.split(',')[0])}</i></span>`).join('')}${dw.length>8?`<span>+${dw.length-8}</span>`:''}</div>`;
-    dc.onclick=()=>{seeWeek();showTab('home');setMode('daily')};
+    dc.onclick=()=>{seeWeek();showTab('home');setMode('_week')};
   }else if(S.autoOn&&S.worker){
     dc.style.display='block';dc.onclick=()=>maybeDaily();
     dc.innerHTML=`<div class="hd" style="margin:0"><div class="em">🌱</div><div><b>Haftanın kelimeleri</b><small>${dailyBusy?`Hazırlanıyor… ${weekProg}`:`Dokun, bu haftanın ${S.weekCnt||20} kelimesini getir`}</small></div></div>`;
@@ -1166,7 +1174,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
   renderLevels();
   const p=new URLSearchParams(location.search).get('w');
   const target=p&&all().find(w=>w.w.toLowerCase()===p.toLowerCase());
-  if(target){searchList=[target];setMode('search');showTab('home')}else{showTab('today');setMode(TOPICS[mode]||['hour','mix','favs','custom','known','learn','daily','uncat'].includes(mode)?mode:'hour')}
+  if(target){searchList=[target];setMode('search');showTab('home')}else{showTab('today');setMode(TOPICS[mode]||['hour','mix','favs','custom','known','learn','_week','uncat'].includes(mode)?mode:'hour')}
   try{WIDGET_SRC=window.__WIDGET__||await (await fetch('widget.js',{cache:'no-cache'})).text()}catch(e){}
   speechSynthesis&&speechSynthesis.getVoices();
   classifyAi();
