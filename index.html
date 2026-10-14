@@ -85,7 +85,10 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 calc(
 .chip small{opacity:.7;margin-left:5px;font-weight:500}
 .lvl-row{margin:0 0 14px}
 .chip.cnt{position:relative;color:#B9531C;border-color:var(--accent);background:#fff}
-.chip.cnt select{-webkit-appearance:none;appearance:none;border:none;background:none;font:inherit;color:inherit;padding:0;outline:none}
+.cnum{display:flex;align-items:center;justify-content:center;gap:22px;margin:6px 0 18px}
+.cnum button{width:58px;height:58px;border-radius:18px;border:none;background:var(--accent-soft);color:#B9531C;font-size:30px;font-weight:700}
+.cnum b{font-size:56px;font-weight:800;min-width:90px;text-align:center;letter-spacing:-1px}
+.cnum small{display:block;font-size:14px;color:var(--muted);font-weight:600;text-align:center}
 
 /* kart */
 .card-wrap{position:relative;padding:0 30px}
@@ -267,7 +270,7 @@ nav.tabs button{position:relative}
         <div class="tiles" id="tiles"></div>
         <button class="wcard hourcard" id="hourCard"></button>
         <h2 class="h">Haftalık İlerleme</h2>
-        <div class="wcard"><h3>📖 Kart çalışması</h3><div class="week" id="weekN"></div><h3 style="margin-top:20px">✅ Pratik</h3><div class="week pr" id="weekR"></div><p class="hint" id="weekSum" style="text-align:center"></p></div>
+        <div class="wcard"><h3>📇 Kart çalışması</h3><div class="week" id="weekN"></div><h3 style="margin-top:20px">📖 Pratik</h3><div class="week pr" id="weekR"></div><p class="hint" id="weekSum" style="text-align:center"></p></div>
       </div>
     </section>
 
@@ -352,6 +355,14 @@ nav.tabs button{position:relative}
 <!-- Kartın kategorisini değiştir -->
 <div class="sheet" id="pickSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3 id="pickTitle">Kategori seç</h3><div id="pickList"></div></div></div>
 
+<!-- Kart sayısı -->
+<div class="sheet" id="cardNSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
+  <h3>Kaç kartla çalışalım?</h3>
+  <div class="cnum"><button id="cnMinus">−</button><div><b id="cnVal">20</b><small>kart</small></div><button id="cnPlus">+</button></div>
+  <div class="chips" id="cnQuick"></div>
+  <button class="primary" id="cnOk" style="margin-top:20px">Tamam</button>
+</div></div>
+
 <!-- AI paneli -->
 <div class="sheet" id="aiSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
   <h3>✨ AI ile kelime üret</h3>
@@ -414,7 +425,8 @@ const KEY='kelimeSaati:v1';
 const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,cardN:20,seenAll:[],autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[]};
 let C=null;
 let S=load(), BASE=[], WIDGET_SRC='';
-rebuildTopics();
+function cleanLevels(){for(const f of ['levels','qLevels','aiLv']){const v=(S[f]||[]).filter(l=>LEVELS.includes(l));S[f]=v.length?[...new Set(v)]:(f==='aiLv'?['B1']:[...LEVELS])}}
+cleanLevels();rebuildTopics();
 let mode=S.mode||'hour', list=[], idx=0, hOff=0, searchList=[];
 
 function freshDef(){return JSON.parse(JSON.stringify(DEF))}
@@ -583,13 +595,25 @@ $('prevBtn').onclick=()=>go(-1);$('nextBtn').onclick=()=>go(1);
 function renderLevels(){
   const N=cardN();
   $('lvlChips').innerHTML=LEVELS.map(l=>`<button class="chip ${S.levels.includes(l)?'on':''}" data-l="${l}">${l}</button>`).join('')
-    +`<label class="chip cnt"><select id="cardNSel">${Array.from({length:50},(_,i)=>i+1).map(n=>`<option value="${n}" ${n===N?'selected':''}>${n} kart</option>`).join('')}</select> ▾</label>`;
-  $('cardNSel').onchange=e=>{S.cardN=+e.target.value;save();if(mode!=='hour'&&mode!=='search')setMode(mode);toast(`Her çalışmada ${S.cardN} kart`)};
-  $('lvlChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
+    +`<button class="chip cnt" id="cardNBtn">${N} kart ▾</button>`;
+  $('cardNBtn').onclick=openCardN;
+  $('lvlChips').querySelectorAll('.chip[data-l]').forEach(b=>b.onclick=()=>{
     const l=b.dataset.l,i=S.levels.indexOf(l);
     if(i>=0){if(S.levels.length===1)return toast('En az bir seviye seçili olmalı');S.levels.splice(i,1)}else S.levels.push(l);
     save();renderLevels();setMode(mode==='search'?'mix':mode);renderWidgetTab();
   });
+}
+
+/* kart sayısı paneli */
+let cnTmp=20;
+function openCardN(){
+  cnTmp=cardN();
+  const draw=()=>{$('cnVal').textContent=cnTmp;$('cnQuick').innerHTML=[5,10,15,20,25,30,40,50].map(n=>`<button class="chip ${n===cnTmp?'on':''}" data-n="${n}">${n}</button>`).join('');
+    $('cnQuick').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{cnTmp=+b.dataset.n;draw()})};
+  $('cnMinus').onclick=()=>{cnTmp=Math.max(1,cnTmp-1);draw()};
+  $('cnPlus').onclick=()=>{cnTmp=Math.min(50,cnTmp+1);draw()};
+  $('cnOk').onclick=()=>{closeSheets();if(cnTmp===cardN())return;S.cardN=cnTmp;save();renderLevels();if(mode!=='hour'&&mode!=='search')setMode(mode);toast(`Her çalışmada ${cnTmp} kart`)};
+  draw();openSheet('cardNSheet');
 }
 
 /* sheets */
@@ -1031,7 +1055,7 @@ function pushNow(){
 }
 function schedulePush(){clearTimeout(pushT);syncMsg='Kaydediliyor…';updateAcct();pushT=setTimeout(pushNow,1200)}
 function applyState(){
-  rebuildTopics();migrateAi();renderLevels();
+  cleanLevels();rebuildTopics();migrateAi();renderLevels();
   if(mode!=='hour'&&mode!=='search'){list=listFor(mode);if(idx>=list.length)idx=0}
   render();
   if($('v-today').classList.contains('on'))renderToday();
