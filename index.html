@@ -58,7 +58,7 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 calc(
 .tile small{display:block;font-size:13px;color:rgba(38,34,31,.7);margin-top:2px}
 .tile.wide{grid-column:1/-1;min-height:0;flex-direction:row;align-items:center;gap:14px}
 .tile.wide .em{font-size:40px;margin:0}
-.t-peach{background:var(--peach)}.t-sand{background:var(--sand)}.t-sage{background:var(--sage)}.t-sky{background:var(--sky)}.t-lilac{background:var(--lilac)}
+.t-peach{background:var(--peach)}.t-sand{background:var(--sand)}.t-sage{background:var(--sage)}.t-sky{background:var(--sky)}.t-lilac{background:var(--lilac)}.t-rose{background:#F6CBD3}
 .hourcard{margin-top:12px;display:flex;align-items:center;gap:14px;border:none;width:100%;text-align:left}
 .hourcard .em{width:52px;height:52px;border-radius:16px;background:var(--accent-soft);display:grid;place-items:center;font-size:28px;flex:none}
 .hourcard .t1{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
@@ -197,7 +197,7 @@ code.param{display:block;margin-top:8px;padding:10px 12px;border-radius:12px;bac
 
 /* alt menü */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid var(--line);padding:8px 6px calc(8px + var(--sb))}
-nav.tabs button{flex:1;background:none;border:none;color:#5E5650;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0}
+nav.tabs button{flex:1;min-width:0;background:none;border:none;color:#5E5650;font-size:11px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 0}
 nav.tabs svg{width:25px;height:25px}
 nav.tabs button.on{color:var(--accent)}
 .toast{position:fixed;left:50%;bottom:calc(100px + var(--sb));transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:11px 16px;border-radius:14px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:86vw;text-align:center}
@@ -221,6 +221,22 @@ nav.tabs button.on{color:var(--accent)}
 /* kategoriler */
 .lsec{font-size:12px;letter-spacing:1px;font-weight:800;color:var(--muted);text-transform:uppercase;margin:18px 4px 2px;display:flex;align-items:center;justify-content:space-between}
 .lsec button{border:none;background:var(--accent-soft);color:#B9531C;font-weight:700;font-size:13px;border-radius:10px;padding:6px 12px;text-transform:none;letter-spacing:0}
+.wnav{display:flex;align-items:center;justify-content:space-between;margin:-4px -6px 10px}
+.wnav button{width:38px;height:38px;border:none;border-radius:12px;background:#F4EEE8;color:var(--text);display:grid;place-items:center}
+.wnav button svg{width:18px;height:18px}.wnav button:disabled{opacity:.3}
+.wnav span{text-align:center;font-size:15px;font-weight:800;line-height:1.2}.wnav span small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+.wk.future{opacity:.35}
+#dayCard .em{background:var(--lilac)}
+.wrow{display:flex;align-items:center;gap:10px;width:100%;padding:12px 4px;border:none;background:none;border-bottom:1px solid var(--line);text-align:left;font-size:16px}
+.wrow b{flex:none;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wrow span{flex:1;color:var(--muted);text-align:right;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wrow .badge{flex:none}
+.lsbtns{position:sticky;bottom:calc(-22px - var(--sb));background:#FFFAF5;padding:6px 0 4px;margin-top:6px}
+.lsbtns .primary{margin-top:8px}.lsbtns .ghost{margin-top:8px}
+.lgroup{background:var(--card);border-radius:22px;box-shadow:var(--shadow);padding:2px 16px;margin-top:8px}
+.lgroup .li:last-child{border-bottom:none}
+.lgroup .li span{display:flex;align-items:center;gap:10px}.lgroup .li .ic{font-size:20px;width:26px;text-align:center}
+.lgroup .li small{display:flex;align-items:center;gap:6px}
+.acard{margin-top:14px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px 16px}
 .lsep{height:2px;background:var(--line);border-radius:1px;margin:18px 0 0}
 .catrow{display:flex;align-items:center;gap:8px;padding:12px 2px;border-bottom:1px solid var(--line)}
 .catrow .nm{flex:1;min-width:0;font-size:16px;font-weight:600}
@@ -265,12 +281,12 @@ nav.tabs button{position:relative}
     <section class="view on" id="v-today">
       <div class="sec">
         <div class="wcard"><h3>İlerleme</h3><div class="rings" id="rings"></div><div class="streak" id="streak"></div></div>
-        <button class="wcard daycard" id="dayCard" style="display:none"></button>
         <h2 class="h">Öğrenme Yolun</h2>
         <div class="tiles" id="tiles"></div>
         <button class="wcard hourcard" id="hourCard"></button>
+        <button class="wcard hourcard" id="dayCard" style="display:none"></button>
         <h2 class="h">Haftalık İlerleme</h2>
-        <div class="wcard"><h3>📇 Kart çalışması</h3><div class="week" id="weekN"></div><h3 style="margin-top:20px">📖 Pratik</h3><div class="week pr" id="weekR"></div><p class="hint" id="weekSum" style="text-align:center"></p></div>
+        <div class="wcard"><div class="wnav"><button id="wPrev" aria-label="Önceki hafta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="wRange"></span><button id="wNext" aria-label="Sonraki hafta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button></div><h3>📇 Kart çalışması</h3><div class="week" id="weekN"></div><h3 style="margin-top:20px">📖 Pratik</h3><div class="week pr" id="weekR"></div><p class="hint" id="weekSum" style="text-align:center"></p></div>
       </div>
     </section>
 
@@ -289,6 +305,9 @@ nav.tabs button{position:relative}
 
     <!-- PRATİK -->
     <section class="view" id="v-quiz"><div id="pr"></div></section>
+
+    <!-- KELİMELERİM -->
+    <section class="view" id="v-lists"><div class="sec" id="listsBox"></div></section>
 
     <!-- WIDGET -->
     <section class="view" id="v-widget">
@@ -329,6 +348,7 @@ nav.tabs button{position:relative}
     <button data-tab="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 6.5C10 5 7 4.5 3 5v14c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5z"/><path d="M12 6.5v14"/></svg>Ders</button>
     <button data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9 8h6M9 12h6M9 16h4" stroke-linecap="round"/></svg>Kartlar</button>
     <button data-tab="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg>Pratik</button>
+    <button data-tab="lists"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.3" fill="currentColor"/><circle cx="4.5" cy="12" r="1.3" fill="currentColor"/><circle cx="4.5" cy="18" r="1.3" fill="currentColor"/></svg>Kelimelerim</button>
     <button data-tab="widget"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>Widget</button>
   </nav>
 </div>
@@ -363,9 +383,27 @@ nav.tabs button{position:relative}
   <button class="primary" id="cnOk" style="margin-top:20px">Tamam</button>
 </div></div>
 
+<!-- Kelime listesi -->
+<div class="sheet" id="listSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
+  <h3 id="lsTitle"></h3><p class="hint" id="lsSub" style="margin-top:-6px"></p>
+  <input class="field" id="lsQ" placeholder="Listede ara…" autocomplete="off" autocapitalize="off" style="display:none">
+  <div id="lsBody"></div>
+  <div class="lsbtns"><button class="primary" id="lsCards">📇 Kelime kartlarına git</button><button class="ghost" id="lsQuiz">📖 Pratik yap</button></div>
+</div></div>
+
+<!-- AI kelime kartı -->
+<div class="sheet" id="aiCardSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
+  <h3>🪄 AI ile kelime kartı üret</h3>
+  <label class="lb" style="margin-top:4px">İngilizce kelime</label>
+  <input class="field" id="acWord" placeholder="ör. resilient, take off" autocomplete="off" autocapitalize="off" autocorrect="off">
+  <button class="primary" id="acGo">Kart üret</button>
+  <p class="hint" id="acNote">AI kelimenin anlamını, okunuşunu, örnek cümlesini ve seviyesini hazırlar, uygun kategoriye yerleştirir.</p>
+  <div id="acRes"></div>
+</div></div>
+
 <!-- AI paneli -->
 <div class="sheet" id="aiSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
-  <h3>✨ AI ile kelime üret</h3>
+  <h3>✨ AI ile kelime grubu üret</h3>
   <label class="lb" style="margin-top:4px">Konu</label>
   <input class="field" id="aiTopic" placeholder="ör. havacılık, mutfak, futbol" autocomplete="off">
   <div class="chips left" id="aiSug" style="margin-top:10px"></div>
@@ -427,7 +465,7 @@ let C=null;
 let S=load(), BASE=[], WIDGET_SRC='';
 function cleanLevels(){for(const f of ['levels','qLevels','aiLv']){const v=(S[f]||[]).filter(l=>LEVELS.includes(l));S[f]=v.length?[...new Set(v)]:(f==='aiLv'?['B1']:[...LEVELS])}}
 cleanLevels();rebuildTopics();
-let mode=S.mode||'hour', list=[], idx=0, hOff=0, searchList=[];
+let mode=S.mode||'hour', list=[], idx=0, hOff=0, searchList=[], searchTitle='', listWords=[], listTitle='', wOff=0, LS=null;
 
 function freshDef(){return JSON.parse(JSON.stringify(DEF))}
 function load(){try{return Object.assign(freshDef(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return freshDef()}}
@@ -452,7 +490,7 @@ function wkey(d=new Date()){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth
 const weekWords=()=>S.custom.filter(w=>w.wk===wkey());
 const weekNew=()=>weekWords().length>0&&S.weekSeen!==wkey();
 function day(key=dkey()){return S.daily[key]||(S.daily[key]={n:0,r:0,ok:0})}
-function prune(){const keys=Object.keys(S.daily).sort();while(keys.length>60)delete S.daily[keys.shift()]}
+function prune(){const keys=Object.keys(S.daily).sort();while(keys.length>400)delete S.daily[keys.shift()]}
 function markSeen(w){
   const t=dkey();if(S.seenDay!==t){S.seenDay=t;S.seen=[]}
   const key=k(w);
@@ -492,13 +530,14 @@ function listFor(m){
   if(m==='learn')return shuffle(all().filter(inLearn)).slice(0,N);
   if(m==='_week')return weekWords().slice(0,N);
   if(m==='search')return searchList;
+  if(m==='list')return listWords.length>N?pickN(listWords):listWords.slice();
   return [];
 }
-function modeName(m){return m==='hour'?'Saatin kelimesi':m==='new'?'Yeni kelimeler':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'Eklediğim kelimeler':m==='known'?'Bildiklerim':m==='learn'?'Öğren':m==='_week'?'Haftanın kelimeleri':m==='uncat'?'Kategorisiz':m==='search'?'Arama':TOPICS[m]||m}
+function modeName(m){return m==='hour'?'Saatin kelimesi':m==='new'?'Yeni kelimeler':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'Eklediğim kelimeler':m==='known'?'Bildiklerim':m==='learn'?'Öğren':m==='_week'?'Haftanın kelimeleri':m==='uncat'?'Kategorisiz':m==='search'?(searchTitle||'Arama'):m==='list'?(listTitle||'Liste'):TOPICS[m]||m}
 function setMode(m,startWord){
   if(m==='_week')seeWeek();
   mode=m;hOff=0;idx=0;
-  if(m!=='search'){S.mode=m;save()}
+  if(m!=='search'&&m!=='list'){S.mode=m;save()}
   list=m==='hour'?[]:listFor(m);
   if(startWord){const i=list.findIndex(w=>k(w)===k(startWord));if(i>=0)idx=i}
   render();
@@ -531,7 +570,7 @@ function render(){
   const w=current();
   $('prevBtn').style.visibility=$('nextBtn').style.visibility=(mode==='hour'||list.length>1)?'visible':'hidden';
   if(!w){
-    const msg=mode==='favs'?'Henüz favori yok. Kartlardaki ★ ile ekleyebilirsin.':mode==='custom'?'Henüz eklediğin kelime yok. Ders sayfasındaki ✨ AI ile kelime üret kutucuğundan ekleyebilirsin; haftanın kelimeleri de buraya gelir.':mode==='known'?'Henüz "biliyorum" dediğin kelime yok.':mode==='learn'?'Öğren grubu boş. Alıştırmada yanlış yaptığın kelimeler burada birikir, üst üste 3 doğru cevapta çıkar.':'Bu seçimde kelime kalmadı. Seviye seçimini değiştirmeyi dene.';
+    const msg=mode==='favs'?'Henüz favori yok. Kartlardaki ★ ile ekleyebilirsin.':mode==='custom'?'Henüz eklediğin kelime yok. Ders sayfasındaki ✨ AI kutucuklarından ekleyebilirsin; haftanın kelimeleri de buraya gelir.':mode==='known'?'Henüz "biliyorum" dediğin kelime yok.':mode==='learn'?'Öğren grubu boş. Alıştırmada yanlış yaptığın kelimeler burada birikir, üst üste 3 doğru cevapta çıkar.':'Bu seçimde kelime kalmadı. Seviye seçimini değiştirmeyi dene.';
     body.innerHTML=`<div class="empty">${msg}</div>`;return;
   }
   if($('v-home').classList.contains('on'))markSeen(w);
@@ -636,7 +675,7 @@ function renderModeList(){
 }
 $('modeBtn').onclick=()=>{renderModeList();openSheet('modeSheet')};
 
-$('searchBtn').onclick=()=>{openSheet('searchSheet');$('q').value='';$('qRes').innerHTML='';setTimeout(()=>$('q').focus(),250)};
+$('searchBtn').onclick=()=>{searchTitle='';openSheet('searchSheet');$('q').value='';$('qRes').innerHTML='';setTimeout(()=>$('q').focus(),250)};
 $('q').oninput=()=>{
   const q=$('q').value.trim().toLocaleLowerCase('tr');
   if(!q){$('qRes').innerHTML='';return}
@@ -776,7 +815,7 @@ async function callWorker(body){
 }
 function catStat(t){const e=$('catStat');e.textContent=t||'';e.classList.toggle('on',!!t)}
 function catCount(k){return all().filter(w=>catOf(w)===k).length}
-function afterCats(){rebuildTopics();save();if(!TOPICS[mode]&&!['hour','new','mix','favs','custom','known','learn','_week','uncat','search'].includes(mode))setMode('mix');else if(TOPICS[mode]||mode==='uncat')setMode(mode);renderCats();if($('v-quiz').classList.contains('on')&&!P)renderSetup()}
+function afterCats(){rebuildTopics();save();if(!TOPICS[mode]&&!['hour','new','mix','favs','custom','known','learn','_week','uncat','search','list'].includes(mode))setMode('mix');else if(TOPICS[mode]||mode==='uncat')setMode(mode);renderCats();if($('v-quiz').classList.contains('on')&&!P)renderSetup()}
 function renderCats(){
   const ks=Object.keys(TOPICS);
   $('catList').innerHTML=ks.map(k=>`<div class="catrow"><div class="nm">${esc(TOPICS[k])}<small>${catCount(k)} kelime</small></div>
@@ -842,7 +881,7 @@ function pickCat(w){
   $('pickTitle').textContent=`"${w.w}" kategorisi`;
   $('pickList').innerHTML=Object.keys(TOPICS).map(k=>`<button class="li ${k===cur?'on':''}" data-k="${k}"><span>${esc(TOPICS[k])}</span><small>${k===cur?'şu an':''}</small></button>`).join('')
     +`<div class="lsec"><span></span><button id="pickMng">Kategorileri düzenle</button></div>`;
-  $('pickList').querySelectorAll('.li').forEach(b=>b.onclick=()=>{S.catMap[w.w.toLowerCase()]=b.dataset.k;save();closeSheets();toast(`"${w.w}" → ${TOPICS[b.dataset.k]}`);render()});
+  $('pickList').querySelectorAll('.li').forEach(b=>b.onclick=()=>{S.catMap[w.w.toLowerCase()]=b.dataset.k;save();closeSheets();toast(`"${w.w}" → ${TOPICS[b.dataset.k]}`);render();if($('v-lists').classList.contains('on'))renderLists()});
   $('pickMng').onclick=()=>{closeSheets();openCats()};
   openSheet('pickSheet');
 }
@@ -897,7 +936,7 @@ function renderSetup(){
   $('pStart').onclick=()=>startPractice(S.qSrc,S.qLen);
   $('pLearn').onclick=()=>startPractice('learn',0);
 }
-function startPractice(src,len,words){
+function startPractice(src,len,words,label){
   if(all().length<4)return toast('Yeterli kelime yok');
   const pool=words||srcPool(src);
   if(!pool.length)return toast(src==='learn'?'Öğren grubu boş':src==='favs'?'Önce birkaç kelimeyi favorilere ekle':'Bu grupta kelime yok');
@@ -910,7 +949,7 @@ function startPractice(src,len,words){
     queue=shuffle(pick.slice(0,n));
     if(n<len)toast(`Bu grupta ${n} kelime var, ${n} soru soruluyor`);
   }
-  P={src,len:queue?queue.length:0,pool,queue,i:0,ok:0,bad:0,wrong:[],recent:[],q:null,streak:0,id:++pSeq};
+  P={src,label,len:queue?queue.length:0,pool,queue,i:0,ok:0,bad:0,wrong:[],recent:[],q:null,streak:0,id:++pSeq};
   nextQ();
 }
 function pickInfinite(){
@@ -944,7 +983,7 @@ function renderQ(){
       <span class="pscore"><span class="ok">✓ ${P.ok}</span><span class="bad">✗ ${P.bad}</span></span></div>
     ${P.len?`<div class="pbar"><i style="width:${n/P.len*100}%"></i></div>`:'<div style="height:6px;margin-bottom:16px"></div>'}
     <div class="card-wrap"><article class="card">
-      <div class="meta"><span>${esc(srcName(P.src))}</span><span class="badge">${esc(ans.lvl)}</span>${aiBadge(ans)}${learnBadge(ans)}</div>
+      <div class="meta"><span>${esc(P.label||srcName(P.src))}</span><span class="badge">${esc(ans.lvl)}</span>${aiBadge(ans)}${learnBadge(ans)}</div>
       <h1 class="word" style="font-size:clamp(36px,10vw,54px)">${esc(q.dir==='en'?ans.w:ans.tr)}</h1>
       ${q.dir==='en'?`<button class="ipa" id="qSay"><span>/${esc(ans.ipa)}/</span><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg></button>`:'<div class="hint">İngilizcesi hangisi?</div>'}
       <div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o[q.field])}</button>`).join('')}</div>
@@ -978,12 +1017,12 @@ function answer(i,btn){
   if($('qFav'))$('qFav').onclick=()=>{toggle('favs',a);toast('Favorilere eklendi');$('qFav').remove()};
 }
 function finish(){
-  const tot=P.ok+P.bad,okN=P.ok,pct=tot?Math.round(okN/tot*100):0,wr=P.wrong.slice(),src=P.src;
+  const tot=P.ok+P.bad,okN=P.ok,pct=tot?Math.round(okN/tot*100):0,wr=P.wrong.slice(),src=P.src,lbl=P.label||srcName(P.src);
   const ln=Object.keys(S.learn).length;
   const msg=pct===100&&tot?'Kusursuz! 🎉':pct>=80?'Çok iyi!':pct>=50?'Fena değil, devam!':'Tekrar zamanı';
   P=null;
   $('pr').innerHTML=`<div class="card-wrap"><article class="card">
-    <div class="meta"><span>${esc(srcName(src))}</span></div>
+    <div class="meta"><span>${esc(lbl)}</span></div>
     <div class="res-big">${tot?`${okN} / ${tot}`:'—'}</div>
     <div class="tr" style="font-size:26px">${tot?msg:'Hiç soru cevaplanmadı'}</div>
     <p class="hint" style="margin-top:10px">${tot?`%${pct} doğru · `:''}Öğren grubunda ${ln} kelime var</p>
@@ -1145,31 +1184,136 @@ function renderToday(){
     ['t-sand','🎲','Pratik & Test',`En iyi seri: ${S.best}`,()=>showTab('quiz')],
     ['t-sage','📋','Kelime Listem',`${S.favs.length} favori`,()=>{showTab('home');setMode('favs')}],
     ['t-sky','📅','Öğren & Tekrar',ln?`${ln} kelime bekliyor`:'Bekleyen kelime yok',()=>{if(!ln)return toast('Öğren grubu boş. Pratikte yanlış yaptığın kelimeler buraya gelir.');showTab('quiz');startPractice('learn',0)}],
-    ['t-lilac wide','✨','AI ile kelime üret',`Konu ve seviye seç · ${S.custom.length} eklediğin kelime var`,()=>openAi()],
+    ['t-lilac','✨','AI ile kelime grubu üret','Konu ve seviye seç, birden çok kelime gelsin',()=>openAi()],
+    ['t-rose','🪄','AI ile kelime kartı üret','Bir kelime yaz, kartı hazırlansın',()=>openAiCard()],
   ];
   $('tiles').innerHTML=tiles.map(([c,e,t,s],i)=>`<button class="tile ${c}" data-i="${i}"><div class="em">${e}</div><div><b>${t}</b><small>${s}</small></div></button>`).join('');
   $('tiles').querySelectorAll('.tile').forEach(b=>b.onclick=tiles[+b.dataset.i][4]);
   const hw=hourWord(0),mins=slotLeft();
   $('hourCard').innerHTML=`<div class="em">⏰</div><div><div class="t1">Saatin kelimesi · ${mins} dk</div><div class="t2">${esc(hw.w)}</div><div class="t3">${esc(hw.tr)}</div></div><svg class="arr" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>`;
   $('hourCard').onclick=()=>{showTab('home');setMode('hour')};
-  const dw=weekWords(),dc=$('dayCard'),isNew=weekNew();
+  const dw=weekWords(),dc=$('dayCard'),arr='<svg class="arr" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>';
   if(dw.length){
-    const tops=[...new Set(dw.map(w=>TOPICS[catOf(w)]||w.tl).filter(Boolean))].join(', ');
-    dc.style.display='block';
-    dc.innerHTML=`<div class="hd"><div class="em">🌱</div><div><b>Haftanın kelimeleri</b><small>${dw.length} kelime · ${esc(tops)}</small></div></div><div class="dwords">${dw.slice(0,8).map(w=>`<span>${esc(w.w)}<i>${esc(w.tr.split(',')[0])}</i></span>`).join('')}${dw.length>8?`<span>+${dw.length-8}</span>`:''}</div>`;
-    dc.onclick=()=>{seeWeek();showTab('home');setMode('_week')};
+    const dn=Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5),ww=dw[dn%dw.length];
+    dc.style.display='flex';
+    dc.innerHTML=`<div class="em">🌱</div><div style="min-width:0"><div class="t1">Haftanın kelimeleri · ${dw.length} kelime</div><div class="t2">${esc(ww.w)}</div><div class="t3">${esc(ww.tr)}</div></div>${arr}`;
+    dc.onclick=()=>{seeWeek();openWordList('_week')};
   }else if(S.autoOn&&S.worker){
-    dc.style.display='block';dc.onclick=()=>maybeDaily();
-    dc.innerHTML=`<div class="hd" style="margin:0"><div class="em">🌱</div><div><b>Haftanın kelimeleri</b><small>${dailyBusy?`Hazırlanıyor… ${weekProg}`:`Dokun, bu haftanın ${S.weekCnt||20} kelimesini getir`}</small></div></div>`;
+    dc.style.display='flex';dc.onclick=()=>maybeDaily();
+    dc.innerHTML=`<div class="em">🌱</div><div><div class="t1">Haftanın kelimeleri</div><div class="t3" style="color:var(--muted);font-weight:500;margin-top:4px">${dailyBusy?`Hazırlanıyor… ${weekProg}`:`Dokun, bu haftanın ${S.weekCnt||20} kelimesini getir`}</div></div>`;
   }else dc.style.display='none';
   updateBadge();
-  const names=['Pz','Pt','Sa','Ça','Pe','Cu','Ct'],days=[];
-  for(let i=6;i>=0;i--){const x=new Date();x.setDate(x.getDate()-i);const v=S.daily[dkey(x)]||{n:0,r:0,ok:0};days.push({d:names[x.getDay()],n:v.n||0,r:v.r||0,ok:v.ok||0,today:i===0})}
-  const bars=(f,goal)=>{const max=Math.max(goal,...days.map(x=>x[f]));return days.map(x=>`<div class="wk ${x.today?'today':''} ${x[f]?'':'zero'}"><span class="v">${x[f]||''}</span><div class="b" style="height:${Math.max(x[f]/max*100,3)}%"></div><span class="d">${x.d}</span></div>`).join('')};
+  renderWeekChart();
+}
+
+/* Haftalık grafik: hafta hafta geri/ileri */
+const MONTHS=['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+function weekStart(off){const m=new Date();m.setHours(12,0,0,0);m.setDate(m.getDate()-(m.getDay()+6)%7-7*off);return m}
+function maxWeekOff(){
+  const ks=Object.keys(S.daily||{}).filter(x=>{const v=S.daily[x];return v&&(v.n||v.r)}).sort();if(!ks.length)return 0;
+  const [y,mo,d]=ks[0].split('-').map(Number),f=new Date(y,mo-1,d,12);f.setDate(f.getDate()-(f.getDay()+6)%7);
+  return Math.max(0,Math.round((weekStart(0)-f)/(7*864e5)));
+}
+function renderWeekChart(){
+  const mx=maxWeekOff();if(wOff>mx)wOff=mx;if(wOff<0)wOff=0;
+  const st=weekStart(wOff),names=['Pt','Sa','Ça','Pe','Cu','Ct','Pz'],today=dkey(),days=[];
+  for(let i=0;i<7;i++){const x=new Date(st);x.setDate(st.getDate()+i);const key=dkey(x),v=S.daily[key]||{n:0,r:0,ok:0};days.push({d:names[i],n:v.n||0,r:v.r||0,ok:v.ok||0,today:key===today,future:key>today})}
+  const en=new Date(st);en.setDate(st.getDate()+6);
+  const range=st.getMonth()===en.getMonth()?`${st.getDate()}–${en.getDate()} ${MONTHS[en.getMonth()]}`:`${st.getDate()} ${MONTHS[st.getMonth()]} – ${en.getDate()} ${MONTHS[en.getMonth()]}`;
+  $('wRange').innerHTML=`${wOff===0?'Bu hafta':wOff===1?'Geçen hafta':wOff+' hafta önce'}<small>${range}${en.getFullYear()!==new Date().getFullYear()?' '+en.getFullYear():''}</small>`;
+  $('wPrev').disabled=wOff>=mx;$('wNext').disabled=wOff===0;
+  const bars=(f,goal)=>{const max=Math.max(goal,...days.map(x=>x[f]));return days.map(x=>`<div class="wk ${x.today?'today':''} ${x[f]?'':'zero'} ${x.future?'future':''}"><span class="v">${x[f]||''}</span><div class="b" style="height:${Math.max(x[f]/max*100,3)}%"></div><span class="d">${x.d}</span></div>`).join('')};
   $('weekN').innerHTML=bars('n',S.goalN||10);$('weekR').innerHTML=bars('r',S.goalR||20);
   const tn=days.reduce((a,x)=>a+x.n,0),tr=days.reduce((a,x)=>a+x.r,0),tok=days.reduce((a,x)=>a+x.ok,0);
-  $('weekSum').textContent=(tn||tr)?`Son 7 gün: ${tn} kart · ${tr} soru${tr?` (%${Math.round(tok/tr*100)} doğru)`:''}`:'Bu hafta henüz etkinlik yok';
+  $('weekSum').textContent=(tn||tr)?`${wOff===0?'Bu hafta':'O hafta'}: ${tn} kart · ${tr} soru${tr?` (%${Math.round(tok/tr*100)} doğru)`:''}`:(wOff===0?'Bu hafta henüz etkinlik yok':'O hafta etkinlik yok');
 }
+
+$('wPrev').onclick=()=>{wOff++;renderWeekChart()};
+$('wNext').onclick=()=>{wOff--;renderWeekChart()};
+
+/* KELİMELERİM: tüm listeler */
+const CAT_IC={daily:'🏠',work:'💼',travel:'✈️',emotions:'💛',tech:'💻',health:'🏃',society:'📰',academic:'🎓'};
+const byW=(a,b)=>a.w.localeCompare(b.w,'en');
+function listDef(key){
+  const A=all();
+  if(key==='_all')return{title:'Tüm kelimeler',icon:'📚',words:A.slice().sort(byW)};
+  if(key==='_week')return{title:'Haftanın kelimeleri',icon:'🌱',words:weekWords()};
+  if(TOPICS[key])return{title:TOPICS[key],icon:CAT_IC[key]||'🏷️',words:A.filter(w=>catOf(w)===key).sort(byW)};
+  if(key==='uncat')return{title:'Kategorisiz',icon:'📦',words:A.filter(w=>!TOPICS[catOf(w)]).sort(byW)};
+  if(key==='custom')return{title:'Eklediğim kelimeler',icon:'✨',words:S.custom.slice().reverse()};
+  if(key==='learn')return{title:'Öğren',icon:'📅',words:A.filter(inLearn)};
+  if(key==='favs')return{title:'Favorilerim',icon:'⭐',words:A.filter(isFav).sort(byW)};
+  if(key==='known')return{title:'Bildiklerim',icon:'✅',words:A.filter(isKnown).sort(byW)};
+  return null;
+}
+function renderLists(){
+  const row=key=>{const d=listDef(key);return `<button class="li" data-k="${key}"><span><i class="ic">${d.icon}</i>${esc(d.title)}</span><small>${d.words.length}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></small></button>`};
+  const gen=['_all'].concat(weekWords().length?['_week']:[]);
+  const cats=Object.keys(TOPICS).concat(all().some(w=>!TOPICS[catOf(w)])?['uncat']:[]);
+  $('listsBox').innerHTML=`<div class="lgroup">${gen.map(row).join('')}</div>
+    <div class="lsec"><span>Kategoriler</span><button id="lsCatEdit">Düzenle</button></div><div class="lgroup">${cats.map(row).join('')}</div>
+    <div class="lsec"><span>Listelerim</span></div><div class="lgroup">${['custom','learn','favs','known'].map(row).join('')}</div>`;
+  $('listsBox').querySelectorAll('.li').forEach(b=>b.onclick=()=>openWordList(b.dataset.k));
+  $('lsCatEdit').onclick=()=>openCats();
+}
+function openWordList(key){
+  const d=listDef(key);if(!d)return;LS=d;
+  $('lsTitle').textContent=d.icon+' '+d.title;
+  $('lsSub').textContent=d.words.length?`${d.words.length} kelime · bir kelimeye dokunursan kartı açılır`:'';
+  $('lsQ').value='';$('lsQ').style.display=d.words.length>15?'':'none';
+  drawList();
+  $('lsCards').style.display=$('lsQuiz').style.display=d.words.length?'':'none';
+  openSheet('listSheet');$('listSheet').querySelector('.panel').scrollTop=0;
+}
+function drawList(){
+  const q=$('lsQ').value.trim().toLocaleLowerCase('tr'),MAX=300;
+  const ws=q?LS.words.filter(w=>w.w.toLowerCase().includes(q)||w.tr.toLocaleLowerCase('tr').includes(q)):LS.words;
+  $('lsBody').innerHTML=!LS.words.length?'<p class="hint">Bu listede henüz kelime yok.</p>':!ws.length?'<p class="hint">Sonuç yok.</p>'
+    :ws.slice(0,MAX).map((w,i)=>`<button class="wrow" data-i="${i}"><span class="badge">${esc(w.lvl)}</span><b>${esc(w.w)}</b><span>${esc(w.tr)}</span></button>`).join('')
+     +(ws.length>MAX?`<p class="hint">İlk ${MAX} kelime gösteriliyor, aramayla daralt.</p>`:'');
+  $('lsBody').querySelectorAll('.wrow').forEach(b=>b.onclick=()=>{const w=ws[+b.dataset.i];closeSheets();showTab('home');searchList=LS.words.slice();searchTitle=LS.title;setMode('search',w)});
+}
+$('lsQ').oninput=drawList;
+$('lsCards').onclick=()=>{closeSheets();showTab('home');listWords=LS.words.slice();listTitle=LS.title;setMode('list')};
+$('lsQuiz').onclick=()=>{const ws=LS.words.slice(),n=ws.length;closeSheets();showTab('quiz');startPractice('list',S.qLen?Math.min(S.qLen,n):0,ws,LS.title)};
+
+/* AI ile tek kelime kartı */
+function openAiCard(){
+  $('acWord').value='';$('acRes').innerHTML='';
+  $('acNote').textContent=S.worker?'AI kelimenin anlamını, okunuşunu, örnek cümlesini ve seviyesini hazırlar, uygun kategoriye yerleştirir.':'Önce ⚙️ Ayarlar\'dan Worker adresini girmelisin.';
+  openSheet('aiCardSheet');setTimeout(()=>$('acWord').focus(),250);
+}
+function showAcRes(w,existed){
+  $('acRes').innerHTML=`<div class="acard">
+    ${existed?'<p class="hint" style="margin:0 0 8px">Bu kelime zaten listende var:</p>':''}
+    <div><span class="badge">${esc(w.lvl)}</span> <small style="color:var(--muted)">${esc(topicName(w))}</small>
+    <h2 style="margin:8px 0 2px;font-size:30px">${esc(w.w)}</h2><div style="color:var(--accent);font-weight:700;font-size:17px">${esc(w.tr)}</div>
+    <p style="margin:10px 0 4px;font-size:15px"><em>(${esc(w.pos)})</em> ${esc(w.def)}</p><p style="margin:0;font-size:15px;color:var(--muted)">${highlight(w)}</p></div></div>
+    <button class="primary" id="acOpen">Kartı aç</button><button class="ghost" id="acCat">Kategorisini değiştir</button>`;
+  $('acOpen').onclick=()=>{closeSheets();showTab('home');searchList=[w];searchTitle=existed?'Kelime':'Yeni kart';setMode('search')};
+  $('acCat').onclick=()=>{closeSheets();pickCat(w)};
+}
+$('acWord').onkeydown=e=>{if(e.key==='Enter')$('acGo').click()};
+$('acGo').onclick=async()=>{
+  const q=$('acWord').value.trim();
+  if(!S.worker)return toast('Önce Ayarlar\'dan Worker adresini gir');
+  if(!q)return toast('Bir İngilizce kelime yaz');
+  const have=all().find(w=>k(w)===q.toLowerCase());
+  if(have)return showAcRes(have,true);
+  const b=$('acGo');b.disabled=true;b.innerHTML='<span class="spin"></span>Hazırlanıyor…';$('acRes').innerHTML='';
+  try{
+    const d=await callWorker({card:q,cats:S.cats});
+    if(!d.word)throw new Error(Array.isArray(d.words)?'Worker eski sürüm, worker.js\'i güncellemen gerekiyor':'Kart gelmedi');
+    const x=d.word,w={w:x.w,tr:x.tr,ipa:x.ipa||'',pos:x.pos||'',def:x.def,ex:x.ex,lvl:LEVELS.includes(x.lvl)?x.lvl:'B1',t:TOPICS[x.t]?x.t:'',tl:'',ai:true};
+    const dup=all().find(z=>k(z)===k(w));
+    if(dup)return showAcRes(dup,true);
+    addWords([w]);showAcRes(w,false);
+    toast(`"${w.w}" eklendi → ${topicName(w)}`);
+    if(!w.t)classifyAi();
+    renderToday();
+  }catch(e){toast('Üretilemedi: '+e.message)}
+  finally{b.disabled=false;b.textContent='Kart üret'}
+};
 
 /* WIDGET sekmesi */
 function paramStr(){const iv=S.wInt||60,tp=S.wTopics.filter(t=>TOPICS[t]).map(t=>TOPICS[t]);return S.levels.join(',')+((tp.length||iv!==60)?'|'+tp.join(','):'')+(iv!==60?'|'+iv:'')}
@@ -1209,7 +1353,7 @@ $('copyCode').onclick=async()=>{
 $('copyParam').onclick=async()=>toast(await copyText(paramStr())?'Parametre kopyalandı':'Kopyalanamadı');
 
 /* sekmeler */
-const TITLES={today:'',home:'Kelime Kartları',quiz:'Pratik',widget:'Widget'};
+const TITLES={today:'',home:'Kelime Kartları',quiz:'Pratik',lists:'Kelimelerim',widget:'Widget'};
 function showTab(t){
   $('hTitle').textContent=TITLES[t];$('hTitle').style.display=TITLES[t]?'':'none';
   $('hSub').textContent=new Date().toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'});
@@ -1220,6 +1364,7 @@ function showTab(t){
   if(t==='quiz')renderPractice();
   if(t==='home')setTimeout(()=>{const w=current();if(w&&$('v-home').classList.contains('on'))markSeen(w)},0);
   if(t==='widget')renderWidgetTab();
+  if(t==='lists')renderLists();
 }
 document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
 
