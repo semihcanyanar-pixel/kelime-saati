@@ -237,6 +237,8 @@ nav.tabs button.on{color:var(--accent)}
 .lgroup .li span{display:flex;align-items:center;gap:10px}.lgroup .li .ic{font-size:20px;width:26px;text-align:center}
 .lgroup .li small{display:flex;align-items:center;gap:6px}
 .acard{margin-top:14px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px 16px}
+.selbtn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;text-align:left;color:var(--text)}
+.selbtn b{display:block;font-size:17px}.selbtn small{display:block;color:var(--muted);font-size:13px;margin-top:2px}.selbtn svg{color:var(--accent);flex:none}
 .lsep{height:2px;background:var(--line);border-radius:1px;margin:18px 0 0}
 .catrow{display:flex;align-items:center;gap:8px;padding:12px 2px;border-bottom:1px solid var(--line)}
 .catrow .nm{flex:1;min-width:0;font-size:16px;font-weight:600}
@@ -382,6 +384,9 @@ nav.tabs button{position:relative}
   <div class="chips" id="cnQuick"></div>
   <button class="primary" id="cnOk" style="margin-top:20px">Tamam</button>
 </div></div>
+
+<!-- Pratik kelime grubu -->
+<div class="sheet" id="srcSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Kelime grubu</h3><div id="srcList"></div></div></div>
 
 <!-- Kelime listesi -->
 <div class="sheet" id="listSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
@@ -890,12 +895,13 @@ function pickCat(w){
 let P=null, pSeq=0;
 const QLENS=[10,20,30,50,0];
 const DIRS=[['en','EN → TR'],['tr','TR → EN'],['mix','Karışık']];
-function srcName(x){return x==='session'?'Kart çalışması':x==='all'?'Tümü':x==='learn'?'Öğren':x==='favs'?'Favoriler':x==='custom'?'Eklediğim kelimeler':x==='retry'?'Yanlışlar':TOPICS[x]||x}
+function srcName(x){return x==='session'?'Kart çalışması':x==='all'?'Tümü':x==='learn'?'Öğren':x==='favs'?'Favoriler':x==='custom'?'Eklediğim kelimeler':x==='retry'?'Yanlışlar':x==='_week'?'Haftanın kelimeleri':TOPICS[x]||x}
 function srcPool(x){
   const lv=w=>(S.qLevels&&S.qLevels.length?S.qLevels:LEVELS).includes(w.lvl);
   if(x==='learn')return all().filter(inLearn);
   if(x==='favs')return all().filter(isFav);
   if(x==='custom')return all().filter(w=>w.ai);
+  if(x==='_week')return weekWords();
   if(TOPICS[x])return all().filter(w=>catOf(w)===x&&lv(w));
   return all().filter(lv);
 }
@@ -907,10 +913,18 @@ function markLearn(w,ok){
   if(S.learn[key]>=3){delete S.learn[key];save();return 'done'}
   save();return 'step';
 }
+function openSrc(){
+  const li=x=>`<button class="li ${S.qSrc===x?'on':''}" data-s="${x}"><span>${esc(srcName(x))}</span><small>${srcPool(x).length} kelime</small></button>`;
+  $('srcList').innerHTML=['all'].concat(weekWords().length?['_week']:[]).map(li).join('')
+    +'<div class="lsec"><span>Kategoriler</span></div>'+Object.keys(TOPICS).map(li).join('')
+    +'<div class="lsep"></div><div class="lsec"><span>Listelerim</span></div>'+['favs','custom'].map(li).join('');
+  $('srcList').querySelectorAll('.li').forEach(b=>b.onclick=()=>{S.qSrc=b.dataset.s;save();closeSheets();renderSetup()});
+  openSheet('srcSheet');
+}
 function renderPractice(){P?renderQ():renderSetup()}
 function renderSetup(){
   const pr=$('pr'),ln=Object.keys(S.learn).length;
-  const srcs=['all',...Object.keys(TOPICS),'favs','custom'];
+  if(S.qSrc!=='all'&&!TOPICS[S.qSrc]&&!['favs','custom','_week'].includes(S.qSrc))S.qSrc='all';
   if(!S.qLevels||!S.qLevels.length)S.qLevels=[...LEVELS];
   const lvlNote=(S.qSrc==='all'||TOPICS[S.qSrc])?'':'<p class="hint">Favoriler ve AI kelimelerinde seviye filtresi uygulanmaz.</p>';
   pr.innerHTML=`<div class="sec">
@@ -918,7 +932,7 @@ function renderSetup(){
       <div class="tx"><b>Öğren</b>Yanlış yaptığın kelimeler burada birikir. Üst üste 3 doğru cevapta gruptan çıkar. Çalış, grup boşalana kadar sorar.</div>
       <button id="pLearn" ${ln?'':'disabled'}>Çalış</button></div>
     <h2 class="h" style="margin-top:22px">Kelime grubu</h2>
-    <div class="chips left">${srcs.map(x=>{const n=srcPool(x).length;return `<button class="chip ${S.qSrc===x?'on':''}" data-s="${x}">${srcName(x)}<small>${n}</small></button>`}).join('')}</div>
+    <button class="selbtn" id="pSrc"><span><b>${esc(srcName(S.qSrc))}</b><small>${srcPool(S.qSrc).length} kelime</small></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
     <h2 class="h" style="margin-top:22px">Seviye</h2>
     <div class="chips left">${LEVELS.map(l=>`<button class="chip ${S.qLevels.includes(l)?'on':''}" data-lv="${l}">${l}</button>`).join('')}</div>
     ${lvlNote}
@@ -929,7 +943,7 @@ function renderSetup(){
     <button class="primary" id="pStart" style="margin-top:26px">Başla</button>
     <p class="qstat" style="margin-top:12px">En iyi seri: <b>${S.best}</b></p>
   </div>`;
-  pr.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{S.qSrc=b.dataset.s;save();renderSetup()});
+  $('pSrc').onclick=openSrc;
   pr.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{S.qLen=+b.dataset.n;save();renderSetup()});
   pr.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{const l=b.dataset.lv,i=S.qLevels.indexOf(l);if(i>=0){if(S.qLevels.length===1)return toast('En az bir seviye seç');S.qLevels.splice(i,1)}else S.qLevels.push(l);S.qLevels.sort();save();renderSetup()});
   pr.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{S.dir=b.dataset.d;save();renderSetup()});
