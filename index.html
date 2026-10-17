@@ -239,6 +239,36 @@ nav.tabs button.on{color:var(--accent)}
 .acard{margin-top:14px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px 16px}
 .selbtn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;text-align:left;color:var(--text)}
 .selbtn b{display:block;font-size:17px}.selbtn small{display:block;color:var(--muted);font-size:13px;margin-top:2px}.selbtn svg{color:var(--accent);flex:none}
+.glabel{font-size:13px;letter-spacing:.8px;font-weight:800;color:var(--muted);text-transform:uppercase;margin:24px 6px 8px}
+.panel .glabel:first-of-type{margin-top:8px}
+.group{background:#fff;border-radius:20px;box-shadow:0 2px 10px rgba(120,80,40,.06);overflow:hidden}
+.grow{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:58px;padding:10px 14px;border:none;background:none;text-align:left;font-size:16px;color:var(--text);border-bottom:1px solid #F1E9E1}
+.grow:last-child{border-bottom:none}
+.grow.col{flex-direction:column;align-items:stretch;gap:10px;padding:12px 14px}
+.grow .gl{display:flex;align-items:center;gap:12px}
+.gi{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-style:normal;font-size:17px;flex:none}
+.gt{flex:1;font-weight:600;min-width:0}.gt small{display:block;font-weight:500;font-size:13px;color:var(--muted);margin-top:1px}
+.gt code{font:12px ui-monospace,Menlo,monospace;color:#9A4A1E}
+.gv{color:var(--muted);font-size:15px;text-align:right;max-width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chev{color:#C9BDB3;flex:none}
+.gsel{position:absolute;inset:0;width:100%;height:100%;opacity:0;-webkit-appearance:none;appearance:none}
+.gbody{padding:4px 14px 14px;border-bottom:1px solid #F1E9E1}
+.gbody .steps{margin:4px 0 0;padding-left:20px;font-size:14px;line-height:1.5}.gbody .steps li{margin:6px 0}
+.grow.danger{justify-content:center;color:#D2463A;font-weight:600;min-height:52px}
+.ghint{font-size:13px;color:var(--muted);line-height:1.45;margin:8px 8px 0}
+.seg{display:flex;background:#EFE6DD;border-radius:14px;padding:3px;gap:3px}
+.seg button{flex:1;border:none;background:none;border-radius:11px;padding:9px 4px;font-weight:700;font-size:14px;color:#7A6E66}
+.seg button.on{background:#fff;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+#pvSeg{margin:6px 0 14px}
+.hwbg{border-radius:26px;padding:26px 0;background:linear-gradient(180deg,#F2B48E,#B9846B 60%,#7B5B4D);display:flex;justify-content:center}
+.hwbg .hw{margin:0;width:62%}
+.acct2{display:flex;align-items:center;gap:12px;background:#fff;border-radius:20px;padding:14px;box-shadow:0 2px 10px rgba(120,80,40,.06)}
+.acct2 .av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#F2A36F,#E8793F);color:#fff;font-weight:800;font-size:20px;display:grid;place-items:center;flex:none}
+.acct2 .ai{flex:1;min-width:0}.acct2 b{display:block;font-size:16px;overflow:hidden;text-overflow:ellipsis}.acct2 small{color:var(--muted);font-size:13px}
+.mini{border:none;background:#F4EEE8;color:#7A6E66;font-weight:700;border-radius:12px;padding:9px 14px}
+.stat4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat4 div{background:#fff;border-radius:16px;padding:12px 4px;text-align:center;box-shadow:0 2px 10px rgba(120,80,40,.06)}
+.stat4 b{display:block;font-size:20px;font-weight:800}.stat4 small{font-size:11px;color:var(--muted);font-weight:600}
 .lsep{height:2px;background:var(--line);border-radius:1px;margin:18px 0 0}
 .catrow{display:flex;align-items:center;gap:8px;padding:12px 2px;border-bottom:1px solid var(--line)}
 .catrow .nm{flex:1;min-width:0;font-size:16px;font-weight:600}
@@ -314,34 +344,35 @@ nav.tabs button{position:relative}
     <!-- WIDGET -->
     <section class="view" id="v-widget">
       <div class="sec">
-        <h2 class="h" style="margin-top:4px">Önizleme</h2>
-        <div class="lock">
+        <div class="seg" id="pvSeg"><button class="on" data-p="lock">Kilit ekranı</button><button data-p="home">Ana ekran</button></div>
+        <div class="lock" id="pvLock">
           <div class="dt" id="lkDate"></div>
           <div class="tm" id="lkTime">--:--</div>
           <div style="margin-top:14px"><div class="lrect"><b id="lkW"></b><span id="lkT"></span><i id="lkI"></i></div></div>
         </div>
-        <div class="hw"><div class="top"><span id="hwH">⏰ SAATİN KELİMESİ</span><span id="hwL"></span></div><div class="w" id="hwW"></div><div class="t" id="hwT"></div><div class="e" id="hwE"></div></div>
+        <div id="pvHome" style="display:none"><div class="hwbg"><div class="hw"><div class="top"><span id="hwH">⏰ SAATİN KELİMESİ</span><span id="hwL"></span></div><div class="w" id="hwW"></div><div class="t" id="hwT"></div><div class="e" id="hwE"></div></div></div></div>
 
-        <h2 class="h">Kelime değişme sıklığı</h2>
-        <div class="chips left" id="wIntChips"></div>
-        <p class="hint">iOS widget yenilemelerini sınırlar; 15 dakikada çoğu zaman tam zamanında değişir ama bazen birkaç dakika gecikebilir.</p>
+        <div class="glabel">Widget'ta ne görünsün?</div>
+        <div class="group">
+          <div class="grow col"><div class="gl"><i class="gi" style="background:#FDE6D6">⏱</i><span class="gt">Değişme sıklığı</span></div><div class="seg sm" id="wIntChips"></div></div>
+          <button class="grow" id="wLvlRow"><i class="gi" style="background:#C6E3B6">📶</i><span class="gt">Seviyeler</span><span class="gv" id="wLvlVal"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button class="grow" id="wTopicRow"><i class="gi" style="background:#DED5F6">🏷️</i><span class="gt">Konular</span><span class="gv" id="wTopicVal"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+        <p class="ghint">Saatin kelimesi uygulamada ve widget'ta aynıdır.</p>
 
-        <h2 class="h">Widget konuları</h2>
-        <div class="chips left" id="wTopicChips"></div>
-        <p class="hint">Hiçbiri seçili değilse tüm kategoriler gelir. Kendi eklediğin kategoriler ve AI kelimelerin de widget'ta çıkar. Seviyeler Kartlar sekmesindeki seçimi kullanır. Saatin kelimesi uygulamada ve widget'ta aynıdır.</p>
-
-        <h2 class="h">Kurulum</h2>
-        <ol class="steps">
-          <li>App Store'dan ücretsiz <b>Scriptable</b> uygulamasını indir.</li>
-          <li>Aşağıdaki butonla kodu kopyala, Scriptable'da <b>+</b> ile yeni betik aç, yapıştır ve adını <b>Kelime Saati</b> yap.</li>
-          <li><b>Ana ekran:</b> boş yere basılı tut → <b>Düzenle → Widget Ekle</b> → Scriptable → boyutu seç → widget'a basılı tut → Widget'ı Düzenle → Script: Kelime Saati.</li>
-          <li><b>Kilit ekranı:</b> kilit ekranına basılı tut → Özelleştir → Kilit Ekranı → widget alanı → Scriptable → Script: Kelime Saati.</li>
-          <li>Farklı seviye/konu istediğin widget'ın <b>Parameter</b> alanına aşağıdaki satırı yapıştır.</li>
-        </ol>
-        <button class="primary" id="copyCode">Widget kodunu kopyala</button>
-        <code class="param" id="paramTxt"></code>
-        <button class="ghost" id="copyParam">Parametreyi kopyala</button>
-        <p class="hint">iOS widget yenilemesini kendi planlar; kelime genelde saat başı değişir ama birkaç dakika gecikebilir. Kategori ya da AI kelimesi değişiklikleri widget'a birkaç dakika içinde yansır.</p>
+        <div class="glabel">Kurulum</div>
+        <div class="group">
+          <button class="grow" id="copyCode"><i class="gi" style="background:var(--accent);color:#fff">📋</i><span class="gt">Widget kodunu kopyala<small>Scriptable'da yeni betiğe yapıştır</small></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+          <button class="grow" id="howRow"><i class="gi" style="background:#A3D5F7">❓</i><span class="gt">Nasıl kurulur?</span><svg class="chev" id="howChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="gbody" id="howBody" style="display:none"><ol class="steps">
+            <li>App Store'dan ücretsiz <b>Scriptable</b> uygulamasını indir.</li>
+            <li><b>Widget kodunu kopyala</b>'ya bas, Scriptable'da <b>+</b> ile yeni betik aç, yapıştır ve adını <b>Kelime Saati</b> yap.</li>
+            <li><b>Ana ekran:</b> boş yere basılı tut → Düzenle → Widget Ekle → Scriptable → widget'a basılı tut → Widget'ı Düzenle → Script: Kelime Saati.</li>
+            <li><b>Kilit ekranı:</b> kilit ekranına basılı tut → Özelleştir → Kilit Ekranı → widget alanı → Scriptable → Script: Kelime Saati.</li>
+          </ol></div>
+          <button class="grow" id="copyParam"><i class="gi" style="background:#F5D6AE">🧩</i><span class="gt">İkinci widget için parametre<small><code id="paramTxt"></code></small></span><span class="gv">Kopyala</span></button>
+        </div>
+        <p class="ghint">Farklı içerikli ikinci bir widget için ayarları değiştir, parametreyi kopyala ve o widget'ın Parameter alanına yapıştır. iOS yenilemeyi kendisi planlar, kelime birkaç dakika geç değişebilir.</p>
       </div>
     </section>
   </main>
@@ -385,6 +416,18 @@ nav.tabs button{position:relative}
   <button class="primary" id="cnOk" style="margin-top:20px">Tamam</button>
 </div></div>
 
+<!-- Widget içeriği -->
+<div class="sheet" id="wSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
+  <h3>Widget içeriği</h3>
+  <label class="lb" style="margin-top:4px">Seviyeler</label>
+  <div class="chips left" id="wLvlChips"></div>
+  <p class="hint">Kartlar sekmesindeki seviye seçimiyle aynıdır.</p>
+  <label class="lb">Konular</label>
+  <div class="chips left" id="wTopicChips"></div>
+  <p class="hint">Hiçbiri seçili değilse tüm konular gelir.</p>
+  <button class="primary" id="wDone">Tamam</button>
+</div></div>
+
 <!-- Pratik kelime grubu -->
 <div class="sheet" id="srcSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Kelime grubu</h3><div id="srcList"></div></div></div>
 
@@ -423,26 +466,31 @@ nav.tabs button{position:relative}
 
 <!-- Ayarlar -->
 <div class="sheet" id="setSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Ayarlar</h3>
-  <div id="acctWrap" style="display:none"><label class="lb" style="margin-top:4px">Hesap</label>
-  <div class="acct"><div><b id="acEmail">—</b><small id="acSync"></small></div><button class="ghost" id="logoutBtn">Çıkış yap</button></div></div>
-  <label class="lb">Günlük hedef</label>
-  <div class="inline">
-    <select class="field" id="goalN"><option value="5">5 yeni kelime</option><option value="10">10 yeni kelime</option><option value="15">15 yeni kelime</option><option value="20">20 yeni kelime</option><option value="30">30 yeni kelime</option></select>
-    <select class="field" id="goalR"><option value="10">10 tekrar</option><option value="20">20 tekrar</option><option value="30">30 tekrar</option><option value="50">50 tekrar</option></select>
+  <div id="acctWrap" style="display:none"><div class="acct2"><div class="av" id="acAv">?</div><div class="ai"><b id="acEmail">—</b><small id="acSync"></small></div><button class="mini" id="logoutBtn">Çıkış</button></div></div>
+
+  <div class="glabel">Günlük hedef</div>
+  <div class="group">
+    <div class="grow"><i class="gi" style="background:#C6E3B6">🌱</i><span class="gt">Yeni kelime</span><span class="gv" data-for="goalN"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="goalN"><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="20">20</option><option value="30">30</option></select></div>
+    <div class="grow"><i class="gi" style="background:#A3D5F7">🔁</i><span class="gt">Tekrar</span><span class="gv" data-for="goalR"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="goalR"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option></select></div>
   </div>
-  <label class="lb">Haftanın AI kelimeleri</label>
-  <select class="field" id="autoOn"><option value="10">Her hafta 10 kelime</option><option value="20">Her hafta 20 kelime</option><option value="30">Her hafta 30 kelime</option><option value="40">Her hafta 40 kelime</option><option value="0">Kapalı</option></select>
-  <p class="hint">Haftanın ilk açılışında farklı kategorilerden 5'erli gruplar halinde eklenir.</p>
-  <label class="lb">Worker adresi</label>
-  <input class="field" id="workerUrl" placeholder="https://kelime-saati-ai.xxx.workers.dev" autocomplete="off" autocapitalize="off">
-  <p class="hint">Cloudflare Worker'ı kurduktan sonra adresini buraya yapıştır.</p>
-  <label class="lb">Veriler</label>
-  <p class="hint" id="stats"></p>
-  <button class="ghost" id="resetKnown">"Biliyorum" işaretlerini sıfırla</button>
-  <button class="ghost" id="clearAi">AI kelimelerini sil</button>
-  <label class="lb">Yedek</label>
-  <div class="inline"><button class="ghost" id="bkOut" style="margin-top:0">Yedeği kopyala</button><button class="ghost" id="bkIn" style="margin-top:0">Yedeği geri yükle</button></div>
-  <p class="hint">Favoriler, Öğren grubu, AI kelimeleri ve ilerleme yedeklenir. Kopyaladığın metni Notlar'a yapıştırıp saklayabilirsin.</p>
+
+  <div class="glabel">Yapay zekâ</div>
+  <div class="group">
+    <div class="grow"><i class="gi" style="background:#DED5F6">🌱</i><span class="gt">Haftanın kelimeleri</span><span class="gv" data-for="autoOn"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="autoOn"><option value="10">10 / hafta</option><option value="20">20 / hafta</option><option value="30">30 / hafta</option><option value="40">40 / hafta</option><option value="0">Kapalı</option></select></div>
+    <button class="grow" id="wkRow"><i class="gi" style="background:#F5D6AE">🔌</i><span class="gt">Worker bağlantısı</span><span class="gv" id="wkState"></span><svg class="chev" id="wkChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <div class="gbody" id="wkBody" style="display:none"><input class="field" id="workerUrl" placeholder="https://kelime-saati-ai.xxx.workers.dev" autocomplete="off" autocapitalize="off"></div>
+  </div>
+
+  <div class="glabel">Verilerim</div>
+  <div class="stat4" id="stats"></div>
+  <div class="group" style="margin-top:10px">
+    <button class="grow" id="bkOut"><i class="gi" style="background:#FDE6D6">📤</i><span class="gt">Yedeği kopyala<small>Notlar'a yapıştırıp saklayabilirsin</small></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="grow" id="bkIn"><i class="gi" style="background:#FDE6D6">📥</i><span class="gt">Yedeği geri yükle</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <div class="group" style="margin-top:14px">
+    <button class="grow danger" id="resetKnown">"Biliyorum" işaretlerini sıfırla</button>
+    <button class="grow danger" id="clearAi">AI kelimelerini sil</button>
+  </div>
 </div></div>
 
 <div class="login" id="login"><div class="lbox">
@@ -689,14 +737,19 @@ $('q').oninput=()=>{
   $('qRes').querySelectorAll('.li').forEach(b=>b.onclick=()=>{closeSheets();showTab('home');setMode('search');idx=+b.dataset.i;render()});
 };
 
+function syncSel(){document.querySelectorAll('#setSheet .gv[data-for]').forEach(v=>{const s=$(v.dataset.for);v.textContent=s.options[s.selectedIndex]?s.options[s.selectedIndex].text:''});$('wkState').textContent=S.worker?'Bağlı ✓':'Ayarlanmadı'}
 $('setBtn').onclick=()=>{
   updateAcct();
   $('workerUrl').value=S.worker;$('goalN').value=S.goalN;$('goalR').value=S.goalR;$('autoOn').value=S.autoOn?String(S.weekCnt||20):'0';
-  $('stats').textContent=`${BASE.length} hazır kelime · ${S.custom.length} AI kelimesi · ${S.favs.length} favori · ${S.known.length} biliyorum · ${Object.keys(S.learn).length} öğreniliyor`;
+  $('wkBody').style.display=S.worker?'none':'';$('wkChev').style.transform=S.worker?'':'rotate(180deg)';
+  syncSel();
+  $('stats').innerHTML=[[all().length,'kelime'],[S.favs.length,'favori'],[S.known.length,'biliyorum'],[Object.keys(S.learn).length,'öğreniliyor']].map(([n,l])=>`<div><b>${n}</b><small>${l}</small></div>`).join('');
   openSheet('setSheet');
 };
+$('wkRow').onclick=()=>{const o=$('wkBody').style.display==='none';$('wkBody').style.display=o?'':'none';$('wkChev').style.transform=o?'rotate(180deg)':''};
+['goalN','goalR','autoOn'].forEach(id=>$(id).addEventListener('change',syncSel));
 const cleanUrl=u=>{u=(u||'').trim();const i=u.indexOf('http');return i>0?u.slice(i):u};
-$('workerUrl').onchange=()=>{S.worker=cleanUrl($('workerUrl').value);$('workerUrl').value=S.worker;save();maybeDaily()};
+$('workerUrl').onchange=()=>{S.worker=cleanUrl($('workerUrl').value);$('workerUrl').value=S.worker;save();syncSel();maybeDaily()};
 $('autoOn').onchange=()=>{const v=+$('autoOn').value;S.autoOn=v>0;if(v)S.weekCnt=v;save();renderToday();maybeDaily()};
 $('goalN').onchange=()=>{S.goalN=+$('goalN').value;save();renderToday()};
 $('goalR').onchange=()=>{S.goalR=+$('goalR').value;save();renderToday()};
@@ -1118,7 +1171,7 @@ function applyState(){
 function updateAcct(){
   const u=C&&C.auth.currentUser;
   $('acctWrap').style.display=u?'block':'none';
-  if(u){$('acEmail').textContent=u.email;$('acSync').textContent=syncMsg||'Eşitlendi ✓'}
+  if(u){$('acEmail').textContent=u.email;$('acSync').textContent=syncMsg||'Eşitlendi ✓';$('acAv').textContent=(u.email||'?')[0].toUpperCase()}
 }
 function showLogin(on){$('login').classList.toggle('on',on);if(on){$('lErr').textContent='';closeSheets()}}
 function lerr(t,ok){const e=$('lErr');e.textContent=t;e.classList.toggle('ok',!!ok)}
@@ -1339,15 +1392,23 @@ function renderWidgetTab(){
   $('lkW').textContent=w.w;$('lkT').textContent=w.tr;$('lkI').textContent='/'+w.ipa+'/';
   $('hwH').textContent=(S.wInt||60)===60?'⏰ SAATİN KELİMESİ':`⏰ ${S.wInt} DK KELİMESİ`;$('hwL').textContent=w.lvl;$('hwW').textContent=w.w;$('hwT').textContent=w.tr;$('hwE').textContent=w.ex;
   S.wTopics=S.wTopics.filter(t=>TOPICS[t]);
-  $('wTopicChips').innerHTML=Object.keys(TOPICS).map(t=>`<button class="chip ${S.wTopics.includes(t)?'on':''}" data-t="${t}">${esc(TOPICS[t])}</button>`).join('');
-  $('wTopicChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{
-    const t=b.dataset.t,i=S.wTopics.indexOf(t);if(i>=0)S.wTopics.splice(i,1);else S.wTopics.push(t);
-    save();renderWidgetTab();if(mode==='hour')render();
-  });
-  $('wIntChips').innerHTML=[15,30,60].map(n=>`<button class="chip ${(S.wInt||60)===n?'on':''}" data-m="${n}">${n===60?'Saatte bir':n+' dakikada bir'}</button>`).join('');
-  $('wIntChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{S.wInt=+b.dataset.m;save();renderWidgetTab();if(mode==='hour')render();toast('Değişiklik widget\'a yansısın diye Widget kodunu yeniden kopyalayıp Scriptable\'a yapıştır')});
+  $('wIntChips').innerHTML=[15,30,60].map(n=>`<button class="${(S.wInt||60)===n?'on':''}" data-m="${n}">${n===60?'1 saat':n+' dk'}</button>`).join('');
+  $('wIntChips').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.wInt=+b.dataset.m;save();renderWidgetTab();if(mode==='hour')render();toast('Widget\'a yansısın diye kodu yeniden kopyalayıp Scriptable\'a yapıştır')});
+  $('wLvlVal').textContent=S.levels.length===LEVELS.length?'Hepsi':S.levels.join(', ');
+  $('wTopicVal').textContent=S.wTopics.length?S.wTopics.map(t=>TOPICS[t]).join(', '):'Hepsi';
   $('paramTxt').textContent=paramStr();
+  renderWSheet();
 }
+function renderWSheet(){
+  $('wLvlChips').innerHTML=LEVELS.map(l=>`<button class="chip ${S.levels.includes(l)?'on':''}" data-l="${l}">${l}</button>`).join('');
+  $('wLvlChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const l=b.dataset.l,i=S.levels.indexOf(l);if(i>=0){if(S.levels.length===1)return toast('En az bir seviye seçili olmalı');S.levels.splice(i,1)}else S.levels.push(l);S.levels.sort();save();renderLevels();setMode(mode==='search'?'mix':mode);renderWidgetTab()});
+  $('wTopicChips').innerHTML=Object.keys(TOPICS).map(t=>`<button class="chip ${S.wTopics.includes(t)?'on':''}" data-t="${t}">${esc(TOPICS[t])}</button>`).join('');
+  $('wTopicChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const t=b.dataset.t,i=S.wTopics.indexOf(t);if(i>=0)S.wTopics.splice(i,1);else S.wTopics.push(t);save();renderWidgetTab();if(mode==='hour')render()});
+}
+$('wLvlRow').onclick=$('wTopicRow').onclick=()=>{renderWSheet();openSheet('wSheet')};
+$('wDone').onclick=closeSheets;
+$('pvSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('pvSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));$('pvLock').style.display=b.dataset.p==='lock'?'':'none';$('pvHome').style.display=b.dataset.p==='home'?'':'none'});
+$('howRow').onclick=()=>{const o=$('howBody').style.display==='none';$('howBody').style.display=o?'':'none';$('howChev').style.transform=o?'rotate(180deg)':''};
 function baseUrl(){return location.href.split(/[?#]/)[0].replace(/index\.html$/,'')}
 function widgetCode(){
   if(C&&C.auth.currentUser)publishWidget();
