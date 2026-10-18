@@ -381,30 +381,36 @@ nav.tabs button{position:relative}
 
 /* ===== TEMALAR ===== */
 :root[data-theme="deniz"]{
-  --bg:#EEF3F8;--bg2:#E4ECF4;--card:#FFFFFF;--text:#18212E;--muted:#6A7484;--line:#DCE3EC;
-  --gold:#2F6BFF;--accent:#2F6BFF;--accent-soft:#E2EAFF;--ink:#1D4FD0;
-  --peach:#FFD9CC;--sand:#FFE7B3;--sage:#CFEFD9;--sky:#D3E6FF;--lilac:#E3DCFF;--news:#CFEFF2;--story:#FFE2CC;--rose:#FFD6E2;
-  --panel:#F7F9FC;--soft:#EDF1F6;--soft2:#E4EAF1;--line2:#EBEFF4;--tsub:rgba(24,33,46,.66);--muted2:#5E6878;--toggle:#D3DAE4;--tabtxt:#5A6474;
-  --chev:#B7C0CC;--tabbar:rgba(255,255,255,.94);--pop:#18212E;--leaf:0;--shadow:0 6px 22px rgba(30,60,110,.09);
+  --bg:#EEEFF1;--bg2:#E6E7EA;--card:#FFFFFF;--text:#1E2125;--muted:#6F747C;--line:#DDDFE3;
+  --gold:#3A3F46;--accent:#3A3F46;--accent-soft:#E6E7EA;--ink:#2A2E33;
+  --peach:#ECE2DC;--sand:#ECE7DA;--sage:#DFE7E0;--sky:#DEE5EC;--lilac:#E5E2EC;--news:#DFE7EA;--story:#EDE5DC;--rose:#ECE0E4;
+  --panel:#F7F7F8;--soft:#EEEFF1;--soft2:#E6E7EA;--line2:#ECEDEF;--tsub:rgba(30,33,37,.62);--muted2:#5F646B;--toggle:#D6D8DC;--tabtxt:#5F646B;
+  --chev:#BCC0C6;--tabbar:rgba(255,255,255,.95);--pop:#2A2E33;--leaf:0;--shadow:0 6px 22px rgba(20,24,30,.07);
+  --blue-ink:#3F5468;--green-ink:#3E5A47;
 }
+:root[data-theme="deniz"] .tr,:root[data-theme="deniz"] .hourcard .t3,:root[data-theme="deniz"] .ex b,:root[data-theme="deniz"] .row em,:root[data-theme="deniz"] .kw{color:#8A6A4F}
+:root[data-theme="deniz"] .kw{color:inherit;text-decoration-color:#8A6A4F}
+:root[data-theme="deniz"] .badge{background:#E3E8E3}
+:root[data-theme="deniz"] .learnbox{background:#E2E7EC}
+:root[data-theme="deniz"] .sn.cur,:root[data-theme="deniz"] .bi.cur{background:#E8E3DC}
 :root[data-theme="gece"]{
-  --bg:#111317;--bg2:#181B20;--card:#1C1F25;--text:#ECEEF2;--muted:#979DA8;--line:#2B3039;
-  --gold:#F2884B;--accent:#F2884B;--accent-soft:#3A271C;--ink:#FFB384;
-  --peach:#3A2822;--sand:#372E1F;--sage:#1F3127;--sky:#1C2C3B;--lilac:#29253D;--news:#1B3036;--story:#38291D;--rose:#38212A;
-  --panel:#1A1D22;--soft:#262A31;--soft2:#252930;--line2:#2A2E36;--tsub:rgba(236,238,242,.62);--muted2:#A9AFB9;--toggle:#3A3F48;--tabtxt:#9AA0AA;
-  --chev:#4A505B;--tabbar:rgba(22,24,29,.94);--pop:#2A2E36;--leaf:0;--shadow:0 6px 22px rgba(0,0,0,.35);
-  --blue-ink:#8CC8F5;--green-ink:#8FDBA9;color-scheme:dark;
+  --bg:#1B2130;--bg2:#202738;--card:#2A3348;--text:#EEF1F6;--muted:#A6AFBF;--line:#3A4560;
+  --gold:#F2884B;--accent:#F2884B;--accent-soft:#4A3A35;--ink:#FFB689;
+  --peach:#6A4539;--sand:#5F5236;--sage:#355747;--sky:#2F4C6E;--lilac:#4A4374;--news:#2D5763;--story:#5F4733;--rose:#61404F;
+  --panel:#232B3D;--soft:#323C54;--soft2:#2F384E;--line2:#36415A;--tsub:rgba(238,241,246,.72);--muted2:#B3BBC9;--toggle:#46526E;--tabtxt:#A6AFBF;
+  --chev:#5C6884;--tabbar:rgba(27,33,48,.94);--pop:#3A4560;--leaf:0;--shadow:0 6px 22px rgba(5,10,25,.35);
+  --blue-ink:#9CD0F7;--green-ink:#98E0B0;color-scheme:dark;
 }
-:root[data-theme="gece"] .badge{background:#22382B}
-:root[data-theme="gece"] .learnbox{background:#1C2C3B}
+:root[data-theme="gece"] .card,:root[data-theme="gece"] .wcard,:root[data-theme="gece"] .group,:root[data-theme="gece"] .player,:root[data-theme="gece"] .feat{box-shadow:0 6px 22px rgba(5,10,25,.35),inset 0 0 0 1px rgba(255,255,255,.05)}
+:root[data-theme="gece"] .badge{background:#2F5040}
+:root[data-theme="gece"] .learnbox{background:#2F4C6E}
 :root[data-theme="gece"] .learnbox .tx{color:rgba(220,235,250,.7)}
-:root[data-theme="gece"] .learnbox button{background:#2A3C4E}
+:root[data-theme="gece"] .learnbox button{background:#3E5D82}
 :root[data-theme="gece"] .sheet .bd{background:rgba(0,0,0,.55)}
 :root[data-theme="gece"] .opt.ok{background:#1E3A2A;border-color:#2E9E5E;color:#9BE3B5}:root[data-theme="gece"] .opt.bad{background:#3E2220;border-color:#D9534A;color:#F4A79F}
-:root[data-theme="gece"] .sn.cur,:root[data-theme="gece"] .bi.cur{background:#3A271C}
+:root[data-theme="gece"] .sn.cur,:root[data-theme="gece"] .bi.cur{background:#4A3A35}
 :root[data-theme="gece"] .gi{filter:saturate(.85) brightness(.82)}
 :root[data-theme="gece"] .lock{filter:brightness(.85)}
-:root[data-theme="deniz"] .sn.cur,:root[data-theme="deniz"] .bi.cur{background:#E2EAFF}
 </style>
 </head>
 <body>
@@ -744,7 +750,7 @@ const EN={
 'Yeni kelimeler':'New words','Arama':'Search','Liste':'List','Hepsi':'All','Listelerim':'My lists','Haftanın kelimeleri ·':'Words of the week ·',
 'Macera':'Adventure','Gizem':'Mystery','Bilim kurgu':'Science fiction','Romantik':'Romance','Komedi':'Comedy','Spor':'Sport','Tarih':'History','Korku':'Horror','Rastgele':'Random',
 'Mutfak':'Cooking','Futbol':'Football','Ebeveynlik':'Parenting','Finans':'Finance','Film & Dizi':'Film & TV',
-'Görünüm':'Appearance','Tema':'Theme','Dil':'Language','Krem':'Cream','Deniz':'Sea','Gece':'Night','Otomatik':'Automatic',
+'Görünüm':'Appearance','Tema':'Theme','Dil':'Language','Krem':'Cream','Deniz':'Sea','Taş':'Stone','Gece':'Night','Otomatik':'Automatic',
 'Hesap':'Account','Veriler':'Data','Yedek':'Backup','Widget kaydı için Firebase kuralı eksik':'Firebase rule for the widget record is missing',
 'Kelimeler eklendi':'Words added','Hepsi zaten listende':'They\'re all in your list already','Hepsini kartlara ekle':'Add all to cards','Eklenemedi, tekrar dene':'Couldn\'t add, try again',
 'Seviye 1':'Level 1','Seviye 2':'Level 2','Seviye 3':'Level 3','📝 3 soruyla test et':'📝 Test yourself with 3 questions','Sonucu gör':'See result','Kusursuz! 🎉':'Perfect! 🎉','Güzel, devam!':'Nice, keep going!','Bir daha oku, sonra tekrar dene':'Read it again, then retry',
@@ -2302,7 +2308,7 @@ function renderSRead(){
 }
 
 /* ---------- Ayarlar: tema ve dil ---------- */
-const THEMES=[['krem','Krem','linear-gradient(135deg,#FBEEE2 50%,#E8793F 50%)'],['deniz','Deniz','linear-gradient(135deg,#EEF3F8 50%,#2F6BFF 50%)'],['gece','Gece','linear-gradient(135deg,#1C1F25 50%,#F2884B 50%)'],['oto','Otomatik','linear-gradient(135deg,#FBEEE2 50%,#1C1F25 50%)']];
+const THEMES=[['krem','Krem','linear-gradient(135deg,#FBEEE2 50%,#E8793F 50%)'],['deniz','Taş','linear-gradient(135deg,#EEEFF1 50%,#3A3F46 50%)'],['gece','Gece','linear-gradient(135deg,#1B2130 50%,#F2884B 50%)'],['oto','Otomatik','linear-gradient(135deg,#FBEEE2 50%,#1B2130 50%)']];
 function applyTheme(){
   let t=S.theme||'krem';if(t==='oto')t=matchMedia('(prefers-color-scheme: dark)').matches?'gece':'krem';
   document.documentElement.dataset.theme=t;
