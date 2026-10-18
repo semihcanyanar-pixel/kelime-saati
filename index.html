@@ -626,6 +626,7 @@ nav.tabs button{position:relative}
   <div class="group">
     <div class="grow"><i class="gi" style="background:#DED5F6">🗣️</i><span class="gt">Okuyan ses</span><span class="gv" data-for="voiceSel"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="voiceSel"><option value="Kore">Doğal · Kore</option><option value="Aoede">Doğal · Aoede</option><option value="Charon">Doğal · Charon</option><option value="Puck">Doğal · Puck</option><option value="Sulafat">Doğal · Sulafat</option><option value="phone">Telefon sesi</option></select></div>
     <div class="grow"><i class="gi" style="background:#F5D6AE">🐢</i><span class="gt">Okuma hızı</span><span class="gv" data-for="rateSel"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="rateSel"><option value="0.8">0.8x</option><option value="0.9">0.9x</option><option value="1">1.0x</option><option value="1.1">1.1x</option><option value="1.25">1.25x</option></select></div>
+    <div class="grow"><i class="gi" style="background:#C6E3B6">⚡</i><span class="gt">Sesi önceden hazırla<small>Metin açılınca ses de hazırlanır, ▶ beklemeden çalar</small></span><span class="gv" data-for="preSel"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="preSel"><option value="on">Açık</option><option value="off">Kapalı</option></select></div>
     <button class="grow" id="nCatRow"><i class="gi" style="background:#CDE8F7">📰</i><span class="gt">Haber konuları</span><span class="gv" id="nCatVal"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
 
@@ -797,7 +798,7 @@ Object.assign(EN,{
 'YENİ':'NEW','şu an':'current','Bu kartlarla pratik yapmak ister misin? Pratikte verdiğin cevaplar günlük':'Want to practice with these cards? Your answers count toward your daily','hedefine sayılır.':'goal.',
 '📱 Telefon sesi ·':'📱 Phone voice ·','kelime':'words','favori':'favorites','biliyorum':'known','öğreniliyor':'learning','Türkçe':'Türkçe',
 'Bugün {n} yeni haber · {n} seviye':'{n} new stories today · {n} levels','Haftanın kelimeleri':'Words of the week',
-'Pratik & Test':'Practice & Test','Günün haberi':'Story of the day','＋ Karta ekle':'＋ Add to cards','✓ Listende · kartı aç':'✓ In your list · open card',
+'Pratik & Test':'Practice & Test','Sesi önceden hazırla':'Prepare audio in advance','Metin açılınca ses de hazırlanır, ▶ beklemeden çalar':'Audio is prepared when the text opens, ▶ plays without waiting','Açık':'On','Günün haberi':'Story of the day','＋ Karta ekle':'＋ Add to cards','✓ Listende · kartı aç':'✓ In your list · open card',
 });
 const ENP=[
 [/^🗣️ Doğal ses · (.+) ·$/,'🗣️ Natural voice · $1 ·'],[/^(.+) ✎$/,'$1 ✎'],[/^(A2|B1|B2|C1) · (.+) · (\d+) kelime · (.+)$/,'$1 · $2 · $3 words · $4'],
@@ -850,7 +851,7 @@ const TOPICS={}; // kullanıcının kategorileri (S.cats'ten kurulur)
 function rebuildTopics(){for(const x of Object.keys(TOPICS))delete TOPICS[x];(S.cats&&S.cats.length?S.cats:Object.entries(BASE_TOPICS).map(([k,n])=>({k,n}))).forEach(c=>TOPICS[c.k]=c.n)}
 const LEVELS=['A2','B1','B2','C1'];
 const KEY='kelimeSaati:v1';
-const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,cardN:20,seenAll:[],autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[],newsCats:['top','world','tech','science','health','business','culture'],newsLv:2,newsDone:{},newsTr:false,stories:[],stTopic:'Macera',stLv:'B1',stLen:'short',stSrc:['learn','_week'],stTr:true,voice:'Kore',rate:1,theme:'krem',lang:'tr'};
+const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,cardN:20,seenAll:[],autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[],newsCats:['top','world','tech','science','health','business','culture'],newsLv:2,newsDone:{},newsTr:false,stories:[],stTopic:'Macera',stLv:'B1',stLen:'short',stSrc:['learn','_week'],stTr:true,voice:'Kore',rate:1,theme:'krem',lang:'tr',preAudio:'on'};
 let C=null;
 let S=load(), BASE=[], WIDGET_SRC='';
 function cleanLevels(){for(const f of ['levels','qLevels','aiLv']){const v=(S[f]||[]).filter(l=>LEVELS.includes(l));S[f]=v.length?[...new Set(v)]:(f==='aiLv'?['B1']:[...LEVELS])}}
@@ -871,7 +872,19 @@ const inLearn=w=>Object.prototype.hasOwnProperty.call(S.learn,k(w));
 const learnBadge=w=>inLearn(w)?`<span class="lbadge">Öğren ${S.learn[k(w)]}/3</span>`:'';
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
-function speak(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.88;const v=speechSynthesis.getVoices().find(v=>v.lang==='en-US'&&/Samantha|Ava|Allison|Nicky/i.test(v.name))||speechSynthesis.getVoices().find(v=>v.lang==='en-US');if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+/* Telefon sesi (iOS için güvenli): cancel'dan hemen sonra speak bazen sessiz kalır, bu yüzden kısa bekler;
+   cümle nesnesi saklanır ki iPhone onend'i kaçırmasın; ilk dokunuşta ses motorunun kilidi açılır */
+let ttsPrimed=false,ttsU=null;
+function primeTTS(){if(ttsPrimed)return;try{speechSynthesis.resume();const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='en-US';speechSynthesis.speak(u);ttsPrimed=true}catch(e){}}
+function sayTTS(text,rate,onend){
+  try{
+    const go=()=>{const u=new SpeechSynthesisUtterance(text);u.lang='en-US';u.rate=rate;const v=(typeof bestVoice==='function'?bestVoice():null);if(v)u.voice=v;
+      if(onend){u.onend=onend;u.onerror=e=>{if(e&&e.error!=='interrupted'&&e.error!=='canceled')onend()}}
+      ttsU=u;speechSynthesis.resume();speechSynthesis.speak(u)};
+    if(speechSynthesis.speaking||speechSynthesis.pending){speechSynthesis.cancel();setTimeout(go,150)}else go();
+  }catch(e){}
+}
+function speak(t){sayTTS(t,.88)}
 
 /* Günlük ilerleme */
 const pad=n=>String(n).padStart(2,'0');
@@ -1078,7 +1091,7 @@ function syncSel(){document.querySelectorAll('#setSheet .gv[data-for]').forEach(
 $('setBtn').onclick=()=>{
   updateAcct();
   renderLook();
-  $('voiceSel').value=S.voice||'Kore';$('rateSel').value=String(S.rate||1);$('nCatVal').textContent=nCatText();
+  $('voiceSel').value=S.voice||'Kore';$('rateSel').value=String(S.rate||1);$('preSel').value=S.preAudio||'on';$('nCatVal').textContent=nCatText();
   $('workerUrl').value=S.worker;$('goalN').value=S.goalN;$('goalR').value=S.goalR;$('autoOn').value=S.autoOn?String(S.weekCnt||20):'0';
   $('wkBody').style.display=S.worker?'none':'';$('wkChev').style.transform=S.worker?'':'rotate(180deg)';
   syncSel();
@@ -2123,7 +2136,7 @@ async function addFromText(word,ctx,btn,quiet){
     addWords([w]);AMAP=null;if(!w.t)classifyAi();btn.textContent='✓';if(!quiet)toast(`"${w.w}" kartlara eklendi`);
   }catch(e){btn.textContent='＋ Kart';if(!quiet)toast('Eklenemedi, tekrar dene')}
 }
-function speakWord(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.9;const v=bestVoice();if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+function speakWord(t){sayTTS(t,.9)}
 
 /* ---------- Ses oynatıcı ---------- */
 function bestVoice(){
@@ -2161,9 +2174,11 @@ function mountPlayer(box,textEl,key){
   drawVchip();
   $('plB').onclick=togglePlay;
   $('plS').onclick=()=>{const R=[0.8,0.9,1,1.1,1.25],i=R.indexOf(S.rate||1);S.rate=R[(i+1)%R.length];save();$('plS').textContent=rLbl(S.rate);if(PL.audio)PL.audio.playbackRate=S.rate;if(PL.mode==='phone'&&PL.playing)speakFrom(Math.max(PL.idx,0))};
+  // Metin açılınca sesi arka planda hazırla (seçili doğal seste); ▶'ye basınca beklemeden başlar
+  if(PL.mode==='nat'&&S.preAudio!=='off'){const me=PL;setTimeout(()=>{if(PL===me&&me.mode==='nat')preloadFrom(me,0)},600)}
 }
 function drawVchip(){if(!PL)return;$('plV').innerHTML=PL.mode==='nat'?`🗣️ Doğal ses · ${esc(S.voice==='phone'?'Kore':S.voice)} · <button id="plSw">Telefon sesine geç</button>`:`📱 Telefon sesi · <button id="plSw">Doğal sese geç</button>`;
-  $('plSw').onclick=()=>{const wasP=PL.playing,i=Math.max(PL.idx,0);pausePlayer();PL.mode=PL.mode==='nat'?'phone':'nat';if(PL.mode==='nat'&&S.voice==='phone'){S.voice='Kore';save()}if(PL.mode==='phone'){S.voice='phone';save()}PL.ci=-1;drawVchip();setTime();if(wasP)playFrom(i)}}
+  $('plSw').onclick=()=>{primeTTS();const wasP=PL.playing,i=Math.max(PL.idx,0);pausePlayer();PL.mode=PL.mode==='nat'?'phone':'nat';if(PL.mode==='nat'&&S.voice==='phone'){S.voice='Kore';save()}if(PL.mode==='phone'){S.voice='phone';save()}PL.ci=-1;drawVchip();setTime();if(wasP)playFrom(i)}}
 function setIcon(){if(!PL)return;const b=$('plB');if(!b)return;b.innerHTML=PL.busy?'<span class="spin"></span>':PL.playing?ICO.pause:ICO.play}
 function highlight2(i){if(!PL||i===PL.idx)return;PL.idx=i;PL.textEl.querySelectorAll('.sn.cur').forEach(x=>x.classList.remove('cur'));const el=PL.textEl.querySelector(`.sn[data-s="${i}"]`);if(el){el.classList.add('cur');const r=el.getBoundingClientRect();if(r.top<80||r.bottom>innerHeight-120)el.scrollIntoView({block:'center',behavior:'smooth'})}}
 function setTime(){
@@ -2175,8 +2190,8 @@ function setTime(){
   $('plBar').style.width=((c.c0+f*c.chars)/ch.total*100)+'%';
   $('plT').textContent=fmtT(ch.slice(0,PL.ci).reduce((s2,x)=>s2+(x.dur||0),0)+a.currentTime);
 }
-function togglePlay(){if(!PL)return;if(PL.playing||PL.busy)return pausePlayer();playFrom(PL.idx>=0?PL.idx:0,true)}
-function pausePlayer(){if(!PL)return;PL.playing=false;PL.busy=false;PL.gen++;if(PL.audio)PL.audio.pause();try{speechSynthesis.cancel()}catch(e){}setIcon()}
+function togglePlay(){if(!PL)return;primeTTS();if(PL.playing||PL.busy)return pausePlayer();playFrom(PL.idx>=0?PL.idx:0,true)}
+function pausePlayer(){if(!PL)return;PL.playing=false;PL.busy=false;PL.gen++;if(PL.audio)PL.audio.pause();try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel()}catch(e){}setIcon()}
 function stopPlayer(){if(!PL)return;pausePlayer();if(PL.audio){PL.audio.src='';PL.audio=null}(PL.chunks||[]).forEach(c=>{if(c.url)URL.revokeObjectURL(c.url)});PL=null}
 async function wavDur(blob){try{const h=new DataView(await blob.slice(0,44).arrayBuffer());const br=h.getUint32(28,true)||48000;return (blob.size-44)/br}catch(e){return (blob.size-44)/48000}}
 function loadChunk(me,c){
@@ -2230,8 +2245,7 @@ function speakFrom(i){
   if(!PL||!PL.playing)return;
   if(i>=SENTS.length){PL.playing=false;setIcon();highlight2(-1);PL.idx=-1;return}
   const me=PL,gen=++me.gen;highlight2(i);setTime();
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(SENTS[i].en);u.lang='en-US';u.rate=Math.max(.5,(S.rate||1)*.95);const v=bestVoice();if(v)u.voice=v;
-    u.onend=()=>{if(PL===me&&me.playing&&gen===me.gen)speakFrom(i+1)};speechSynthesis.speak(u)}catch(e){}
+  sayTTS(SENTS[i].en,Math.max(.5,(S.rate||1)*.95),()=>{if(PL===me&&me.playing&&gen===me.gen)speakFrom(i+1)});
 }
 
 /* ---------- Hikâyeler ---------- */
@@ -2325,6 +2339,7 @@ function renderLook(){
 function nCatText(){return S.newsCats.length===Object.keys(NCATS).length?'Hepsi':S.newsCats.map(c=>NCATS[c]).join(', ')}
 $('voiceSel').onchange=()=>{S.voice=$('voiceSel').value;save();syncSel()};
 $('rateSel').onchange=()=>{S.rate=+$('rateSel').value;save();syncSel()};
+$('preSel').onchange=()=>{S.preAudio=$('preSel').value;save();syncSel()};
 $('wgRow').onclick=()=>{closeSheets();showTab('widget')};
 $('nCatRow').onclick=()=>{closeSheets();const draw=()=>{$('nCatChips').innerHTML=Object.keys(NCATS).map(c=>`<button class="chip ${S.newsCats.includes(c)?'on':''}" data-c="${c}">${NCATS[c]}</button>`).join('');
   $('nCatChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const c=b.dataset.c,i=S.newsCats.indexOf(c);if(i>=0){if(S.newsCats.length===1)return toast('En az bir konu seç');S.newsCats.splice(i,1)}else S.newsCats.push(c);save();draw();$('nCatVal').textContent=nCatText()})};
