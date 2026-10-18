@@ -298,7 +298,7 @@ nav.tabs button.on{color:var(--accent)}
 .player{display:flex;align-items:center;gap:10px;background:#fff;border-radius:18px;padding:8px 10px;box-shadow:0 2px 10px rgba(120,80,40,.06)}
 .pp{width:42px;height:42px;border-radius:50%;border:none;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}.pp svg{width:18px;height:18px}
 .pp .spin{margin:0}
-.bar{flex:1;height:6px;background:#EFE6DD;border-radius:3px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s linear}
+.bar{flex:1;height:6px;background:#EFE6DD;border-radius:3px;overflow:hidden;position:relative}.bar i{position:absolute;left:0;top:0;display:block;height:100%;width:0;background:var(--accent);transition:width .25s linear}.bar #plBuf{background:#F6CDB4}
 .tm{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:38px;text-align:right}.spd{border:1.5px solid var(--line);background:#fff;border-radius:9px;font-size:12px;font-weight:800;padding:5px 7px;color:var(--accent)}
 .vchip{font-size:12.5px;color:var(--muted);margin:7px 6px 0}.vchip button{border:none;background:none;color:var(--accent);font-weight:700;font-size:12.5px;padding:0;text-decoration:underline}
 .txt{font-size:18px;line-height:1.65;margin:14px 0 0;-webkit-user-select:none;user-select:none}
@@ -334,6 +334,14 @@ a.ghost{display:block;text-align:center;text-decoration:none}
 .chk.on i{background:var(--accent);border-color:var(--accent)}.chk small{color:var(--muted);font-size:13px;margin-left:auto}
 .loadbox{text-align:center;padding:40px 10px;color:var(--muted);font-size:15px;line-height:1.5}
 .loadbox .spin{border-color:rgba(232,121,63,.25);border-top-color:var(--accent);width:28px;height:28px;display:block;margin:0 auto 12px}
+.caret{display:inline-block;width:2px;height:1.05em;background:var(--accent);margin-left:2px;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.livehd{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--accent);margin:2px 4px 4px}
+.livehd .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+.live-wait{color:var(--muted)}
+#liveBox .txt,#liveBox .bi{animation:fade .3s}
+.bk.spinning svg{animation:rot .8s linear infinite}
 .lsep{height:2px;background:var(--line);border-radius:1px;margin:18px 0 0}
 .catrow{display:flex;align-items:center;gap:8px;padding:12px 2px;border-bottom:1px solid var(--line)}
 .catrow .nm{flex:1;min-width:0;font-size:16px;font-weight:600}
@@ -1600,11 +1608,11 @@ let NEWS=lsGet('ks:news',{}),nCat='all';
 function newsAll(){const seen=new Set(),out=[];for(const c of S.newsCats)for(const x of (NEWS[c]&&NEWS[c].items)||[])if(!seen.has(x.id)){seen.add(x.id);out.push(x)}return out.sort((a,b)=>b.date.localeCompare(a.date))}
 async function loadNews(cat,force){
   const c=NEWS[cat];if(!force&&c&&Date.now()-c.t<30*60000)return c.items;
-  const d=await workerCall({news:{cat}},25000);
+  const d=await workerCall({news:{cat,fresh:!!force}},25000);
   NEWS[cat]={t:Date.now(),items:d.items||[]};lsSet('ks:news',NEWS);return NEWS[cat].items;
 }
 async function loadAllNews(force){return Promise.allSettled(S.newsCats.map(c=>loadNews(c,force)))}
-function newsStatus(x){const d=S.newsDone[x.id];if(!d)return '<span class="nst">Okunmadı</span>';return d.s>=0?`<span class="nst ok">✓ Okundu · ${d.s}/3 doğru</span>`:'<span class="nst ok">✓ Okundu</span>'}
+function newsStatus(x){const d=S.newsDone[x.id];return d&&d.s>=0?`<span class="nst ok">✓ Test: ${d.s}/3 doğru</span>`:''}
 function renderNews(){
   $('nCats').innerHTML=[['all','Hepsi'],...S.newsCats.map(c=>[c,NCATS[c]])].map(([k,n])=>`<button class="chip ${nCat===k?'on':''}" data-c="${k}">${n}</button>`).join('');
   $('nCats').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{nCat=b.dataset.c;renderNews();if(nCat!=='all'&&!NEWS[nCat])fetchNewsUI()});
@@ -1616,6 +1624,8 @@ function renderNews(){
   box.innerHTML=`<button class="feat" data-id="${f.id}"><div class="fimg" style="background-image:url('${esc(f.img)}')"></div><div class="fx"><span class="tag">${NCATS[f.cat]||''} · ${ago(f.date)}</span><b>${esc(f.title)}</b><p>${esc(f.desc)}</p>${newsStatus(f)}</div></button>`
     +rest.slice(0,40).map(x=>`<button class="nrow" data-id="${x.id}"><div class="nth" style="background-image:url('${esc(x.img)}')"></div><div class="nx"><span class="tag">${NCATS[x.cat]||''} · ${ago(x.date)}</span><b>${esc(x.title)}</b>${newsStatus(x)}</div></button>`).join('');
   box.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{const x=items.find(i=>i.id===b.dataset.id);if(x){readFrom='news';openNews(x)}});
+  // En üstteki haberi sessizce hazırla, açınca beklemeden gelsin
+  getLevel(f,[1,2,3].includes(S.newsLv)?S.newsLv:2).catch(()=>{});
 }
 let newsBusy=false,newsErr='';
 async function fetchNewsUI(force){
@@ -1625,27 +1635,110 @@ async function fetchNewsUI(force){
   const bad=res.find(r=>r.status==='rejected');if(bad&&res.every(r=>r.status==='rejected'))newsErr='Haberler alınamadı: '+bad.reason.message;
   newsBusy=false;if($('v-news').classList.contains('on'))renderNews();
 }
-$('nRefresh').onclick=()=>fetchNewsUI(true);
+$('nRefresh').onclick=async()=>{
+  const b=$('nRefresh');if(b.classList.contains('spinning'))return;b.classList.add('spinning');
+  const before=new Set(newsAll().map(x=>x.id));
+  await fetchNewsUI(true);b.classList.remove('spinning');
+  const n=newsAll().filter(x=>!before.has(x.id)).length;toast(newsErr?newsErr:n?`${n} yeni haber geldi`:'Haberler güncel');
+};
 
 /* ---------- Haber okuma ---------- */
 let RD=null; // {item, art, lv, quiz}
 const artCache=()=>lsGet('ks:arts',{});
+function artSave(item,fn){const c=artCache(),a=c[item.id]||{levels:[null,null,null],quiz:[],video:null};fn(a);delete c[item.id];c[item.id]=a;const ks=Object.keys(c);while(ks.length>25)delete c[ks.shift()];lsSet('ks:arts',c);if(RD&&RD.item.id===item.id)RD.art=a;return a}
+// Düz metin biçimini çöz: EN:/TR: satırları, --- paragraf, WORDS: listesi, TITLE/EMOJI/USED
+function parseLines(t){
+  const paras=[],words=[],out={paras,words,title:'',emoji:'',used:[]};let cur=null,inW=false;
+  for(let line of String(t).split('\n')){line=line.trim().replace(/^\*\*|\*\*$/g,'');if(!line)continue;let m;
+    if((m=line.match(/^TITLE:\s*(.*)$/i))){out.title=m[1];continue}
+    if((m=line.match(/^EMOJI:\s*(.*)$/i))){out.emoji=m[1];continue}
+    if((m=line.match(/^USED:\s*(.*)$/i))){out.used=m[1].split(',').map(x=>x.trim()).filter(Boolean);continue}
+    if(/^WORDS:?$/i.test(line)){inW=true;continue}
+    if(inW){if((m=line.match(/^[-*•]?\s*(.+?)\s*=\s*(.+)$/)))words.push({w:m[1],tr:m[2]});continue}
+    if(/^-{3,}$/.test(line)||/^#/.test(line)){cur=null;continue}
+    if((m=line.match(/^EN:\s*(.*)$/i))){if(!cur){cur={en:[],tr:[]};paras.push(cur)}cur.en.push(m[1]);cur.tr.push('');continue}
+    if((m=line.match(/^TR:\s*(.*)$/i))&&cur&&cur.en.length){cur.tr[cur.en.length-1]=m[1];continue}
+  }
+  out.paras=paras.filter(p=>p.en.length);return out;
+}
+// Akışlı istek: metin geldikçe onText(tümü) çağrılır
+async function streamCall(body,onText,ms){
+  if(!S.worker)throw new Error('Önce Ayarlar\'dan Worker adresini gir');
+  const ctl=new AbortController();let tm=setTimeout(()=>ctl.abort(),ms||60000);
+  try{
+    const r=await fetch(cleanUrl(S.worker),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl.signal});
+    if(!r.ok){const d=await r.json().catch(()=>({}));const e=new Error(d.error||('Hata '+r.status));e.status=r.status;throw e}
+    let all='';
+    if(r.body&&r.body.getReader){const rd=r.body.getReader(),dec=new TextDecoder();
+      for(;;){const {done,value}=await rd.read();if(done)break;all+=dec.decode(value,{stream:true});clearTimeout(tm);tm=setTimeout(()=>ctl.abort(),ms||60000);onText&&onText(all)}}
+    else{all=await r.text();onText&&onText(all)}
+    return all;
+  }catch(x){if(x.name==='AbortError')throw new Error('Cevap gecikti, tekrar dene');throw x}
+  finally{clearTimeout(tm)}
+}
+// Bir seviyeyi getir (aynı anda iki kez istenmez); yazıldıkça dinleyenlere aktarır
+const PEND={};
+function getLevel(item,n,onText){
+  const c0=artCache()[item.id];if(c0&&c0.levels&&c0.levels[n-1])return Promise.resolve(c0);
+  const key=item.id+':'+n;
+  if(PEND[key]){if(onText){PEND[key].subs.add(onText);if(PEND[key].text)onText(PEND[key].text)}return PEND[key].p}
+  const P2={subs:new Set(onText?[onText]:[]),text:''};PEND[key]=P2;
+  P2.p=streamCall({article:{url:item.link,title:item.title,date:item.date,lv:n,stream:true}},t=>{P2.text=t;P2.subs.forEach(f=>f(t))},60000).then(t=>{
+    let L;
+    if(/^\s*\{/.test(t)){const d=JSON.parse(t);L=d.level;if(d.quiz)artSave(item,a=>{if(!a.quiz||!a.quiz.length)a.quiz=d.quiz;if(d.video&&!a.video)a.video=d.video})} // eski Worker
+    else{const x=parseLines(t);L={paras:x.paras,words:x.words.slice(0,8)}}
+    if(!L||!L.paras||!L.paras.length)throw new Error('Haber hazırlanamadı, tekrar dene');
+    return artSave(item,a=>{a.levels[n-1]=L});
+  }).finally(()=>{delete PEND[key]});
+  return P2.p;
+}
+const MPEND={};
+function getMeta(item){
+  const c0=artCache()[item.id];if(c0&&c0.quiz&&c0.quiz.length)return Promise.resolve(c0);
+  if(MPEND[item.id])return MPEND[item.id];
+  return MPEND[item.id]=workerCall({artmeta:{url:item.link,title:item.title,date:item.date}},60000).then(d=>artSave(item,a=>{a.quiz=d.quiz||[];a.video=d.video||null;a.meta=1})).finally(()=>{delete MPEND[item.id]});
+}
 function openNews(item){
   stopPlayer();
-  RD={item,art:artCache()[item.id]||null,lv:[1,2,3].includes(S.newsLv)?S.newsLv:2,q:null};
-  if(!S.newsDone[item.id]){S.newsDone[item.id]={s:-1,t:Date.now()};pruneNews();save()}
-  showTab('read');renderRead();
-  if(!RD.art)fetchArticle();
+  RD={item,art:artCache()[item.id]||null,lv:[1,2,3].includes(S.newsLv)?S.newsLv:2,q:null,err:''};
+  showTab('read');renderRead();loadLevel();
+  const me=RD;getMeta(item).then(()=>{if(RD===me&&$('qzBox')){renderQuiz();renderVid()}}).catch(()=>{});
+}
+async function loadLevel(){
+  const me=RD,n=me.lv;
+  if(me.art&&me.art.levels&&me.art.levels[n-1])return prefetchRest(me);
+  me.err='';
+  const live=t=>{if(RD===me&&me.lv===n)liveType(t)};
+  try{await getLevel(me.item,n,live)}catch(e){if(RD===me&&me.lv===n){me.err=e.message;renderRead()}return}
+  if(RD===me&&me.lv===n){await liveFinish();if(RD===me&&me.lv===n)renderRead()}
+  prefetchRest(me);
+}
+// Okurken diğer seviyeleri arka planda hazırla
+async function prefetchRest(me){await new Promise(r=>setTimeout(r,4000));for(const m of [1,2,3]){if(RD!==me)return;if(me.art&&me.art.levels[m-1])continue;try{await getLevel(me.item,m)}catch(e){return}}}
+
+/* ---------- Canlı yazım animasyonu ---------- */
+const LV={target:'',shown:0,raf:0,el:null,kind:'news',done:null};
+function liveStart(el,kind){cancelAnimationFrame(LV.raf);Object.assign(LV,{target:'',shown:0,raf:0,el,kind,done:null})}
+function liveType(t){LV.target=t;if(!LV.raf)LV.raf=requestAnimationFrame(liveTick)}
+function liveTick(){
+  LV.raf=0;if(!LV.el||!document.body.contains(LV.el))return;
+  const left=LV.target.length-LV.shown;
+  if(left>0){LV.shown+=Math.max(3,Math.ceil(left/30));liveDraw(LV.target.slice(0,LV.shown),true);LV.raf=requestAnimationFrame(liveTick)}
+  else if(LV.done){const d=LV.done;LV.done=null;d()}
+}
+function liveFinish(){return new Promise(ok=>{if(!LV.el||!document.body.contains(LV.el)||LV.shown>=LV.target.length)return ok();LV.done=ok;if(!LV.raf)LV.raf=requestAnimationFrame(liveTick);setTimeout(ok,4000)})}
+function liveDraw(t,typing){
+  const x=parseLines(t),cur='<span class="caret"></span>',el=LV.el;if(!el)return;
+  let h='';
+  if(LV.kind==='story'){
+    if(x.title||x.emoji)h+=`<div class="sbanner"><span>${esc(x.emoji||'📖')}</span><div><b>${esc(x.title||'…')}</b><small>Hikâye yazılıyor…</small></div></div>`;
+    h+=x.paras.map(p=>p.en.map((e,i)=>`<div class="bi"><p class="en">${esc(e)}</p>${S.stTr&&p.tr[i]?`<p class="trl">${esc(p.tr[i])}</p>`:''}</div>`).join('')).join('');
+  }else{
+    h+=x.paras.map(p=>`<p class="txt">${esc(p.en.join(' '))}</p>${S.newsTr&&p.tr.some(Boolean)?`<p class="trp">${esc(p.tr.join(' '))}</p>`:''}`).join('');
+  }
+  el.innerHTML=(h||'<p class="txt live-wait">Yazılıyor</p>').replace(/(<\/p>)(?![\s\S]*<\/p>)/,typing?cur+'$1':'$1');
 }
 function pruneNews(){const ks=Object.keys(S.newsDone).sort((a,b)=>(S.newsDone[a].t||0)-(S.newsDone[b].t||0));while(ks.length>300)delete S.newsDone[ks.shift()]}
-async function fetchArticle(){
-  const it=RD.item,me=RD;me.err='';me.busy=true;renderRead();
-  try{
-    const d=await workerCall({article:{url:it.link,title:it.title,date:it.date}},120000);
-    me.art=d;const c=artCache();c[it.id]=d;const ks=Object.keys(c);while(ks.length>25)delete c[ks.shift()];lsSet('ks:arts',c);
-  }catch(e){me.err=e.message}
-  me.busy=false;if(RD===me)renderRead();
-}
 function renderRead(){
   const it=RD.item,a=RD.art;
   const date=new Date(it.date).toLocaleDateString('tr-TR',{day:'numeric',month:'short'});
@@ -1653,17 +1746,22 @@ function renderRead(){
   <div class="sec rd"><div class="rt"><b>${esc(it.title)}</b><small>BBC · ${date} · ${NCATS[it.cat]||''}</small></div>
   <div class="seg" id="lvSeg" style="margin:14px 0 12px">${[1,2,3].map(n=>`<button class="${RD.lv===n?'on':''}" data-n="${n}">Seviye ${n}</button>`).join('')}</div>
   <div id="rdBody"></div></div>`;
-  $('lvSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{RD.lv=+b.dataset.n;S.newsLv=RD.lv;save();stopPlayer();renderRead()});
+  $('lvSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{RD.lv=+b.dataset.n;S.newsLv=RD.lv;RD.err='';save();stopPlayer();renderRead();loadLevel()});
   const body=$('rdBody');
-  if(!a){body.innerHTML=RD.busy?'<div class="loadbox"><span class="spin"></span>Haber 3 seviyeye hazırlanıyor…<br><small>İlk açılışta 20-40 saniye sürebilir</small></div>':`<div class="loadbox">${esc(RD.err||'Haber yüklenemedi')}<br><button class="ghost" id="rdRetry" style="max-width:200px;margin:14px auto 0">Tekrar dene</button></div>`;if($('rdRetry'))$('rdRetry').onclick=fetchArticle;return}
-  const L=a.levels[RD.lv-1]||a.levels[0];
+  const L=a&&a.levels&&a.levels[RD.lv-1];
+  if(!L){
+    if(RD.err){body.innerHTML=`<div class="loadbox">${esc(RD.err)}<br><button class="ghost" id="rdRetry" style="max-width:200px;margin:14px auto 0">Tekrar dene</button></div>`;$('rdRetry').onclick=()=>{RD.err='';renderRead();loadLevel()};return}
+    body.innerHTML=`<div class="livehd"><span class="dot"></span>Seviye ${RD.lv} yazılıyor ve çevriliyor</div><div id="liveBox" class="${S.newsTr?'':'notr'}"></div>`;
+    liveStart($('liveBox'),'news');liveDraw('',true);
+    const pend=PEND[RD.item.id+':'+RD.lv];if(pend&&pend.text)liveType(pend.text);
+    return;
+  }
   body.innerHTML=`<div id="plBox"></div>
     <div id="rdText" class="${S.newsTr?'':'notr'}">${textHtml(L.paras,'news',new Set(L.words.map(w=>w.w.toLowerCase())))}</div>
     <button class="tgl ${S.newsTr?'on':''}" id="trT"><span>Türkçesini göster</span><i></i></button>
     <div class="acc"><button id="dwT"><span>Zor kelimeler (${L.words.length})</span><span id="dwA">▾</span></button><div class="ab" id="dwB" style="display:none">${L.words.map((w,i)=>`<div class="dw"><b>${esc(w.w)}</b><span>${esc(w.tr)}</span><button data-i="${i}">${hasWord(w.w)?'✓':'＋ Kart'}</button></div>`).join('')}<button class="ghost" id="dwAll" style="margin-top:8px">Hepsini kartlara ekle</button></div></div>
-    <div id="qzBox"></div>
-    ${a.video?`<a class="vcard" href="https://www.youtube.com/watch?v=${esc(a.video.id)}" target="_blank" rel="noopener"><div class="vt" style="background-image:url('${esc(a.video.thumb||'')}')">▶</div><div><b>${esc(a.video.title)}</b><small>BBC News · YouTube'da izle</small></div></a>`:''}
-    <div class="lnks"><a class="ghost" href="${esc(it.link)}" target="_blank" rel="noopener">🌐 BBC'de aslını oku</a>${a.video?'':`<a class="ghost" href="https://www.youtube.com/results?search_query=${encodeURIComponent('BBC News '+it.title)}" target="_blank" rel="noopener">▶️ YouTube'da ara</a>`}</div>`;
+    <div id="qzBox"></div><div id="vidBox"></div>`;
+  renderVid();
   mountPlayer($('plBox'),$('rdText'),'n'+it.id+'-'+RD.lv);
   $('trT').onclick=()=>{S.newsTr=!S.newsTr;save();$('trT').classList.toggle('on',S.newsTr);$('rdText').classList.toggle('notr',!S.newsTr)};
   $('dwT').onclick=()=>{const o=$('dwB').style.display==='none';$('dwB').style.display=o?'':'none';$('dwA').textContent=o?'▴':'▾'};
@@ -1672,11 +1770,16 @@ function renderRead(){
   renderQuiz();
 }
 function findCtx(paras,w){const lw=w.toLowerCase();for(const p of paras)for(const s of p.en)if(s.toLowerCase().includes(lw))return s;return ''}
+function renderVid(){
+  const box=$('vidBox');if(!box||!RD)return;const it=RD.item,a=RD.art||{};
+  box.innerHTML=`${a.video?`<a class="vcard" href="https://www.youtube.com/watch?v=${esc(a.video.id)}" target="_blank" rel="noopener"><div class="vt" style="background-image:url('${esc(a.video.thumb||'')}')">▶</div><div><b>${esc(a.video.title)}</b><small>BBC News · YouTube'da izle</small></div></a>`:''}
+    <div class="lnks"><a class="ghost" href="${esc(it.link)}" target="_blank" rel="noopener">🌐 BBC'de aslını oku</a>${a.video?'':`<a class="ghost" href="https://www.youtube.com/results?search_query=${encodeURIComponent('BBC News '+it.title)}" target="_blank" rel="noopener">▶️ YouTube'da ara</a>`}</div>`;
+}
 function renderQuiz(){
-  const box=$('qzBox'),qs=RD.art.quiz||[];if(!box||!qs.length)return;
+  const box=$('qzBox'),qs=(RD.art&&RD.art.quiz)||[];if(!box)return;if(!qs.length){box.innerHTML='';return}
   const q=RD.q;
   if(!q){const d=S.newsDone[RD.item.id];box.innerHTML=`<button class="primary" id="qzGo" style="margin-top:14px">📝 ${d&&d.s>=0?`Testi tekrar çöz (önceki: ${d.s}/3)`:'3 soruyla test et'}</button>`;$('qzGo').onclick=()=>{RD.q={i:0,ok:0,done:false};renderQuiz()};return}
-  if(q.i>=qs.length){const prev=S.newsDone[RD.item.id]||{};S.newsDone[RD.item.id]={s:Math.max(q.ok,prev.s??-1),t:Date.now()};save();
+  if(q.i>=qs.length){const prev=S.newsDone[RD.item.id]||{};S.newsDone[RD.item.id]={s:Math.max(q.ok,prev.s??-1),t:Date.now()};pruneNews();save();
     box.innerHTML=`<div class="qz" style="text-align:center"><h4>SONUÇ</h4><div class="res-big" style="font-size:52px">${q.ok} / ${qs.length}</div><p class="hint">${q.ok===qs.length?'Kusursuz! 🎉':q.ok?'Güzel, devam!':'Bir daha oku, sonra tekrar dene'}</p><button class="ghost" id="qzAgain">Tekrar çöz</button></div>`;
     $('qzAgain').onclick=()=>{RD.q={i:0,ok:0};renderQuiz()};return}
   const x=qs[q.i];
@@ -1724,35 +1827,63 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('#wpop'))hidePop();
 });
 function hidePop(){$('wpop').classList.remove('on');document.querySelectorAll('.wd.on').forEach(x=>x.classList.remove('on'));popWord=null}
+const GL=lsGet('ks:gloss',{});
+// Google Çeviri'ye telefondan doğrudan sor (en hızlısı); olmazsa Worker üzerinden
+async function gtxDirect(w){
+  const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),3500);
+  try{
+    const r=await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=tr&dt=t&dt=bd&dj=1&q='+encodeURIComponent(w),{signal:ctl.signal});
+    if(!r.ok)throw 0;const d=await r.json();
+    const tr=(d.sentences||[]).map(x=>x.trans||'').join('').trim(),alts=[];
+    for(const g of d.dict||[])for(const t of (g.terms||[]).slice(0,3))if(t&&t!==tr&&!alts.includes(t))alts.push(t);
+    if(!tr)throw 0;return {tr,alts:alts.slice(0,5)};
+  }finally{clearTimeout(tm)}
+}
+function glSave(){const ks=Object.keys(GL);while(ks.length>400)delete GL[ks.shift()];lsSet('ks:gloss',GL)}
 async function showPop(el){
   hidePop();el.classList.add('on');
   const raw=el.textContent,sn=el.closest('.sn'),si=+sn.dataset.s,ctx=SENTS[si]?SENTS[si].en:'';
   const tok=popWord={raw,el,si};
   const pop=$('wpop'),r=el.getBoundingClientRect(),below=r.bottom<innerHeight*0.55;
   pop.style.top=below?(r.bottom+10)+'px':'auto';pop.style.bottom=below?'auto':(innerHeight-r.top+10)+'px';
-  const draw=(w,state)=>{
+  const spin='<span class="spin" style="width:13px;height:13px;border-color:rgba(255,255,255,.3);border-top-color:#fff"></span>';
+  // state: have (listede), new (anlamı var, kart yok), load, err
+  const draw=(w,state,g)=>{
+    if(popWord!==tok)return;
+    const tr=state==='load'?spin+'anlamı getiriliyor…':state==='err'?'Anlamı alınamadı':esc(w?w.tr:g.tr);
+    const alts=state==='new'&&g&&g.alts&&g.alts.length?`<div class="pd">${esc(g.alts.join(' · '))}</div>`:'';
     pop.innerHTML=`<div><span class="pw">${esc(w?w.w:raw)}</span>${w&&w.ipa?`<span class="pi">/${esc(w.ipa)}/</span>`:''}${w&&w.lvl?`<span class="badge">${esc(w.lvl)}</span>`:''}</div>
-      <div class="pt">${state==='load'?'<span class="spin" style="width:13px;height:13px;border-color:rgba(255,255,255,.3);border-top-color:#fff"></span>anlamı getiriliyor…':state==='err'?'Anlamı alınamadı':esc(w.tr)}</div>
-      ${w&&w.def&&state!=='have'?`<div class="pd">${esc(w.def)}</div>`:''}
-      <div class="pb"><button id="ppSay" aria-label="Dinle">🔊</button><button id="ppSn">▶ Cümle</button>${state==='have'?'<button class="done" id="ppOpen">✓ Listende · kartı aç</button>':state==='new'?'<button class="add" id="ppAdd">＋ Karta ekle</button>':''}</div>`;
+      <div class="pt">${tr}</div>${alts}
+      <div class="pb"><button id="ppSay" aria-label="Dinle">🔊</button><button id="ppSn">▶ Cümle</button>${state==='have'?'<button class="done" id="ppOpen">✓ Listende · kartı aç</button>':state==='new'?'<button class="add" id="ppAdd">＋ Karta ekle</button>':state==='err'?'<button class="add" id="ppRe">Tekrar dene</button>':''}</div>`;
     pop.classList.add('on');
     $('ppSay').onclick=()=>speakWord(w?w.w:raw);
     $('ppSn').onclick=()=>{hidePop();playFrom(si)};
     if($('ppOpen'))$('ppOpen').onclick=()=>{hidePop();stopPlayer();searchList=[w];searchTitle='Kelime';showTab('home');setMode('search')};
-    if($('ppAdd'))$('ppAdd').onclick=()=>{const n=Object.assign({},w,{ai:true});const add=addWords([n]);if(add.length){toast(`"${n.w}" kartlara eklendi → ${topicName(n)}`);if(!n.t)classifyAi();AMAP=null}draw(findWord(n.w)||n,'have');refreshDw()};
+    if($('ppRe'))$('ppRe').onclick=()=>{const e2=el;hidePop();showPop(e2)};
+    if($('ppAdd'))$('ppAdd').onclick=async()=>{
+      const btn=$('ppAdd');btn.disabled=true;btn.innerHTML=spin+'kart hazırlanıyor…';
+      try{
+        const d=await workerCall({card:raw,ctx,cats:S.cats},60000);const x=d.word;if(!x)throw new Error('Kart gelmedi');
+        const n={w:x.w,tr:x.tr,ipa:x.ipa||'',pos:x.pos||'',def:x.def,ex:x.ex,lvl:LEVELS.includes(x.lvl)?x.lvl:'B1',t:TOPICS[x.t]?x.t:'',tl:'',ai:true};
+        const add=addWords([n]);AMAP=null;
+        if(add.length){toast(`"${n.w}" kartlara eklendi → ${topicName(n)}`);if(!n.t)classifyAi()}else toast('Bu kelime zaten listende');
+        draw(findWord(n.w)||n,'have');refreshDw();
+      }catch(e){toast('Kart hazırlanamadı: '+e.message);if($('ppAdd')){btn.disabled=false;btn.textContent='＋ Karta ekle'}}
+    };
   };
   const have=findWord(raw);
   if(have)return draw(have,'have');
-  const key=raw.toLowerCase();
-  if(LK[key]){const ex=findWord(LK[key].w);return draw(ex||LK[key],ex?'have':'new')}
+  const key=raw.toLowerCase().replace(/[’']s$/,'');
+  // haberin zor kelimeler listesinde varsa anında göster
+  const L=RD&&RD.art&&RD.art.levels&&RD.art.levels[RD.lv-1],dw=L&&$('rdText')&&$('rdText').contains(el)&&L.words.find(x=>x.w.toLowerCase()===key||stems(key).includes(x.w.toLowerCase()));
+  if(GL[key])return draw(null,'new',GL[key]);
+  if(dw)return draw(null,'new',{tr:dw.tr,alts:[]});
   draw(null,'load');
   try{
-    const d=await workerCall({card:raw,ctx,cats:S.cats},30000);
-    if(!d.word)throw 0;
-    const x=d.word,w={w:x.w,tr:x.tr,ipa:x.ipa||'',pos:x.pos||'',def:x.def,ex:x.ex,lvl:LEVELS.includes(x.lvl)?x.lvl:'B1',t:TOPICS[x.t]?x.t:'',tl:''};
-    LK[key]=w;if(popWord!==tok)return;
-    const ex=findWord(w.w);draw(ex||w,ex?'have':'new');
-  }catch(e){if(popWord===tok)draw(null,'err')}
+    const g=await gtxDirect(key).catch(()=>workerCall({gloss:{w:key,ctx}},20000));
+    if(!g.tr)throw 0;GL[key]={tr:g.tr,alts:g.alts||[]};glSave();
+    draw(null,'new',GL[key]);
+  }catch(e){draw(null,'err')}
 }
 function refreshDw(){const b=$('dwB');if(!b||!RD||!RD.art)return;const L=RD.art.levels[RD.lv-1];b.querySelectorAll('[data-i]').forEach(x=>{if(hasWord(L.words[+x.dataset.i].w))x.textContent='✓'})}
 async function addFromText(word,ctx,btn,quiet){
@@ -1784,56 +1915,85 @@ function wavFrom(b64,mime){
 }
 const SILENT='data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQIAAAAAAA==';
 let PL=null;
+// Ses parça parça üretilir: önce ilk 2 cümle (hemen başlasın), sonra 5, sonra kalanlar.
+// Sen dinlerken sıradaki parçalar arka planda hazırlanır.
+function mkChunks(){
+  const n=SENTS.length,out=[];let i=0,k=0,c0=0;
+  while(i<n){let sz=k===0?2:k===1?5:12;if(n-(i+sz)<=2)sz=n-i;const i1=Math.min(n,i+sz);
+    const w=SENTS.slice(i,i1).map(x=>x.en.length+18),tot=w.reduce((a,b)=>a+b,0)||1;let c=0;
+    out.push({i0:i,i1,starts:w.map(x=>{const v=c/tot;c+=x;return v}),chars:tot,c0,url:null,dur:0,p:null});c0+=tot;i=i1;k++}
+  out.total=c0||1;return out;
+}
 function mountPlayer(box,textEl,key){
   stopPlayer();
   const phone=S.voice==='phone';
-  PL={box,textEl,key,mode:phone?'phone':'nat',audio:null,idx:-1,playing:false,busy:false,starts:[],gen:0};
-  const w=SENTS.map(s=>s.en.length+18),tot=w.reduce((a,b)=>a+b,0)||1;let c=0;PL.starts=w.map(x=>{const v=c/tot;c+=x;return v});
-  box.innerHTML=`<div class="player"><button class="pp" id="plB">${ICO.play}</button><div class="bar"><i id="plBar"></i></div><span class="tm" id="plT">${phone?'0/'+SENTS.length:'0:00'}</span><button class="spd" id="plS">${rLbl(S.rate)}</button></div><div class="vchip" id="plV"></div>`;
+  PL={box,textEl,key,mode:phone?'phone':'nat',audio:null,idx:-1,playing:false,busy:false,gen:0,ci:-1,chunks:mkChunks()};
+  box.innerHTML=`<div class="player"><button class="pp" id="plB">${ICO.play}</button><div class="bar"><i id="plBuf"></i><i id="plBar"></i></div><span class="tm" id="plT">${phone?'0/'+SENTS.length:'0:00'}</span><button class="spd" id="plS">${rLbl(S.rate)}</button></div><div class="vchip" id="plV"></div>`;
   drawVchip();
   $('plB').onclick=togglePlay;
   $('plS').onclick=()=>{const R=[0.8,0.9,1,1.1,1.25],i=R.indexOf(S.rate||1);S.rate=R[(i+1)%R.length];save();$('plS').textContent=rLbl(S.rate);if(PL.audio)PL.audio.playbackRate=S.rate;if(PL.mode==='phone'&&PL.playing)speakFrom(Math.max(PL.idx,0))};
 }
 function drawVchip(){if(!PL)return;$('plV').innerHTML=PL.mode==='nat'?`🗣️ Doğal ses · ${esc(S.voice==='phone'?'Kore':S.voice)} · <button id="plSw">Telefon sesine geç</button>`:`📱 Telefon sesi · <button id="plSw">Doğal sese geç</button>`;
-  $('plSw').onclick=()=>{const wasP=PL.playing,i=Math.max(PL.idx,0);pausePlayer();PL.mode=PL.mode==='nat'?'phone':'nat';if(PL.mode==='nat'&&S.voice==='phone'){S.voice='Kore';save()}if(PL.mode==='phone'){S.voice='phone';save()}drawVchip();setTime();if(wasP)playFrom(i)}}
+  $('plSw').onclick=()=>{const wasP=PL.playing,i=Math.max(PL.idx,0);pausePlayer();PL.mode=PL.mode==='nat'?'phone':'nat';if(PL.mode==='nat'&&S.voice==='phone'){S.voice='Kore';save()}if(PL.mode==='phone'){S.voice='phone';save()}PL.ci=-1;drawVchip();setTime();if(wasP)playFrom(i)}}
 function setIcon(){if(!PL)return;const b=$('plB');if(!b)return;b.innerHTML=PL.busy?'<span class="spin"></span>':PL.playing?ICO.pause:ICO.play}
 function highlight2(i){if(!PL||i===PL.idx)return;PL.idx=i;PL.textEl.querySelectorAll('.sn.cur').forEach(x=>x.classList.remove('cur'));const el=PL.textEl.querySelector(`.sn[data-s="${i}"]`);if(el){el.classList.add('cur');const r=el.getBoundingClientRect();if(r.top<80||r.bottom>innerHeight-120)el.scrollIntoView({block:'center',behavior:'smooth'})}}
-function setTime(){if(!PL||!$('plT'))return;if(PL.mode==='phone'){$('plT').textContent=Math.max(PL.idx+1,0)+'/'+SENTS.length;$('plBar').style.width=(Math.max(PL.idx+1,0)/SENTS.length*100)+'%'}else if(PL.audio&&PL.audio.duration){$('plT').textContent=fmtT(PL.audio.currentTime);$('plBar').style.width=(PL.audio.currentTime/PL.audio.duration*100)+'%'}}
-function togglePlay(){if(!PL)return;if(PL.playing||PL.busy)return pausePlayer();playFrom(PL.idx>=0&&PL.idx<SENTS.length-1?PL.idx:0,true)}
+function setTime(){
+  if(!PL||!$('plT'))return;
+  if(PL.mode==='phone'){$('plT').textContent=Math.max(PL.idx+1,0)+'/'+SENTS.length;$('plBar').style.width=(Math.max(PL.idx+1,0)/SENTS.length*100)+'%';$('plBuf').style.width='0';return}
+  const ch=PL.chunks,c=ch[PL.ci],a=PL.audio;
+  const ready=ch.filter(x=>x.url).reduce((m,x)=>Math.max(m,x.c0+x.chars),0);$('plBuf').style.width=(ready/ch.total*100)+'%';
+  if(!c||!a)return;const d=a.duration||c.dur||1,f=Math.min(a.currentTime/d,1);
+  $('plBar').style.width=((c.c0+f*c.chars)/ch.total*100)+'%';
+  $('plT').textContent=fmtT(ch.slice(0,PL.ci).reduce((s2,x)=>s2+(x.dur||0),0)+a.currentTime);
+}
+function togglePlay(){if(!PL)return;if(PL.playing||PL.busy)return pausePlayer();playFrom(PL.idx>=0?PL.idx:0,true)}
 function pausePlayer(){if(!PL)return;PL.playing=false;PL.busy=false;PL.gen++;if(PL.audio)PL.audio.pause();try{speechSynthesis.cancel()}catch(e){}setIcon()}
-function stopPlayer(){if(!PL)return;pausePlayer();if(PL.audio){PL.audio.src='';PL.audio=null}PL=null}
+function stopPlayer(){if(!PL)return;pausePlayer();if(PL.audio){PL.audio.src='';PL.audio=null}(PL.chunks||[]).forEach(c=>{if(c.url)URL.revokeObjectURL(c.url)});PL=null}
+async function wavDur(blob){try{const h=new DataView(await blob.slice(0,44).arrayBuffer());const br=h.getUint32(28,true)||48000;return (blob.size-44)/br}catch(e){return (blob.size-44)/48000}}
+function loadChunk(me,c){
+  if(c.url)return Promise.resolve();if(c.p)return c.p;
+  const voice=S.voice==='phone'?'Kore':S.voice,k='v3|'+voice+'|'+me.key+'|'+c.i0+'-'+c.i1;
+  c.p=(async()=>{
+    let blob=await IDB.get(k);
+    if(!blob){
+      const d=await workerCall({tts:{text:SENTS.slice(c.i0,c.i1).map(x=>x.en).join(' '),voice}},120000);
+      const part=(((d.candidates||[])[0]||{}).content||{}).parts||[],inl=(part.find(p=>p.inlineData)||{}).inlineData;
+      if(!inl||!inl.data)throw new Error('Ses gelmedi');
+      blob=wavFrom(inl.data,inl.mimeType);IDB.put(k,blob);
+    }
+    c.dur=await wavDur(blob);c.url=URL.createObjectURL(blob);if(PL===me)setTime();
+  })().catch(e=>{c.p=null;throw e});
+  return c.p;
+}
+// Sıradaki parçaları tek tek arka planda hazırla
+async function preloadFrom(me,ci){if(me.preloading)return;me.preloading=true;try{for(let j=ci;j<me.chunks.length;j++){if(PL!==me)return;await loadChunk(me,me.chunks[j])}}catch(e){}finally{me.preloading=false}}
+function toPhone(me,i,e){
+  if(PL!==me)return;me.busy=false;
+  toast((e&&(e.status===503||e.quota))?'Doğal ses şu an kullanılamıyor, telefon sesiyle devam ediliyor':'Ses alınamadı, telefon sesiyle devam ediliyor');
+  me.mode='phone';me.ci=-1;if(me.audio)me.audio.pause();drawVchip();me.playing=true;setIcon();speakFrom(i);
+}
 async function playFrom(i,resume){
   if(!PL)return;
   if(PL.mode==='phone'){PL.playing=true;setIcon();return speakFrom(i)}
-  if(!PL.audio){PL.audio=new Audio();PL.audio.src=SILENT;PL.audio.play().catch(()=>{});} // iOS: dokunuşla kilidi aç
-  const a=PL.audio,me=PL,gen=++PL.gen;
-  if(!me.ready){
-    me.busy=true;setIcon();
-    try{
-      let blob=await IDB.get('v2|'+(S.voice==='phone'?'Kore':S.voice)+'|'+me.key);
-      if(!blob){
-        const text=SENTS.map(s=>s.en).join(' ');
-        const d=await workerCall({tts:{text,voice:S.voice==='phone'?'Kore':S.voice}},150000);
-        const part=(((d.candidates||[])[0]||{}).content||{}).parts||[],inl=(part.find(p=>p.inlineData)||{}).inlineData;
-        if(!inl||!inl.data)throw new Error('Ses gelmedi');
-        blob=wavFrom(inl.data,inl.mimeType);IDB.put('v2|'+(S.voice==='phone'?'Kore':S.voice)+'|'+me.key,blob);
-      }
-      if(PL!==me||gen!==me.gen)return;
-      a.src=URL.createObjectURL(blob);me.ready=true;
-      await new Promise(ok=>{a.onloadedmetadata=ok;setTimeout(ok,3000)});
-      a.ontimeupdate=()=>{if(PL!==me||!a.duration)return;const f=a.currentTime/a.duration;let j=0;while(j+1<me.starts.length&&me.starts[j+1]<=f)j++;highlight2(j);setTime()};
-      a.onended=()=>{if(PL!==me)return;me.playing=false;setIcon();highlight2(-1);me.idx=-1};
-    }catch(e){
-      if(PL!==me)return;me.busy=false;
-      toast((e.status===503||e.quota)?'Doğal ses şu an kullanılamıyor, telefon sesiyle okunuyor':'Ses alınamadı ('+e.message+'), telefon sesiyle okunuyor');
-      me.mode='phone';drawVchip();me.playing=true;setIcon();return speakFrom(i);
-    }
-    me.busy=false;
+  const me=PL;
+  if(!me.audio){ // iOS: ilk dokunuşta ses öğesinin kilidini aç
+    const a0=me.audio=new Audio();a0.src=SILENT;a0.play().catch(()=>{});
+    a0.ontimeupdate=()=>{if(PL!==me||me.ci<0)return;const c=me.chunks[me.ci],d=a0.duration||c.dur;if(!d)return;const f=a0.currentTime/d;let j=0;while(j+1<c.starts.length&&c.starts[j+1]<=f)j++;highlight2(c.i0+j);setTime()};
+    a0.onended=()=>{if(PL!==me||me.ci<0||!me.playing)return;const nx=me.chunks[me.ci+1];if(nx)playFrom(nx.i0);else{me.playing=false;me.ci=-1;setIcon();highlight2(-1);me.idx=-1;setTime()}};
   }
-  if(PL!==me||gen!==me.gen)return;
+  const a=me.audio,gen=++me.gen;
+  const ci=Math.max(0,me.chunks.findIndex(c=>i>=c.i0&&i<c.i1)),c=me.chunks[ci];
+  if(!c.url){
+    me.busy=true;setIcon();highlight2(i);
+    try{await loadChunk(me,c)}catch(e){if(gen===me.gen)toPhone(me,i,e);return}
+    if(PL!==me||gen!==me.gen)return;me.busy=false;
+  }
+  preloadFrom(me,ci+1);
+  const same=me.ci===ci;
+  if(!same){a.src=c.url;me.ci=ci;await new Promise(ok=>{a.onloadedmetadata=ok;setTimeout(ok,2500)});if(PL!==me||gen!==me.gen)return}
   a.playbackRate=S.rate||1;
-  if(!resume||me.idx<0||Math.abs(a.currentTime/a.duration-me.starts[i])>0.02&&!resume)a.currentTime=(me.starts[i]||0)*(a.duration||0);
-  if(resume&&a.ended)a.currentTime=0;
+  const keep=resume&&same&&!a.ended&&me.idx>=c.i0&&me.idx<c.i1;
+  if(!keep)a.currentTime=(c.starts[i-c.i0]||0)*(a.duration||c.dur||0);
   me.playing=true;setIcon();
   try{await a.play()}catch(e){me.playing=false;setIcon();toast('Oynatmak için ▶ tuşuna tekrar bas')}
 }
@@ -1886,13 +2046,20 @@ function openStSrc(){
 $('stSrcOk').onclick=()=>{closeSheets();renderStories()};
 async function makeStory(){
   if(stBusy)return;if(!S.worker)return toast('Önce Ayarlar\'dan Worker adresini gir');
-  const words=pickStoryWords();stBusy=true;renderStories();
+  const words=pickStoryWords(),lv=S.stLv,topic=S.stTopic,len=S.stLen;stBusy=true;
+  stopPlayer();showTab('sread');
+  $('srBox').innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>Yeni hikâye</b><span class="sp40"></span></div>
+    <div class="sec rd"><div class="livehd"><span class="dot"></span>Hikâye yazılıyor ve çevriliyor</div><div id="liveBox" style="margin-top:8px"></div></div>`;
+  liveStart($('liveBox'),'story');liveDraw('',true);
   try{
-    const d=await workerCall({story:{topic:S.stTopic,level:S.stLv,len:S.stLen,words:words.map(w=>w.w)}},120000);
-    const st={id:Date.now().toString(36),title:d.title,emoji:d.emoji,lvl:S.stLv,topic:S.stTopic,paras:d.paras,used:(d.used&&d.used.length?d.used:words.map(w=>w.w)),t:Date.now()};
+    const t=await streamCall({story:{topic,level:lv,len,words:words.map(w=>w.w),stream:true}},liveType,60000);
+    let d;if(/^\s*\{/.test(t))d=JSON.parse(t);else{const x=parseLines(t);d={title:x.title,emoji:x.emoji,paras:x.paras,used:x.used}}
+    if(!d.paras||!d.paras.length)throw new Error('Hikâye yazılamadı, tekrar dene');
+    const st={id:Date.now().toString(36),title:d.title||'Untitled',emoji:d.emoji||'📖',lvl:lv,topic,paras:d.paras,used:(d.used&&d.used.length?d.used:words.map(w=>w.w)),t:Date.now()};
     S.stories.unshift(st);S.stories=S.stories.slice(0,20);save();
-    stBusy=false;openStory(st.id);
-  }catch(e){stBusy=false;toast('Hikâye yazılamadı: '+e.message);if($('v-stories').classList.contains('on'))renderStories()}
+    stBusy=false;await liveFinish();
+    if($('v-sread').classList.contains('on')){SR=st;renderSRead()}else toast(`"${st.title}" hazır · Hikâyelerim'de`);
+  }catch(e){stBusy=false;toast('Hikâye yazılamadı: '+e.message);if($('v-sread').classList.contains('on'))showTab('stories')}
 }
 let SR=null;
 function openStory(id){const st=S.stories.find(x=>x.id===id);if(!st)return;stopPlayer();SR=st;showTab('sread');renderSRead()}
