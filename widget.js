@@ -78,7 +78,8 @@ function mergeWords(base, pub) {
   const out = base.map(w => Object.assign({}, w, { c: map[w.w.toLowerCase()] || w.t }));
   const have = new Set(out.map(w => w.w.toLowerCase()));
   for (const w of (pub && pub.custom) || []) if (!have.has(w.w.toLowerCase())) out.push(w);
-  return out;
+  const hidden = new Set(((pub && pub.hidden) || []).map(x => String(x).toLowerCase()));   // uygulamada silinen kelimeler
+  return hidden.size ? out.filter(w => !hidden.has(w.w.toLowerCase())) : out;
 }
 
 // Parametredeki konuları kategori anahtarına çevir (ad ya da anahtar yazılabilir)
