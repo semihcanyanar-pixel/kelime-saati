@@ -47,7 +47,7 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 calc(
 /* bugün */
 .wcard{background:var(--card);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
 .wcard h3{margin:0 0 6px;font-size:18px;font-weight:800}
-.rings{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.rings{display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
 .ring{text-align:center;flex:1;border:none;background:none;padding:0}
 .ring svg{width:100%;max-width:84px;height:auto;display:block;margin:0 auto}
 .ring .lbl{font-size:12.5px;font-weight:700;margin-top:4px;white-space:nowrap}
@@ -356,10 +356,56 @@ a.ghost{display:block;text-align:center;text-decoration:none}
 #weekC .wk.hit .v{color:var(--c2)}
 #weekC .goal{position:absolute;left:0;right:0;border-top:1.5px dashed var(--line);pointer-events:none}
 #weekC .goal span{position:absolute;right:0;top:-16px;font-size:10px;font-weight:700;color:var(--muted)}
-.wstats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}
+.wstats{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:12px}
 .wstats div{background:var(--soft);border-radius:12px;padding:8px 2px;text-align:center}.wstats b{display:block;font-size:18px;font-weight:800}.wstats small{font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap}
 .backpill{display:none;align-items:center;gap:4px;margin:0 18px 8px;border:none;background:var(--accent-soft);color:var(--ink);font-weight:700;font-size:14px;border-radius:999px;padding:8px 14px 8px 10px;max-width:calc(100% - 36px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .backpill.on{display:inline-flex}
+.hub.h4{background:var(--lilac)}
+.viddayc{margin-top:12px;padding:12px}
+.vdhd{display:flex;justify-content:space-between;align-items:center;margin:0 2px 10px}.vdhd span{font-size:12px;font-weight:800;letter-spacing:.6px;color:var(--muted);text-transform:uppercase}
+.vdhd button{border:none;background:var(--accent-soft);color:var(--ink);font-weight:700;font-size:12.5px;border-radius:10px;padding:6px 10px}
+.vdmain{display:block;width:100%;border:none;background:none;padding:0;text-align:left;color:var(--text)}
+.vth{position:relative;width:120px;height:68px;border-radius:12px;background:#222 center/cover no-repeat;flex:none}
+.vth.big{width:100%;height:auto;aspect-ratio:16/9;border-radius:16px}
+.vth span{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.75);color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:2px 5px}
+.vth i{position:absolute;left:6px;top:6px;background:#2E9E5E;color:#fff;font-style:normal;font-size:12px;font-weight:800;border-radius:50%;width:22px;height:22px;display:grid;place-items:center}
+.vth .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:20px}
+.vdtx{padding:10px 4px 2px}.vdtx b{display:block;font-size:16px;line-height:1.3;margin:3px 0}.vdtx small{color:var(--muted);font-size:13px}
+.vrow{display:flex;gap:12px;align-items:center;padding:10px 0;border:none;border-bottom:1px solid var(--line);background:none;width:100%;text-align:left;color:var(--text)}
+.vrow .nx b{font-size:14.5px}
+.vsep{width:1px;background:var(--line);margin:4px 2px;flex:none}
+.vframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;margin-top:-2px}
+.vframe iframe,.vframe #vpPl{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vpfb{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;text-align:center;padding:20px;font-size:15px}
+.vpfb .primary{width:auto;padding:12px 18px;text-decoration:none}
+.vtitle{font-size:19px;font-weight:800;line-height:1.3;margin:4px 0 6px}
+.vch{display:flex;align-items:center;gap:6px}.vch .chk{flex:1}
+.vch .chk span{display:flex;align-items:center;gap:10px;min-width:0}.vch .chk img,.vch .chk em{width:30px;height:30px;border-radius:50%;flex:none;font-style:normal;display:grid;place-items:center;background:var(--soft);font-size:12px}
+.vch .chk b{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vch .chk small{margin-left:6px;white-space:nowrap}
+.vdel{border:none;background:var(--soft);border-radius:10px;width:36px;height:36px;flex:none}
+#wTabs button{line-height:1.15}
+.pchd{display:flex;align-items:center;justify-content:space-between}.pchd h3{margin:0 0 6px}
+.pchd button{border:none;background:var(--accent-soft);color:var(--ink);font-weight:700;font-size:12.5px;border-radius:10px;padding:6px 10px}
+#progCard{cursor:pointer}
+.st2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}.st2 .wcard{text-align:center;padding:16px 10px}.st2 small{color:var(--muted);font-size:13px;font-weight:600}
+.sbig{font-size:30px;font-weight:800}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px}
+.cal b{font-size:11px;color:var(--muted);text-align:center;font-weight:700}
+.cal span{aspect-ratio:1;border-radius:10px;display:grid;place-items:center;font-size:13px;font-weight:700;background:var(--soft);color:var(--muted)}
+.cal span.c1{background:var(--accent-soft);color:var(--ink)}
+.cal span.c2{background:var(--accent);color:#fff}
+.cal span.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.cal span.fut{opacity:.4}
+.calleg{display:flex;gap:16px;justify-content:center;margin-top:12px;font-size:12px;color:var(--muted);font-weight:600}.calleg i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:5px;vertical-align:-1px}.calleg .c1{background:var(--accent-soft)}.calleg .c2{background:var(--accent)}
+.tot{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tot .wcard{padding:12px 14px;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center}
+.tot span{font-size:24px;grid-row:span 2}.tot b{font-size:20px;font-weight:800;line-height:1.1}.tot small{font-size:12px;color:var(--muted);font-weight:600}
+.acc8{display:flex;gap:6px;align-items:flex-end;height:140px}
+.acc8 .ab{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;gap:4px}
+.acc8 .ab span{font-size:10.5px;font-weight:700;color:var(--muted);height:14px}
+.acc8 .bb{flex:1;width:100%;max-width:26px;display:flex;align-items:flex-end;background:var(--soft);border-radius:8px;overflow:hidden}
+.acc8 .bb i{display:block;width:100%;background:linear-gradient(180deg,#8FD3FF,#1E9BEA);border-radius:8px}
+.acc8 .ab.cur span{color:var(--text)}
+.acc8 small{font-size:9.5px;color:var(--muted);white-space:nowrap}
 .lsep{height:2px;background:var(--line);border-radius:1px;margin:18px 0 0}
 .catrow{display:flex;align-items:center;gap:8px;padding:12px 2px;border-bottom:1px solid var(--line)}
 .catrow .nm{flex:1;min-width:0;font-size:16px;font-weight:600}
@@ -436,14 +482,13 @@ nav.tabs button{position:relative}
     <!-- BUGÜN -->
     <section class="view on" id="v-today">
       <div class="sec">
-        <div class="wcard"><h3>İlerleme</h3><div class="rings" id="rings"></div><div class="streak" id="streak"></div></div>
+        <div class="wcard" id="progCard"><div class="pchd"><h3>İlerleme</h3><button id="progMore">Ayrıntılar ›</button></div><div class="rings" id="rings"></div><div class="streak" id="streak"></div></div>
         <h2 class="h">Öğrenme Yolun</h2>
         <div class="tiles" id="tiles"></div>
         <button class="wcard newsday" id="newsDay" style="display:none"></button>
+        <div class="wcard viddayc" id="vidDay" style="display:none"></div>
         <button class="wcard hourcard" id="hourCard"></button>
         <button class="wcard hourcard" id="dayCard" style="display:none"></button>
-        <h2 class="h">Haftalık İlerleme</h2>
-        <div class="wcard"><div class="wnav"><button id="wPrev" aria-label="Önceki hafta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="wRange"></span><button id="wNext" aria-label="Sonraki hafta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button></div><div class="seg sm" id="wTabs"></div><p class="hint" id="wGoal" style="text-align:right;margin:8px 4px -4px;font-size:11.5px"></p><div class="week" id="weekC"></div><div class="wstats" id="wStats"></div><p class="hint" id="weekSum" style="text-align:center"></p></div>
       </div>
     </section>
 
@@ -480,6 +525,27 @@ nav.tabs button{position:relative}
       <div class="sec" id="stBox"></div>
     </section>
     <section class="view sub" id="v-sread"><div id="srBox"></div></section>
+
+    <!-- İLERLEME -->
+    <section class="view sub" id="v-stats">
+      <div class="shdr"><button class="bk" data-back><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><b>İlerleme</b><span class="sp40"></span></div>
+      <div class="sec">
+        <div class="st2"><div class="wcard"><div class="sbig" id="stCur"></div><small>Şu anki seri</small></div><div class="wcard"><div class="sbig" id="stBest"></div><small>En uzun seri</small></div></div>
+        <h2 class="h">Haftalık</h2>
+        <div class="wcard"><div class="wnav"><button id="wPrev" aria-label="Önceki hafta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="wRange"></span><button id="wNext" aria-label="Sonraki hafta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button></div><div class="seg sm" id="wTabs"></div><p class="hint" id="wGoal" style="text-align:right;margin:8px 4px -4px;font-size:11.5px"></p><div class="week" id="weekC"></div><div class="wstats" id="wStats"></div><p class="hint" id="weekSum" style="text-align:center"></p></div>
+        <h2 class="h">Toplam</h2>
+        <div class="tot" id="tot"></div>
+        <h2 class="h">Pratik doğruluğu</h2>
+        <div class="wcard"><div class="acc8" id="acc8"></div><p class="hint" style="text-align:center">Son 8 haftada pratikteki doğru cevap oranın</p></div>
+      </div>
+    </section>
+
+    <!-- VİDEOLAR -->
+    <section class="view sub" id="v-videos">
+      <div class="shdr"><button class="bk" data-back><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><b>Haftanın videoları</b><button class="bk" id="vRefresh" aria-label="Yenile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button></div>
+      <div class="sec"><div class="chips left nscroll" id="vFil"></div><div id="vList"></div></div>
+    </section>
+    <section class="view sub" id="v-video"><div id="vpBox"></div></section>
 
     <!-- WIDGET -->
     <section class="view sub" id="v-widget">
@@ -574,6 +640,16 @@ nav.tabs button{position:relative}
   <p class="hint">Haberler listesinde seçtiğin konulardan haberler gelir.</p>
   <button class="primary" id="nCatOk">Tamam</button></div></div>
 
+<!-- Video kanalları -->
+<div class="sheet" id="vchSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
+  <h3>Video kanalları</h3><p class="hint" style="margin-top:-6px">Haftanın videoları açık kanallardan seçilir. Dokunarak aç/kapat.</p>
+  <div id="vchList"></div>
+  <label class="lb">Kanal ekle</label>
+  <input class="field" id="vchIn" placeholder="YouTube kanal linki ya da @adı" autocomplete="off" autocapitalize="off" autocorrect="off">
+  <div class="inline" style="margin-top:8px"><select class="field" id="vchLv"></select><select class="field" id="vchTy"></select></div>
+  <button class="ghost" id="vchAdd">Ekle</button>
+  <button class="primary" id="vchOk">Tamam</button></div></div>
+
 <!-- Hikâye kelime kaynakları -->
 <div class="sheet" id="stSrcSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
   <h3>Hangi kelimeler geçsin?</h3><p class="hint" style="margin-top:-6px">Birden fazlasını seçebilirsin. Hikâyeye bunlardan 6-15 kelime yerleştirilir; Öğren ve görmediğin kelimeler önce gelir.</p>
@@ -634,6 +710,7 @@ nav.tabs button{position:relative}
     <div class="grow"><i class="gi" style="background:#A3D5F7">🔁</i><span class="gt">Pratik<small>Cevaplanan soru</small></span><span class="gv" data-for="goalR"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="goalR"><option value="10">10</option><option value="20">20</option><option value="30">30</option><option value="50">50</option></select></div>
     <div class="grow"><i class="gi" style="background:#CDE8F7">📰</i><span class="gt">Haber<small>Testi çözülen ya da sonuna kadar dinlenen</small></span><span class="gv" data-for="goalH"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="goalH"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="5">5</option></select></div>
     <div class="grow"><i class="gi" style="background:#F8D9B9">📚</i><span class="gt">Hikâye<small>Okunan ya da dinlenen</small></span><span class="gv" data-for="goalS"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="goalS"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+    <div class="grow"><i class="gi" style="background:#DED5F6">🎬</i><span class="gt">Video<small>Büyük kısmı izlenen</small></span><span class="gv" data-for="goalV"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="goalV"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
   </div>
 
   <div class="glabel">Okuma ve ses</div>
@@ -641,6 +718,7 @@ nav.tabs button{position:relative}
     <div class="grow"><i class="gi" style="background:#DED5F6">🗣️</i><span class="gt">Okuyan ses</span><span class="gv" data-for="voiceSel"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="voiceSel"><option value="Kore">Doğal · Kore</option><option value="Aoede">Doğal · Aoede</option><option value="Charon">Doğal · Charon</option><option value="Puck">Doğal · Puck</option><option value="Sulafat">Doğal · Sulafat</option><option value="phone">Telefon sesi</option></select></div>
     <div class="grow"><i class="gi" style="background:#F5D6AE">🐢</i><span class="gt">Okuma hızı</span><span class="gv" data-for="rateSel"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="rateSel"><option value="0.8">0.8x</option><option value="0.9">0.9x</option><option value="1">1.0x</option><option value="1.1">1.1x</option><option value="1.25">1.25x</option></select></div>
     <div class="grow"><i class="gi" style="background:#C6E3B6">⚡</i><span class="gt">Sesi önceden hazırla<small>Metin açılınca ses de hazırlanır, ▶ beklemeden çalar</small></span><span class="gv" data-for="preSel"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="preSel"><option value="on">Açık</option><option value="off">Kapalı</option></select></div>
+    <button class="grow" id="vchRow"><i class="gi" style="background:#DED5F6">🎬</i><span class="gt">Video kanalları</span><span class="gv" id="vchVal"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
     <button class="grow" id="nCatRow"><i class="gi" style="background:#CDE8F7">📰</i><span class="gt">Haber konuları</span><span class="gv" id="nCatVal"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
 
@@ -813,7 +891,18 @@ Object.assign(EN,{
 'YENİ':'NEW','şu an':'current','Bu kartlarla pratik yapmak ister misin? Pratikte verdiğin cevaplar günlük':'Want to practice with these cards? Your answers count toward your daily','hedefine sayılır.':'goal.',
 '📱 Telefon sesi ·':'📱 Phone voice ·','kelime':'words','favori':'favorites','biliyorum':'known','öğreniliyor':'learning','Türkçe':'Türkçe',
 'Bugün {n} yeni haber · {n} seviye':'{n} new stories today · {n} levels','Haftanın kelimeleri':'Words of the week',
-'Pratik & Test':'Practice & Test','Cevaplanan soru':'Answered questions','Haber':'News','Hikâye':'Story','Testi çözülen ya da sonuna kadar dinlenen':'Test solved or listened to the end','Okunan ya da dinlenen':'Read or listened to',
+'Pratik & Test':'Practice & Test','Ayrıntılar ›':'Details ›','Şu anki seri':'Current streak','En uzun seri':'Longest streak','Takvim':'Calendar','Çalıştın':'Studied','Tüm hedefler tamam':'All goals done','Haftalık':'Weekly','Toplam':'Totals','Pratik doğruluğu':'Practice accuracy',
+'Son 8 haftada pratikteki doğru cevap oranın':'Your correct-answer rate in practice over the last 8 weeks','görülen kelime':'words seen','bildiğin kelime':'known words','Öğren\'den çıkan':'cleared from Learn','cevaplanan soru':'questions answered','haber':'articles','hikâye':'stories','video':'videos','genel doğruluk':'overall accuracy',
+'{n} gün çalıştın · {n} gün tüm hedefler':'studied {n} days · all goals on {n} days','Video':'Video','Videolar':'Videos','Büyük kısmı izlenen':'Mostly watched','Video kanalları':'Video channels','{n} açık':'{n} on','🎬 Günün videosu':'🎬 Video of the day',
+'Haftanın {n} videosu ›':'{n} videos this week ›','Haftanın videoları':'This week\'s videos','Bu haftanın videoları':'This week\'s videos','Hepsini gör':'See all','Sonraki video ›':'Next video ›','YouTube\'da aç':'Open in YouTube','▶ YouTube\'da aç':'▶ Open in YouTube',
+'Bu video uygulama içinde oynatılamıyor.':'This video can\'t be played inside the app.','İngilizce altyazı açık gelir. Videonun büyük kısmını izleyince günlük hedefine sayılır.':'English subtitles are on. Watching most of the video counts toward your daily goal.',
+'✓ İzlendi olarak işaretlendi':'✓ Marked as watched','✓ İzlendi, günlük hedefine sayıldı':'✓ Watched, counted toward your daily goal','✓ izlendi':'✓ watched','🎬 Video bugünkü hedefine sayıldı':'🎬 Counted toward today\'s video goal',
+'Haftanın 20 videosu · İngilizce altyazılı':'20 videos a week · English subtitles','{n} izlenmemiş':'{n} unwatched','Talk show, dizi, ders':'Talk shows, series, lessons','Videolar getiriliyor…':'Getting videos…',
+'Video bulunamadı. Ayarlar → Video kanalları\'ndan kanal aç ya da ekle.':'No videos found. Turn on or add channels in Settings → Video channels.','Bu filtrede video yok.':'No videos for this filter.',
+'Bu hafta {n} video · {n} izlendi. Liste her pazartesi yenilenir.':'{n} videos this week · {n} watched. The list refreshes every Monday.','Videolar için önce ⚙️ Ayarlar\'dan Worker adresini girmelisin.':'To get videos, first enter the Worker address in ⚙️ Settings.',
+'Kolay':'Easy','Orta':'Intermediate','İleri':'Advanced','Ders':'Learn','Talk show':'Talk show','Dizi':'Series','Belgesel':'Documentary','Konuşma':'Talk','Diğer':'Other','Tüm türler':'All types',
+'Haftanın videoları açık kanallardan seçilir. Dokunarak aç/kapat.':'This week\'s videos are picked from the channels that are on. Tap to turn on/off.','Kanal ekle':'Add channel','YouTube kanal linki ya da @adı':'YouTube channel link or @handle',
+'Kanal linkini ya da @adını yapıştır':'Paste the channel link or @handle','Bu kanal zaten listende':'This channel is already in your list','Kelime':'Words','🎬 Video':'🎬 Video','Cevaplanan soru':'Answered questions','Haber':'News','Hikâye':'Story','Testi çözülen ya da sonuna kadar dinlenen':'Test solved or listened to the end','Okunan ya da dinlenen':'Read or listened to',
 '📰 Haber bugünkü hedefine sayıldı':'📰 Counted toward today\'s news goal','📚 Hikâye bugünkü hedefine sayıldı':'📚 Counted toward today\'s story goal','Bu hikâye bugün zaten sayıldı':'This story was already counted today','Bu haber bugün zaten sayıldı':'This article was already counted today',
 '✓ Okudum, hedefime say':'✓ I read it, count it','Silinen kelimeleri geri getir':'Restore deleted words','Silinen kelimeleri geri getir ({n})':'Restore deleted words ({n})','Sildiğin hazır kelimeler geri getirilsin mi?':'Restore the built-in words you deleted?','Kelimeler geri geldi':'Words restored',
 'Habere dön':'Back to the article','Hikâyeye dön':'Back to the story','✓ Çözdüklerim':'✓ Tested','Henüz testini çözdüğün haber yok.':'You haven\'t tested any articles yet.',
@@ -874,7 +963,7 @@ const TOPICS={}; // kullanıcının kategorileri (S.cats'ten kurulur)
 function rebuildTopics(){for(const x of Object.keys(TOPICS))delete TOPICS[x];(S.cats&&S.cats.length?S.cats:Object.entries(BASE_TOPICS).map(([k,n])=>({k,n}))).forEach(c=>TOPICS[c.k]=c.n)}
 const LEVELS=['A2','B1','B2','C1'];
 const KEY='kelimeSaati:v1';
-const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,cardN:20,seenAll:[],autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[],newsCats:['top','world','tech','science','health','business','culture'],newsLv:2,newsDone:{},newsTr:false,stories:[],stTopic:'Macera',stLv:'B1',stLen:'short',stSrc:['learn','_week'],stTr:true,voice:'Kore',rate:1,theme:'krem',lang:'tr',preAudio:'on',goalH:1,goalS:1,hidden:[],wTab:'n'};
+const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,cardN:20,seenAll:[],autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[],newsCats:['top','world','tech','science','health','business','culture'],newsLv:2,newsDone:{},newsTr:false,stories:[],stTopic:'Macera',stLv:'B1',stLen:'short',stSrc:['learn','_week'],stTr:true,voice:'Kore',rate:1,theme:'krem',lang:'tr',preAudio:'on',goalH:1,goalS:1,goalV:1,hidden:[],wTab:'n',vch:[],vWatched:{},vWeek:null};
 let C=null;
 let S=load(), BASE=[], WIDGET_SRC='';
 function cleanLevels(){for(const f of ['levels','qLevels','aiLv']){const v=(S[f]||[]).filter(l=>LEVELS.includes(l));S[f]=v.length?[...new Set(v)]:(f==='aiLv'?['B1']:[...LEVELS])}}
@@ -924,7 +1013,7 @@ const weekWords=()=>S.custom.filter(w=>w.wk===wkey());
 const weekNew=()=>weekWords().length>0&&S.weekSeen!==wkey();
 function day(key=dkey()){return S.daily[key]||(S.daily[key]={n:0,r:0,ok:0,h:0,s:0})}
 // Haber/hikâye günde bir kez sayılır (aynı metin tekrar sayılmaz)
-function markRead(kind,id){const t=dkey(),d=day(t);d.done=d.done||[];const key=kind+':'+id;if(d.done.includes(key))return false;d.done.push(key);d[kind]=(d[kind]||0)+1;prune();save();toast(kind==='h'?'📰 Haber bugünkü hedefine sayıldı':'📚 Hikâye bugünkü hedefine sayıldı');return true}
+function markRead(kind,id){const t=dkey(),d=day(t);d.done=d.done||[];const key=kind+':'+id;if(d.done.includes(key))return false;d.done.push(key);d[kind]=(d[kind]||0)+1;prune();save();toast(kind==='h'?'📰 Haber bugünkü hedefine sayıldı':kind==='v'?'🎬 Video bugünkü hedefine sayıldı':'📚 Hikâye bugünkü hedefine sayıldı');return true}
 function prune(){const keys=Object.keys(S.daily).sort();while(keys.length>400)delete S.daily[keys.shift()]}
 function markSeen(w){
   const t=dkey();if(S.seenDay!==t){S.seenDay=t;S.seen=[]}
@@ -937,7 +1026,7 @@ function markSeen(w){
 function markAnswer(ok){const d=day();d.r++;if(ok)d.ok++;prune();save()}
 function streakDays(){
   let n=0;const d=new Date();
-  const act=x=>{const v=S.daily[dkey(x)];return v&&((v.n||0)+(v.r||0)+(v.h||0)+(v.s||0))>0};
+  const act=x=>{const v=S.daily[dkey(x)];return v&&((v.n||0)+(v.r||0)+(v.h||0)+(v.s||0)+(v.v||0))>0};
   if(!act(d))d.setDate(d.getDate()-1);
   while(act(d)){n++;d.setDate(d.getDate()-1)}
   return n;
@@ -1139,7 +1228,7 @@ $('setBtn').onclick=()=>{
   renderLook();
   const hn=(S.hidden||[]).length;$('unhide').style.display=hn?'':'none';$('unhide').textContent=`Silinen kelimeleri geri getir (${hn})`;
   $('voiceSel').value=S.voice||'Kore';$('rateSel').value=String(S.rate||1);$('preSel').value=S.preAudio||'on';$('nCatVal').textContent=nCatText();
-  $('workerUrl').value=S.worker;$('goalN').value=S.goalN;$('goalR').value=S.goalR;$('goalH').value=S.goalH||1;$('goalS').value=S.goalS||1;$('autoOn').value=S.autoOn?String(S.weekCnt||20):'0';
+  $('workerUrl').value=S.worker;$('goalN').value=S.goalN;$('goalR').value=S.goalR;$('goalH').value=S.goalH||1;$('goalS').value=S.goalS||1;$('goalV').value=S.goalV||1;$('vchVal').textContent=vChans().filter(c=>c.on).length+' açık';$('autoOn').value=S.autoOn?String(S.weekCnt||20):'0';
   $('wkBody').style.display=S.worker?'none':'';$('wkChev').style.transform=S.worker?'':'rotate(180deg)';
   syncSel();
   $('stats').innerHTML=[[all().length,'kelime'],[S.favs.length,'favori'],[S.known.length,'biliyorum'],[Object.keys(S.learn).length,'öğreniliyor']].map(([n,l])=>`<div><b>${n}</b><small>${l}</small></div>`).join('');
@@ -1154,6 +1243,7 @@ $('goalN').onchange=()=>{S.goalN=+$('goalN').value;save();renderToday()};
 $('goalR').onchange=()=>{S.goalR=+$('goalR').value;save();renderToday()};
 $('goalH').onchange=()=>{S.goalH=+$('goalH').value;save();syncSel();renderToday()};
 $('goalS').onchange=()=>{S.goalS=+$('goalS').value;save();syncSel();renderToday()};
+$('goalV').onchange=()=>{S.goalV=+$('goalV').value;save();syncSel();renderToday()};
 $('resetKnown').onclick=()=>{if(confirm('Tüm "biliyorum" işaretleri sıfırlansın mı?')){S.known=[];save();toast('Sıfırlandı');setMode(mode);$('setBtn').onclick()}};
 $('clearAi').onclick=()=>{if(confirm('AI ile üretilen tüm kelimeler silinsin mi?')){S.custom=[];save();toast('Silindi');setMode(mode==='custom'?'mix':mode);$('setBtn').onclick()}};
 /* AI kelime üretimi */
@@ -1364,7 +1454,7 @@ function markLearn(w,ok){
   if(!ok){const was=inLearn(w);S.learn[key]=0;save();return was?'reset':'added'}
   if(!inLearn(w))return null;
   S.learn[key]++;
-  if(S.learn[key]>=3){delete S.learn[key];save();return 'done'}
+  if(S.learn[key]>=3){delete S.learn[key];S.learnedN=(S.learnedN||0)+1;save();return 'done'}
   save();return 'step';
 }
 function openSrc(){
@@ -1525,9 +1615,10 @@ function mergeState(loc,rem){
   r.custom=(rem.custom||[]).concat((loc.custom||[]).filter(w=>!ck.has(w.w.toLowerCase())));
   r.learn=Object.assign({},loc.learn||{},rem.learn||{});
   r.daily=Object.assign({},loc.daily||{});
-  for(const [d,v] of Object.entries(rem.daily||{})){const l=r.daily[d];r.daily[d]=l?{n:Math.max(l.n||0,v.n||0),r:Math.max(l.r||0,v.r||0),ok:Math.max(l.ok||0,v.ok||0),h:Math.max(l.h||0,v.h||0),s:Math.max(l.s||0,v.s||0),done:[...new Set([...(l.done||[]),...(v.done||[])])]}:v}
+  for(const [d,v] of Object.entries(rem.daily||{})){const l=r.daily[d];r.daily[d]=l?{n:Math.max(l.n||0,v.n||0),r:Math.max(l.r||0,v.r||0),ok:Math.max(l.ok||0,v.ok||0),h:Math.max(l.h||0,v.h||0),s:Math.max(l.s||0,v.s||0),v:Math.max(l.v||0,v.v||0),done:[...new Set([...(l.done||[]),...(v.done||[])])]}:v}
   r.hidden=[...new Set([...(rem.hidden||[]),...(loc.hidden||[])])];
-  r.best=Math.max(loc.best||0,rem.best||0);
+  r.vWatched=Object.assign({},loc.vWatched||{},rem.vWatched||{});r.vch=(rem.vch&&rem.vch.length)?rem.vch:(loc.vch||[]);
+  r.best=Math.max(loc.best||0,rem.best||0);r.learnedN=Math.max(loc.learnedN||0,rem.learnedN||0);
   r.cats=(rem.cats&&rem.cats.length)?rem.cats:loc.cats;
   r.catMap=Object.assign({},loc.catMap||{},rem.catMap||{});
   r.wToken=rem.wToken||loc.wToken||'';
@@ -1651,8 +1742,8 @@ function ring(v,goal,c1,c2,label,id){
     ${done?`<text x="60" y="74" text-anchor="middle" font-size="40" font-weight="800" fill="${c2}" font-family="-apple-system,sans-serif">✓</text>`:`<text x="60" y="70" text-anchor="middle" font-size="27" font-weight="800" style="fill:var(--text)" font-family="-apple-system,sans-serif">${v}/${goal}</text>`}
   </svg><div class="lbl">${label}</div><div class="sub">${v}/${goal}</div></button>`;
 }
-const KINDS=[['n','Yeni kelime','#7FE0A8','#22B86A','📇'],['r','Pratik','#8FD3FF','#1E9BEA','🎯'],['h','Haber','#7FDCD0','#13A594','📰'],['s','Hikâye','#FFC38A','#F08A2E','📚']];
-const goalOf=k=>k==='n'?S.goalN:k==='r'?S.goalR:k==='h'?(S.goalH||1):(S.goalS||1);
+const KINDS=[['n','Kelime','#7FE0A8','#22B86A','📇'],['r','Pratik','#8FD3FF','#1E9BEA','🎯'],['h','Haber','#7FDCD0','#13A594','📰'],['s','Hikâye','#FFC38A','#F08A2E','📚'],['v','Video','#CDB4FF','#8B5CF6','🎬']];
+const goalOf=k=>k==='n'?S.goalN:k==='r'?S.goalR:k==='h'?(S.goalH||1):k==='s'?(S.goalS||1):(S.goalV||1);
 function renderToday(){
   if(!BASE.length)return;
   const d=day(),ln=Object.keys(S.learn).length,st=streakDays();
@@ -1661,9 +1752,10 @@ function renderToday(){
   $('rr').onclick=()=>{pView='setup';showTab('quiz')};
   $('rh').onclick=()=>showTab('news');
   $('rs').onclick=()=>showTab('stories');
+  $('rv').onclick=()=>showTab('videos');
   const left=Math.max(S.goalN-d.n,0);
   const allDone=KINDS.every(([k])=>(d[k]||0)>=goalOf(k));
-  $('streak').innerHTML=allDone?`🏆 Bugünün tüm hedefleri tamam${st?` · 🔥 ${st} günlük seri`:''}`:st?`🔥 ${st} günlük seri${(d.n||0)+(d.r||0)+(d.h||0)+(d.s||0)?'':' · bugün devam ettir'}`:'Bugün ilk kartını aç, serini başlat ✨';
+  $('streak').innerHTML=allDone?`🏆 Bugünün tüm hedefleri tamam${st?` · 🔥 ${st} günlük seri`:''}`:st?`🔥 ${st} günlük seri${(d.n||0)+(d.r||0)+(d.h||0)+(d.s||0)+(d.v||0)?'':' · bugün devam ettir'}`:'Bugün ilk kartını aç, serini başlat ✨';
   const tiles=[
     ['t-peach','📖','Yeni Kelimeler',`${cardN()} kartlık çalışma · ${unseen().length} görülmemiş`,()=>{showTab('home');setMode('new')}],
     ['t-sand','🎲','Pratik & Test',`En iyi seri: ${S.best}`,()=>{pView='setup';showTab('quiz')}],
@@ -1694,27 +1786,27 @@ function renderToday(){
     dc.innerHTML=`<div class="em">🌱</div><div><div class="t1">Haftanın kelimeleri</div><div class="t3" style="color:var(--muted);font-weight:500;margin-top:4px">${dailyBusy?`Hazırlanıyor… ${weekProg}`:`Dokun, bu haftanın ${S.weekCnt||20} kelimesini getir`}</div></div>`;
   }else dc.style.display='none';
   updateBadge();
-  renderWeekChart();
+  renderVidDay();
 }
 
 /* Haftalık grafik: hafta hafta geri/ileri */
 const MONTHS=LANG==='en'?['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']:['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
 function weekStart(off){const m=new Date();m.setHours(12,0,0,0);m.setDate(m.getDate()-(m.getDay()+6)%7-7*off);return m}
 function maxWeekOff(){
-  const ks=Object.keys(S.daily||{}).filter(x=>{const v=S.daily[x];return v&&(v.n||v.r||v.h||v.s)}).sort();if(!ks.length)return 0;
+  const ks=Object.keys(S.daily||{}).filter(x=>{const v=S.daily[x];return v&&(v.n||v.r||v.h||v.s||v.v)}).sort();if(!ks.length)return 0;
   const [y,mo,d]=ks[0].split('-').map(Number),f=new Date(y,mo-1,d,12);f.setDate(f.getDate()-(f.getDay()+6)%7);
   return Math.max(0,Math.round((weekStart(0)-f)/(7*864e5)));
 }
 function renderWeekChart(){
   const mx=maxWeekOff();if(wOff>mx)wOff=mx;if(wOff<0)wOff=0;
   const st=weekStart(wOff),names=LANG==='en'?['Mo','Tu','We','Th','Fr','Sa','Su']:['Pt','Sa','Ça','Pe','Cu','Ct','Pz'],today=dkey(),days=[];
-  for(let i=0;i<7;i++){const x=new Date(st);x.setDate(st.getDate()+i);const key=dkey(x),v=S.daily[key]||{};days.push({d:names[i],n:v.n||0,r:v.r||0,ok:v.ok||0,h:v.h||0,s:v.s||0,today:key===today,future:key>today})}
+  for(let i=0;i<7;i++){const x=new Date(st);x.setDate(st.getDate()+i);const key=dkey(x),v=S.daily[key]||{};days.push({d:names[i],n:v.n||0,r:v.r||0,ok:v.ok||0,h:v.h||0,s:v.s||0,v:v.v||0,today:key===today,future:key>today})}
   const en=new Date(st);en.setDate(st.getDate()+6);
   const range=st.getMonth()===en.getMonth()?`${st.getDate()}–${en.getDate()} ${MONTHS[en.getMonth()]}`:`${st.getDate()} ${MONTHS[st.getMonth()]} – ${en.getDate()} ${MONTHS[en.getMonth()]}`;
   $('wRange').innerHTML=`${wOff===0?'Bu hafta':wOff===1?'Geçen hafta':wOff+' hafta önce'}<small>${range}${en.getFullYear()!==new Date().getFullYear()?' '+en.getFullYear():''}</small>`;
   $('wPrev').disabled=wOff>=mx;$('wNext').disabled=wOff===0;
   const tab=KINDS.find(x=>x[0]===S.wTab)||KINDS[0],f=tab[0],goal=goalOf(f);
-  $('wTabs').innerHTML=KINDS.map(([k,l,,,e])=>`<button class="${k===f?'on':''}" data-k="${k}">${e} ${k==='n'?'Kelime':l}</button>`).join('');
+  $('wTabs').innerHTML=KINDS.map(([k,l,,,e])=>`<button class="${k===f?'on':''}" data-k="${k}">${e}<br>${l}</button>`).join('');
   $('wTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.wTab=b.dataset.k;save();renderWeekChart()});
   const max=Math.max(goal,...days.map(x=>x[f]||0));
   $('weekC').style.setProperty('--c1',tab[2]);$('weekC').style.setProperty('--c2',tab[3]);
@@ -1722,10 +1814,41 @@ function renderWeekChart(){
   $('weekC').innerHTML=days.map(x=>{const v=x[f]||0;return `<div class="wk ${x.today?'today':''} ${v?'':'zero'} ${x.future?'future':''} ${v>=goal&&v?'hit':''}"><span class="v">${v?(v>=goal?'✓'+v:v):''}</span><div class="b" style="height:${Math.max(v/max*100,3)}%"></div><span class="d">${x.d}</span></div>`}).join('');
   const sum=k=>days.reduce((a,x)=>a+(x[k]||0),0),tok=sum('ok'),tr=sum('r'),hitDays=days.filter(x=>KINDS.every(([k])=>(x[k]||0)>=goalOf(k))).length;
   $('wStats').innerHTML=KINDS.map(([k,l,,c2,e])=>`<div><b style="color:${c2}">${sum(k)}</b><small>${e} ${l}</small></div>`).join('');
-  $('weekSum').textContent=(sum('n')+tr+sum('h')+sum('s'))?`${wOff===0?'Bu hafta':'O hafta'}: pratikte %${tr?Math.round(tok/tr*100):0} doğru · ${hitDays} gün tüm hedefler tamam`:(wOff===0?'Bu hafta henüz etkinlik yok':'O hafta etkinlik yok');
+  $('weekSum').textContent=(sum('n')+tr+sum('h')+sum('s')+sum('v'))?`${wOff===0?'Bu hafta':'O hafta'}: pratikte %${tr?Math.round(tok/tr*100):0} doğru · ${hitDays} gün tüm hedefler tamam`:(wOff===0?'Bu hafta henüz etkinlik yok':'O hafta etkinlik yok');
 }
 
 $('wPrev').onclick=()=>{wOff++;renderWeekChart()};
+$('progMore').onclick=e=>{e.stopPropagation();showTab('stats')};
+$('progCard').onclick=e=>{if(!e.target.closest('.ring'))showTab('stats')};
+/* İlerleme sayfası */
+let mOff=0;
+const actOf=v=>v&&((v.n||0)+(v.r||0)+(v.h||0)+(v.s||0)+(v.v||0))>0;
+const allGoalsOf=v=>v&&KINDS.every(([k])=>(v[k]||0)>=goalOf(k));
+function bestStreak(){const ks=Object.keys(S.daily||{}).filter(k=>actOf(S.daily[k])).sort();let best=0,run=0,prev=null;
+  for(const k of ks){const [y,m,d]=k.split('-').map(Number),t=Date.UTC(y,m-1,d);run=prev!=null&&t-prev===864e5?run+1:1;prev=t;if(run>best)best=run}return best}
+function renderStats(){
+  const cur=streakDays(),best=Math.max(bestStreak(),cur);
+  $('stCur').textContent='🔥 '+cur;$('stBest').textContent='🏆 '+best;
+  renderWeekChart();
+  const D=Object.values(S.daily||{}),sum=k=>D.reduce((a,v)=>a+(v[k]||0),0),r=sum('r'),ok=sum('ok');
+  const T=[['📇',(S.seenAll||[]).length,'görülen kelime'],['✅',S.known.length,'bildiğin kelime'],['🎓',S.learnedN||0,'Öğren\'den çıkan'],['🎯',r,'cevaplanan soru'],['📰',sum('h'),'haber'],['📚',sum('s'),'hikâye'],['🎬',Math.max(sum('v'),Object.keys(S.vWatched||{}).length),'video'],['💯',r?Math.round(ok/r*100)+'%':'—','genel doğruluk']];
+  $('tot').innerHTML=T.map(([e,n,l])=>`<div class="wcard"><span>${e}</span><b>${n}</b><small>${l}</small></div>`).join('');
+  const ws=[];for(let i=7;i>=0;i--){const st=weekStart(i);let rr=0,oo=0;for(let j=0;j<7;j++){const x=new Date(st);x.setDate(st.getDate()+j);const v=S.daily[dkey(x)];if(v){rr+=v.r||0;oo+=v.ok||0}}ws.push({p:rr?Math.round(oo/rr*100):null,lbl:`${st.getDate()} ${MONTHS[st.getMonth()]}`,cur:i===0})}
+  $('acc8').innerHTML=ws.map(w=>`<div class="ab ${w.cur?'cur':''}"><span>${w.p==null?'':w.p+'%'}</span><div class="bb"><i style="height:${w.p==null?0:Math.max(w.p,3)}%"></i></div><small>${w.lbl}</small></div>`).join('');
+}
+function renderCal(){
+  const now=new Date(),m=new Date(now.getFullYear(),now.getMonth()-mOff,1),y=m.getFullYear(),mo=m.getMonth(),days=new Date(y,mo+1,0).getDate(),lead=(m.getDay()+6)%7,today=dkey();
+  const MF=LANG==='en'?['January','February','March','April','May','June','July','August','September','October','November','December']:['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  const names=LANG==='en'?['Mo','Tu','We','Th','Fr','Sa','Su']:['Pt','Sa','Ça','Pe','Cu','Ct','Pz'];
+  let a=0,g=0;for(let d=1;d<=days;d++){const v=S.daily[dkey(new Date(y,mo,d))];if(actOf(v))a++;if(allGoalsOf(v))g++}
+  $('mName').innerHTML=`${MF[mo]} ${y}<small>${a} gün çalıştın · ${g} gün tüm hedefler</small>`;
+  let h=names.map(n=>`<b>${n}</b>`).join('')+'<i></i>'.repeat(lead);
+  for(let d=1;d<=days;d++){const k=dkey(new Date(y,mo,d)),v=S.daily[k],c=allGoalsOf(v)?'c2':actOf(v)?'c1':'';h+=`<span class="${c} ${k===today?'today':''} ${k>today?'fut':''}">${d}</span>`}
+  $('cal').innerHTML=h;
+  const oldest=Object.keys(S.daily||{}).sort()[0];let maxM=0;if(oldest){const [oy,om]=oldest.split('-').map(Number);maxM=(now.getFullYear()-oy)*12+now.getMonth()-(om-1)}
+  $('mPrev').disabled=mOff>=maxM;$('mNext').disabled=mOff===0;
+}
+
 $('wNext').onclick=()=>{wOff--;renderWeekChart()};
 
 /* KELİMELERİM: tüm listeler */
@@ -1885,11 +2008,12 @@ async function workerCall(body,ms){
 }
 
 /* ---------- gezinme ---------- */
-const SUBS=['news','read','stories','sread','widget'];
+const SUBS=['news','read','stories','sread','widget','videos','video','stats'];
 let lastMain='today',readFrom='news',pView='hub';
 function goBack(){const cur=[...document.querySelectorAll('.view.on')].map(v=>v.id.slice(2))[0];
   if(cur==='read')return showTab(readFrom);
   if(cur==='sread')return showTab('stories');
+  if(cur==='video')return showTab(vFrom==='today'?'today':'videos');
   showTab(lastMain);}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-back]');if(b)goBack()});
 
@@ -1901,12 +2025,14 @@ function renderHub(){
     <h2 class="h">Ne çalışalım?</h2>
     <button class="hub h1" id="hbQ"><div class="he">🎯</div><div class="ht"><b>Kelime Pratiği</b><small>Çoktan seçmeli test · grup, seviye ve yön seç</small><span class="hm">En iyi seri ${S.best}</span></div>${CHEV}</button>
     <button class="hub h2" id="hbN"><div class="he">📰</div><div class="ht"><b>Haberler</b><small>Güncel haberler 3 seviyede · sesli dinle · 3 soruyla test et</small><span class="hm">${fresh?`Bugün ${fresh} yeni haber`:'BBC haberleri'}</span></div>${CHEV}</button>
+    <button class="hub h4" id="hbV"><div class="he">🎬</div><div class="ht"><b>Videolar</b><small>Haftanın 20 videosu · İngilizce altyazılı</small><span class="hm">${VIDS?weekVideos().filter(v=>!(S.vWatched||{})[v.id]).length+' izlenmemiş':'Talk show, dizi, ders'}</span></div>${CHEV}</button>
     <button class="hub h3" id="hbS"><div class="he">📚</div><div class="ht"><b>Hikâyeler</b><small>Senin kelimelerinle yazılmış iki dilli, sesli hikâyeler</small><span class="hm">${S.stories.length?S.stories.length+' hikâyen var':'İlk hikâyeni yaz'}</span></div>${CHEV}</button>
   </div>`;
   $('pLearn').onclick=()=>startPractice('learn',0);
   $('hbQ').onclick=()=>{pView='setup';renderSetup()};
   $('hbN').onclick=()=>showTab('news');
   $('hbS').onclick=()=>showTab('stories');
+  $('hbV').onclick=()=>showTab('videos');
   if(S.worker&&!NEWS.top)loadNews('top').then(()=>{if($('v-quiz').classList.contains('on')&&!P&&pView==='hub')renderHub()}).catch(()=>{});
 }
 const CHEV='<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>';
@@ -2428,6 +2554,141 @@ $('nCatRow').onclick=()=>{closeSheets();const draw=()=>{$('nCatChips').innerHTML
   draw();openSheet('nCatSheet')};
 $('nCatOk').onclick=()=>{closeSheets();$('setBtn').onclick();if(nCat!=='all'&&!S.newsCats.includes(nCat))nCat='all'};
 
+/* ================= VİDEOLAR ================= */
+const VLV={k:'Kolay',o:'Orta',i:'İleri'},VTY={ders:'Ders',talk:'Talk show',dizi:'Dizi',belgesel:'Belgesel',konusma:'Konuşma',diger:'Diğer'};
+const VCH_DEF=[
+ {r:'@bbclearningenglish',n:'BBC Learning English',lv:'k',ty:'ders'},{r:'@voalearningenglish',n:'VOA Learning English',lv:'k',ty:'ders'},
+ {r:'@EnglishwithLucy',n:'English with Lucy',lv:'k',ty:'ders'},{r:'@SpeakEnglishWithVanessa',n:'Speak English With Vanessa',lv:'k',ty:'ders'},
+ {r:'@rachelsenglish',n:"Rachel's English",lv:'o',ty:'ders'},{r:'@LearnEnglishWithTVSeries',n:'Learn English With TV Series',lv:'o',ty:'dizi'},
+ {r:'@TEDEd',n:'TED-Ed',lv:'o',ty:'belgesel'},{r:'@kurzgesagt',n:'Kurzgesagt',lv:'o',ty:'belgesel'},
+ {r:'@TED',n:'TED',lv:'i',ty:'konusma'},{r:'@FallonTonight',n:'The Tonight Show',lv:'i',ty:'talk'},
+ {r:'@JimmyKimmelLive',n:'Jimmy Kimmel Live',lv:'i',ty:'talk'},{r:'@ColbertLateShow',n:'The Late Show',lv:'i',ty:'talk'},
+ {r:'@friends',n:'Friends',lv:'i',ty:'dizi'},{r:'@theoffice',n:'The Office',lv:'i',ty:'dizi'},
+];
+function vChans(){if(!Array.isArray(S.vch)||!S.vch.length)S.vch=VCH_DEF.map(c=>Object.assign({on:true},c));return S.vch}
+let VIDS=lsGet('ks:vids',null),vBusy=false,vErr='',vFilter={lv:'',ty:''};
+const vSig=()=>vChans().filter(c=>c.on).map(c=>c.r).sort().join('|');
+const fmtDur=s=>Math.floor(s/60)+':'+pad(s%60);
+function vChOf(v){return vChans().find(c=>c.r===v.ref)||{n:'',lv:'o',ty:'diger'}}
+async function loadVids(force){
+  if(!S.worker)throw new Error('Önce Ayarlar\'dan Worker adresini gir');
+  if(!force&&VIDS&&VIDS.sig===vSig()&&Date.now()-VIDS.t<12*3600e3)return VIDS;
+  const refs=vChans().filter(c=>c.on).map(c=>c.r);
+  if(!refs.length){VIDS={t:Date.now(),sig:'',videos:[]};return VIDS}
+  const d=await workerCall({ytvids:{chs:refs}},45000);
+  // kanal adlarını ve resimlerini kaydet
+  let ch=false;for(const c of vChans()){const x=d.channels&&d.channels[c.r];if(x&&x.id&&(c.id!==x.id||c.thumb!==x.thumb)){c.id=x.id;c.thumb=x.thumb;c.n=c.n||x.title;ch=true}}if(ch)save();
+  VIDS={t:Date.now(),sig:vSig(),videos:d.videos||[]};lsSet('ks:vids',VIDS);return VIDS;
+}
+// Haftanın 20 videosu: kanallar arasında dengeli, hafta boyunca sabit, izlenenler tekrar önerilmez
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function weekVideos(){
+  const wk=wkey(),all2=(VIDS&&VIDS.videos)||[],byId=new Map(all2.map(v=>[v.id,v]));
+  if(S.vWeek&&S.vWeek.wk===wk&&S.vWeek.sig===vSig()){const keep=S.vWeek.ids.map(id=>byId.get(id)||(S.vWeek.meta||{})[id]).filter(Boolean);if(keep.length>=Math.min(20,all2.length)||!all2.length)return keep}
+  const seen=S.vWatched||{},groups={};
+  for(const v of all2){if(seen[v.id])continue;(groups[v.ref]=groups[v.ref]||[]).push(v)}
+  const refs=Object.keys(groups).sort((a,b)=>hashStr(wk+a)-hashStr(wk+b));
+  for(const r of refs)groups[r]=groups[r].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12).sort((a,b)=>hashStr(wk+a.id)-hashStr(wk+b.id));
+  const out=[];let round=0;
+  while(out.length<20&&refs.some(r=>groups[r].length>round)){for(const r of refs){if(out.length>=20)break;const v=groups[r][round];if(v)out.push(v)}round++}
+  const meta={};out.forEach(v=>meta[v.id]=v);
+  S.vWeek={wk,sig:vSig(),ids:out.map(v=>v.id),meta};save();
+  return out;
+}
+function vidOfDay(){const ws=weekVideos();if(!ws.length)return null;const dn=(new Date().getDay()+6)%7;for(let i=0;i<ws.length;i++){const v=ws[(dn*3+i)%ws.length];if(!(S.vWatched||{})[v.id])return v}return ws[dn%ws.length]}
+const vTag=v=>{const c=vChOf(v);return `${VTY[c.ty]||''} · ${VLV[c.lv]||''}`};
+function vRow(v){const c=vChOf(v),w=(S.vWatched||{})[v.id];
+  return `<button class="vrow" data-v="${esc(v.id)}"><div class="vth" style="background-image:url('${esc(v.thumb)}')"><span>${fmtDur(v.dur)}</span>${w?'<i>✓</i>':''}</div><div class="nx"><span class="tag">${esc(vTag(v))}</span><b>${esc(v.title)}</b><span class="nst${w?' ok':''}">${esc(c.n||'')}${w?' · ✓ izlendi':''}</span></div></button>`}
+
+/* ---------- Ders: günün videosu kartı ---------- */
+let vTodayBusy=false;
+function renderVidDay(){
+  const el=$('vidDay');if(!el)return;
+  if(!S.worker){el.style.display='none';return}
+  const v=VIDS?vidOfDay():null;
+  if(!v){el.style.display='none';if(!vTodayBusy&&(!VIDS||VIDS.sig!==vSig()||Date.now()-VIDS.t>12*3600e3)){vTodayBusy=true;loadVids().then(()=>{if($('v-today').classList.contains('on'))renderVidDay()}).catch(()=>{}).finally(()=>{vTodayBusy=false})}return}
+  el.style.display='block';
+  el.innerHTML=`<div class="vdhd"><span>🎬 Günün videosu</span><button id="vdAll">Haftanın ${weekVideos().length} videosu ›</button></div>
+    <button class="vdmain" id="vdPlay"><div class="vth big" style="background-image:url('${esc(v.thumb)}')"><span>${fmtDur(v.dur)}</span><b class="play">▶</b>${(S.vWatched||{})[v.id]?'<i>✓</i>':''}</div>
+    <div class="vdtx"><span class="tag">${esc(vTag(v))}</span><b>${esc(v.title)}</b><small>${esc(vChOf(v).n||'')}</small></div></button>`;
+  $('vdPlay').onclick=()=>{vFrom='today';openVideo(v)};
+  $('vdAll').onclick=()=>showTab('videos');
+}
+
+/* ---------- Haftanın videoları ---------- */
+function renderVideos(){
+  const box=$('vList');
+  if(!S.worker){box.innerHTML='<div class="loadbox">Videolar için önce ⚙️ Ayarlar\'dan Worker adresini girmelisin.</div>';return}
+  const ws=VIDS?weekVideos():[];
+  $('vFil').innerHTML=[['','Hepsi'],['k','Kolay'],['o','Orta'],['i','İleri']].map(([k,n])=>`<button class="chip ${vFilter.lv===k?'on':''}" data-l="${k}">${n}</button>`).join('')
+    +'<span class="vsep"></span>'+[['','Tüm türler'],...Object.entries(VTY).filter(([k])=>ws.some(v=>vChOf(v).ty===k))].map(([k,n])=>`<button class="chip ${vFilter.ty===k?'on':''}" data-t="${k}">${n}</button>`).join('');
+  $('vFil').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{vFilter.lv=b.dataset.l;renderVideos()});
+  $('vFil').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{vFilter.ty=b.dataset.t;renderVideos()});
+  if(!ws.length){box.innerHTML=vBusy?'<div class="loadbox"><span class="spin"></span>Videolar getiriliyor…</div>':`<div class="loadbox">${esc(vErr||'Video bulunamadı. Ayarlar → Video kanalları\'ndan kanal aç ya da ekle.')}<br><button class="ghost" id="vRetry" style="max-width:200px;margin:14px auto 0">Tekrar dene</button></div>`;if($('vRetry'))$('vRetry').onclick=()=>fetchVidsUI(true);return}
+  const list=ws.filter(v=>(!vFilter.lv||vChOf(v).lv===vFilter.lv)&&(!vFilter.ty||vChOf(v).ty===vFilter.ty));
+  const wn=ws.filter(v=>(S.vWatched||{})[v.id]).length;
+  box.innerHTML=`<p class="hint" style="margin:10px 4px 4px">Bu hafta ${ws.length} video · ${wn} izlendi. Liste her pazartesi yenilenir.</p>`+(list.length?list.map(vRow).join(''):'<p class="hint">Bu filtrede video yok.</p>');
+  box.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const v=ws.find(x=>x.id===b.dataset.v);if(v){vFrom='videos';openVideo(v)}});
+}
+async function fetchVidsUI(force){vBusy=true;vErr='';renderVideos();try{await loadVids(force)}catch(e){vErr='Videolar alınamadı: '+e.message}vBusy=false;if($('v-videos').classList.contains('on'))renderVideos()}
+
+/* ---------- Oynatıcı (uygulama içinde, İngilizce altyazılı) ---------- */
+let VP=null,vFrom='videos',ytApi=null;
+function loadYTApi(){if(ytApi)return ytApi;return ytApi=new Promise(ok=>{if(window.YT&&YT.Player)return ok();window.onYouTubeIframeAPIReady=()=>ok();const sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';document.head.appendChild(sc);setTimeout(ok,8000)})}
+function markWatched(v){S.vWatched=S.vWatched||{};const first=!S.vWatched[v.id];S.vWatched[v.id]=Date.now();const ks=Object.keys(S.vWatched);if(ks.length>400){ks.sort((a,b)=>S.vWatched[a]-S.vWatched[b]).slice(0,ks.length-400).forEach(k=>delete S.vWatched[k])}save();markRead('v',v.id);return first}
+function stopVideo(){if(VP){clearInterval(VP.tm);try{VP.pl&&VP.pl.destroy()}catch(e){}VP=null}}
+function openVideo(v){
+  stopVideo();showTab('video');
+  const c=vChOf(v),ws=weekVideos(),i=ws.findIndex(x=>x.id===v.id),nx=ws.slice(i+1).concat(ws.slice(0,Math.max(i,0))).find(x=>!(S.vWatched||{})[x.id]&&x.id!==v.id);
+  $('vpBox').innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>${esc(c.n||'Video')}</b><span class="sp40"></span></div>
+    <div class="vframe"><div id="vpPl"></div><div class="vpfb" id="vpFb" style="display:none"><div>Bu video uygulama içinde oynatılamıyor.</div><a class="primary" id="vpOut2" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">▶ YouTube'da aç</a></div></div>
+    <div class="sec"><span class="tag" style="display:block;margin-top:12px">${esc(vTag(v))} · ${fmtDur(v.dur)}</span><h2 class="vtitle">${esc(v.title)}</h2>
+    <p class="hint" id="vpSt">İngilizce altyazı açık gelir. Videonun büyük kısmını izleyince günlük hedefine sayılır.</p>
+    <div class="lnks"><a class="ghost" id="vpOut" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">YouTube'da aç</a>${nx?'<button class="ghost" id="vpNext">Sonraki video ›</button>':''}</div>
+    ${ws.length?`<div class="glabel">Bu haftanın videoları</div>${ws.filter(x=>x.id!==v.id).slice(0,6).map(vRow).join('')}<button class="ghost" id="vpAll">Hepsini gör</button>`:''}</div>`;
+  const out=()=>{if(markWatched(v))$('vpSt').textContent='✓ İzlendi olarak işaretlendi'};
+  $('vpOut').onclick=out;$('vpOut2').onclick=out;
+  if($('vpNext'))$('vpNext').onclick=()=>openVideo(nx);
+  if($('vpAll'))$('vpAll').onclick=()=>showTab('videos');
+  $('vpBox').querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const x=ws.find(y=>y.id===b.dataset.v);if(x)openVideo(x)});
+  const me=VP={v,pl:null,tm:0,done:!!(S.vWatched||{})[v.id]};
+  if(v.emb===false){$('vpPl').style.display='none';$('vpFb').style.display='flex';return}
+  loadYTApi().then(()=>{
+    if(VP!==me)return;
+    if(!(window.YT&&YT.Player)){$('vpPl').outerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}?playsinline=1&cc_load_policy=1&cc_lang_pref=en&hl=en&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;return}
+    me.pl=new YT.Player('vpPl',{videoId:v.id,host:'https://www.youtube-nocookie.com',playerVars:{playsinline:1,cc_load_policy:1,cc_lang_pref:'en',hl:'en',rel:0,modestbranding:1},
+      events:{onError:e=>{if([100,101,150].includes(e.data)){$('vpFb').style.display='flex';const f=$('vpBox').querySelector('iframe');if(f)f.style.display='none'}},
+        onStateChange:e=>{if(e.data===0&&!me.done){me.done=true;markWatched(v);$('vpSt').textContent='✓ İzlendi, günlük hedefine sayıldı'}}}});
+    me.tm=setInterval(()=>{if(VP!==me||me.done||!me.pl||!me.pl.getDuration)return;const d=me.pl.getDuration(),t=me.pl.getCurrentTime();if(d>0&&t/d>=0.7){me.done=true;markWatched(v);$('vpSt').textContent='✓ İzlendi, günlük hedefine sayıldı'}},3000);
+  });
+}
+
+/* ---------- Ayarlar: video kanalları ---------- */
+function openVch(){
+  const draw=()=>{
+    $('vchList').innerHTML=vChans().map((c,i)=>`<div class="vch"><button class="chk ${c.on?'on':''}" data-i="${i}"><span>${c.thumb?`<img src="${esc(c.thumb)}" alt="">`:'<em>▶</em>'}<b>${esc(c.n||c.r)}</b><small>${VLV[c.lv]||''} · ${VTY[c.ty]||''}</small></span><i>✓</i></button>${c.mine?`<button class="vdel" data-d="${i}" aria-label="Sil">🗑</button>`:''}</div>`).join('');
+    $('vchList').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const c=vChans()[+b.dataset.i];c.on=!c.on;save();draw()});
+    $('vchList').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{const c=vChans()[+b.dataset.d];if(!confirm(`"${c.n||c.r}" kanalı silinsin mi?`))return;S.vch.splice(+b.dataset.d,1);save();draw()});
+  };
+  $('vchLv').innerHTML=Object.entries(VLV).map(([k,n])=>`<option value="${k}">${n}</option>`).join('');$('vchLv').value='o';
+  $('vchTy').innerHTML=Object.entries(VTY).map(([k,n])=>`<option value="${k}">${n}</option>`).join('');$('vchTy').value='diger';
+  $('vchIn').value='';draw();closeSheets();openSheet('vchSheet');
+}
+$('vchAdd').onclick=async()=>{
+  const ref=$('vchIn').value.trim();if(!ref)return toast('Kanal linkini ya da @adını yapıştır');
+  const b=$('vchAdd');b.disabled=true;b.innerHTML='<span class="spin"></span>';
+  try{
+    const d=await workerCall({ytch:{ref}},20000);
+    if(vChans().some(c=>c.id===d.id))throw new Error('Bu kanal zaten listende');
+    S.vch.push({r:d.id,id:d.id,n:d.title,thumb:d.thumb,lv:$('vchLv').value,ty:$('vchTy').value,on:true,mine:true});save();
+    toast(`"${d.title}" eklendi`);$('vchIn').value='';openVch();
+  }catch(e){toast('Eklenemedi: '+e.message)}
+  finally{b.disabled=false;b.textContent='Ekle'}
+};
+$('vchOk').onclick=()=>{closeSheets();$('setBtn').onclick();VIDS&&VIDS.sig!==vSig()&&fetchVidsUI(true)};
+
+$('vchRow').onclick=openVch;
+$('vRefresh').onclick=async()=>{const b=$('vRefresh');b.classList.add('spinning');await fetchVidsUI(true);b.classList.remove('spinning')};
 /* sekmeler */
 const TITLES={today:'',home:'Kelime Kartları',quiz:'Pratik',lists:'Kelimelerim',widget:'Widget'};
 function showTab(t){
@@ -2439,7 +2700,8 @@ function showTab(t){
   $('hTitle').textContent=TITLES[t]||'';$('hTitle').style.display=TITLES[t]?'':'none';
   $('hSub').textContent=new Date().toLocaleDateString(LOC,{weekday:'long',day:'numeric',month:'long'});
   if(t==='today')renderToday();
-  const navT=['news','read','stories','sread'].includes(t)?'quiz':t;
+  const navT=['news','read','stories','sread','videos','video'].includes(t)?'quiz':t;
+  if(t!=='video'&&typeof stopVideo==='function')stopVideo();
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===navT));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   $('v-'+t).classList.add('on');$('main').scrollTop=0;
@@ -2449,6 +2711,8 @@ function showTab(t){
   if(t==='lists')renderLists();
   if(t==='news'){renderNews();if(S.worker&&S.newsCats.some(c=>!NEWS[c]||Date.now()-NEWS[c].t>30*60000))fetchNewsUI()}
   if(t==='stories')renderStories();
+  if(t==='stats')renderStats();
+  if(t==='videos'){renderVideos();if(S.worker&&(!VIDS||VIDS.sig!==vSig()||Date.now()-VIDS.t>12*3600e3))fetchVidsUI()}
 }
 document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='quiz'&&!P)pView='hub';showTab(b.dataset.tab)});
 
