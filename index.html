@@ -1621,17 +1621,23 @@ function startPractice(src,len,words,label){
   if(len>0){
     const n=Math.min(len,pool.length);
     let pick=[];
-    if(src!=='learn'&&!words){const lw=shuffle(pool.filter(inLearn)).slice(0,Math.ceil(n*.3));pick=lw.concat(shuffle(pool.filter(w=>!lw.includes(w))))}
+    if(src!=='learn'&&!words&&src!=='known'){
+      // Bildiklerim: en fazla %10 hatırlatma sorusu; Öğren Listem: en fazla %30
+      const kn=pool.filter(isKnown),rest=pool.filter(w=>!isKnown(w));
+      const kq=shuffle(kn).slice(0,Math.floor(n*.1));
+      const lw=shuffle(rest.filter(inLearn)).slice(0,Math.ceil(n*.3));
+      pick=kq.concat(lw,shuffle(rest.filter(w=>!lw.includes(w))),shuffle(kn.filter(w=>!kq.includes(w))));
+    }
     else pick=shuffle(pool);
     queue=shuffle(pick.slice(0,n));
     if(n<len)toast(`Bu grupta ${n} kelime var, ${n} soru soruluyor`);
   }
-  P={src,label,len:queue?queue.length:0,pool,queue,i:0,ok:0,bad:0,wrong:[],recent:[],q:null,streak:0,id:++pSeq};
+  P={src,label,words:!!words,len:queue?queue.length:0,pool,queue,i:0,ok:0,bad:0,wrong:[],recent:[],q:null,streak:0,id:++pSeq};
   nextQ();
 }
 function pickInfinite(){
-  const pool=P.pool,lw=P.src==='learn'?[]:pool.filter(inLearn);
-  let cand=(lw.length&&Math.random()<.25)?lw:pool;
+  const kn=P.src==='learn'||P.words?[]:P.pool.filter(isKnown),pool=kn.length&&kn.length<P.pool.length?P.pool.filter(w=>!isKnown(w)):P.pool,lw=P.src==='learn'?[]:pool.filter(inLearn);
+  let cand=(kn.length&&kn.length<P.pool.length&&Math.random()<.1)?kn:(lw.length&&Math.random()<.25)?lw:pool;
   let c2=cand.filter(w=>!P.recent.includes(k(w)));if(!c2.length)c2=cand;
   return c2[Math.random()*c2.length|0];
 }
