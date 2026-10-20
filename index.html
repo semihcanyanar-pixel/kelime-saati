@@ -389,6 +389,36 @@ a.ghost{display:block;text-align:center;text-decoration:none}
 .swr.gone{transition:height .25s ease,opacity .25s;opacity:0}
 .vfil2{display:flex;flex-direction:column;gap:8px;margin-bottom:2px}
 .vfil2 .lbl{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin:0 2px -2px}
+/* Başlangıç kartı (Kartlar + Pratik ortak) */
+.stc{text-align:center}
+.stc .sbadge{font-size:11px;font-weight:800;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase}
+.stc h1{font-size:clamp(26px,7.4vw,32px);font-weight:800;letter-spacing:-.6px;margin:6px 0 0;line-height:1.12}
+.stc .ssub{display:inline-block;margin-top:9px;background:var(--soft);border-radius:16px;padding:6px 14px;font-size:13px;color:var(--muted);font-weight:600}
+.stc .scnt{color:var(--accent);font-weight:700;font-size:15px;margin-top:6px}
+.so{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;border:1.5px solid var(--line);background:var(--card);border-radius:16px;padding:10px 12px;margin-top:9px;color:var(--text);text-align:left;min-height:50px}
+.so>span{font-size:11px;font-weight:800;letter-spacing:.8px;color:var(--muted);text-transform:uppercase;flex:none}
+.so>b{color:var(--ink);font-size:14px;font-weight:800;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sseg{display:flex;gap:4px;flex-wrap:nowrap}
+.sseg button{border:none;border-radius:11px;padding:5px 8px;font-size:12.5px;font-weight:700;background:var(--soft);color:var(--muted);min-width:32px}
+.sseg button.on{background:var(--accent);color:#fff}
+.sgo{width:100%;margin-top:12px;height:56px;border:none;border-radius:18px;background:linear-gradient(180deg,#F39A62,var(--accent));color:#fff;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 20px rgba(232,121,63,.32)}
+:root[data-theme="deniz"] .sgo{background:linear-gradient(180deg,#555B63,var(--accent));box-shadow:0 8px 20px rgba(40,44,50,.25)}
+.sfoot{text-align:center;color:var(--muted);font-size:12px;margin-top:10px}
+.lstrip{display:flex;align-items:center;gap:10px;margin:14px 18px 0;background:var(--sky);border-radius:18px;padding:11px 14px;font-size:13.5px;font-weight:700;color:var(--blue-ink);border:none;width:calc(100% - 36px);text-align:left}
+.lstrip i{font-style:normal;margin-left:auto;background:var(--card);border-radius:12px;padding:5px 11px;font-size:12.5px}
+.lstrip[disabled]{opacity:.6}
+:root[data-theme="deniz"] .lstrip{background:#E2E7EC}:root[data-theme="gece"] .lstrip{background:#2F4C6E;color:#CFE6FF}
+.flipout{animation:fo .2s ease-in forwards}.flipin{animation:fi .26s ease-out}
+@keyframes fo{to{transform:perspective(1000px) rotateY(90deg);opacity:.6}}
+@keyframes fi{from{transform:perspective(1000px) rotateY(-90deg);opacity:.6}to{transform:none;opacity:1}}
+#cSet{padding:0 30px}
+/* Günün haberi + videosu: ikisi de büyük */
+.dbig{display:block;width:100%;border:none;text-align:left;color:var(--text);padding:12px;margin-top:12px}
+.dbig .dimg{width:100%;aspect-ratio:16/9;border-radius:16px;background:var(--news) center/cover no-repeat;position:relative}
+.dbig .t1{font-size:11.5px;font-weight:800;letter-spacing:.6px;color:var(--muted);text-transform:uppercase;margin:10px 4px 0;display:flex;justify-content:space-between;align-items:center}
+.dbig .t2{font-size:16px;font-weight:700;line-height:1.3;margin:3px 4px 2px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dbig small{display:block;color:var(--muted);font-size:13px;margin:0 4px}
+.dbig .all{border:none;background:var(--accent-soft);color:var(--ink);font-weight:700;font-size:12px;border-radius:10px;padding:5px 9px;text-transform:none;letter-spacing:0}
 .vsep{width:1px;background:var(--line);margin:4px 2px;flex:none}
 .vframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;margin-top:-2px}
 .vframe iframe,.vframe #vpPl{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -501,16 +531,17 @@ nav.tabs button{position:relative}
         <div class="wcard" id="progCard"><div class="pchd"><h3>İlerleme</h3><button id="progMore">Ayrıntılar ›</button></div><div class="rings" id="rings"></div><div class="streak" id="streak"></div></div>
         <h2 class="h">Öğrenme Yolun</h2>
         <div class="tiles" id="tiles"></div>
-        <button class="wcard newsday" id="newsDay" style="display:none"></button>
-        <div class="wcard viddayc" id="vidDay" style="display:none"></div>
+        <button class="wcard dbig" id="newsDay" style="display:none"></button>
+        <div class="wcard dbig" id="vidDay" style="display:none"></div>
       </div>
     </section>
 
     <!-- KARTLAR -->
     <section class="view" id="v-home">
       <button class="backpill" id="backPill"></button>
-      <div class="chips lvl-row" id="lvlChips"></div>
-      <div class="card-wrap">
+      <div class="chips lvl-row" id="lvlChips" style="display:none"></div>
+      <div id="cSet" style="display:none"></div>
+      <div class="card-wrap" id="cWrap">
         <button class="nav prev" id="prevBtn" aria-label="Önceki"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
         <article class="card" id="card">
           <button class="mode-pill" id="modeBtn"><span id="modeLabel">Saatin kelimesi</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -826,7 +857,7 @@ const EN={
 'Oynatmak için ▶ tuşuna tekrar bas':'Press ▶ again to play','Parametre kopyalandı':'Parameter copied','Pratik':'Practice','SONUÇ':'RESULT','Saatin kelimesi':'Word of the hour',
 'Saatin kelimesi uygulamada ve widget\'ta aynıdır.':'The word of the hour is the same in the app and the widget.','Sağlık':'Health','Sağlık & Spor':'Health & Sport',
 'Scriptable\'da yeni betiğe yapıştır':'Paste into a new Scriptable script','Senin kelimelerinle yazılmış iki dilli, sesli hikâyeler':'Bilingual audio stories written with your words',
-'Ses alınamadı, telefon sesiyle devam ediliyor':'Couldn\'t get audio, continuing with the phone voice','Seviye':'Level','Seviye · birden fazla seçebilirsin':'Level · you can pick several','Seviyeler':'Levels',
+'Ses alınamadı, telefon sesiyle devam ediliyor':'Couldn\'t get audio, continuing with the phone voice','Seviye · birden fazla seçebilirsin':'Level · you can pick several','Seviyeler':'Levels',
 'Sonraki':'Next','Sonraki hafta':'Next week','Sonuç yok.':'No results.','Soru sayısı':'Number of questions','Sıfırlandı':'Reset','Sınırsız':'Unlimited','Tamam':'Done','Tekrar':'Review',
 'Tekrar zamanı':'Time to review','Tekrar çöz':'Try again','Tekrar dene':'Try again','Telefon sesi':'Phone voice','Telefon sesine geç':'Switch to phone voice',
 'Tüm "biliyorum" işaretleri sıfırlansın mı?':'Reset all "I know" marks?','Tüm kelimeler':'All words','Tümü':'All','Türkçe satırlar':'Turkish lines','Türkçesini göster':'Show Turkish',
@@ -914,7 +945,7 @@ Object.assign(EN,{
 'Haftanın 20 videosu · İngilizce altyazılı':'20 videos a week · English subtitles','{n} izlenmemiş':'{n} unwatched','Talk show, dizi, ders':'Talk shows, series, lessons','Videolar getiriliyor…':'Getting videos…',
 'Video bulunamadı. Ayarlar → Video kanalları\'ndan kanal aç ya da ekle.':'No videos found. Turn on or add channels in Settings → Video channels.','Bu filtrede video yok.':'No videos for this filter.',
 'Bu hafta {n} video · {n} izlendi. Liste her pazartesi yenilenir.':'{n} videos this week · {n} watched. The list refreshes every Monday.','Videolar için önce ⚙️ Ayarlar\'dan Worker adresini girmelisin.':'To get videos, first enter the Worker address in ⚙️ Settings.',
-'Kolay':'Easy','Orta':'Intermediate','İleri':'Advanced','Ders':'Learn','Talk show':'Talk show','Dizi':'Series','Belgesel':'Documentary','Konuşma':'Talk','Diğer':'Other','Tüm türler':'All types','Tür':'Type','Sil':'Delete','⏰ Saatin kelimesi':'⏰ Word of the hour','🌱 Haftanın kelimeleri':'🌱 Words of the week','{n} dk sonra yenisi':'new one in {n} min',
+'Kolay':'Easy','Orta':'Intermediate','İleri':'Advanced','Ders':'Learn','Talk show':'Talk show','Dizi':'Series','Belgesel':'Documentary','Konuşma':'Talk','Diğer':'Other','Tüm türler':'All types','Bugün ne çalışalım?':'What shall we study today?','Teste hazır mısın?':'Ready for the test?','Ayarları seç, sonra başla':'Pick your settings, then start','Başla':'Start','Hazırlık':'Setup','Görülmemiş kartlar':'Unseen cards','Görülmemiş':'Unseen','Kart sayısı':'Number of cards','Seviye':'Level','🃏 Kelime kartları':'🃏 Word cards','🎯 Kelime pratiği':'🎯 Word practice','Seçimlerin bir dahaki sefere hatırlanır':'Your choices are remembered next time','Bu grupta seviye filtresi uygulanmaz':'Level filter doesn\'t apply to this group','BBC News · 3 seviyede oku ve dinle':'BBC News · read and listen in 3 levels','Tür':'Type','Sil':'Delete','⏰ Saatin kelimesi':'⏰ Word of the hour','🌱 Haftanın kelimeleri':'🌱 Words of the week','{n} dk sonra yenisi':'new one in {n} min',
 'Haftanın videoları açık kanallardan seçilir. Dokunarak aç/kapat.':'This week\'s videos are picked from the channels that are on. Tap to turn on/off.','Kanal ekle':'Add channel','YouTube kanal linki ya da @adı':'YouTube channel link or @handle',
 'Kanal linkini ya da @adını yapıştır':'Paste the channel link or @handle','Bu kanal zaten listende':'This channel is already in your list','Kelime':'Words','🎬 Video':'🎬 Video','Cevaplanan soru':'Answered questions','Haber':'News','Hikâye':'Story','Testi çözülen ya da sonuna kadar dinlenen':'Test solved or listened to the end','Okunan ya da dinlenen':'Read or listened to',
 '📰 Haber bugünkü hedefine sayıldı':'📰 Counted toward today\'s news goal','📚 Hikâye bugünkü hedefine sayıldı':'📚 Counted toward today\'s story goal','Bu hikâye bugün zaten sayıldı':'This story was already counted today','Bu haber bugün zaten sayıldı':'This article was already counted today',
@@ -941,7 +972,7 @@ const ENP=[
 /* ---------- Dil (TR/EN): arayüz metinleri çevrilir, kelime anlamları ve çeviriler Türkçe kalır ---------- */
 const LANG=(()=>{try{return (JSON.parse(localStorage.getItem('kelimeSaati:v1')||'{}').lang)||'tr'}catch(e){return 'tr'}})();
 const LOC=LANG==='en'?'en-GB':'tr-TR';
-const I18N_SKIP='.word,#cardBody .tr,.ex,#rdText,#srText,#liveBox,.trp,.trl,.wrow,.dw b,.dw span,.wpop .pt,.wpop .pd,.wpop .pw,.opt,.qq,.ailist,.acard,.nx b,.fx b,.fx p,.t2,.t3,.hw .w,.hw .t,.hw .e,.lrect,#qRes,.res b,.rt b,.vcard b,code,.dwords,.wlist div,.newsday .t2,#stBox .gt,.lgroup .gt';
+const I18N_SKIP='.dbig .nt,.dbig .vt,.word,#cardBody .tr,.ex,#rdText,#srText,#liveBox,.trp,.trl,.wrow,.dw b,.dw span,.wpop .pt,.wpop .pd,.wpop .pw,.opt,.qq,.ailist,.acard,.nx b,.fx b,.fx p,.t2,.t3,.hw .w,.hw .t,.hw .e,.lrect,#qRes,.res b,.rt b,.vcard b,code,.dwords,.wlist div,.newsday .t2,#stBox .gt,.lgroup .gt';
 const I18N_MISS=new Set();
 function trx(t){
   const m=t.match(/^(\s*)([\s\S]*?)(\s*)$/),core=m[2];if(!core||!/[A-Za-zÇĞİÖŞÜçğıöşü]/.test(core))return null;
@@ -977,7 +1008,7 @@ const TOPICS={}; // kullanıcının kategorileri (S.cats'ten kurulur)
 function rebuildTopics(){for(const x of Object.keys(TOPICS))delete TOPICS[x];(S.cats&&S.cats.length?S.cats:Object.entries(BASE_TOPICS).map(([k,n])=>({k,n}))).forEach(c=>TOPICS[c.k]=c.n)}
 const LEVELS=['A2','B1','B2','C1'];
 const KEY='kelimeSaati:v1';
-const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,cardN:20,seenAll:[],autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[],newsCats:['top','world','tech','science','health','business','culture'],newsLv:2,newsDone:{},newsTr:false,stories:[],stTopic:'Macera',stLv:'B1',stLen:'short',stSrc:['learn','_week'],stTr:true,voice:'Kore',rate:1,theme:'krem',lang:'tr',preAudio:'on',goalH:1,goalS:1,goalV:1,hidden:[],wTab:'n',vch:[],vWatched:{},vWeek:null};
+const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,cardN:20,seenAll:[],autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[],newsCats:['top','world','tech','science','health','business','culture'],newsLv:2,newsDone:{},newsTr:false,stories:[],stTopic:'Macera',stLv:'B1',stLen:'short',stSrc:['learn','_week'],stTr:true,voice:'Kore',rate:1,theme:'krem',lang:'tr',preAudio:'on',goalH:1,goalS:1,goalV:1,hidden:[],wTab:'n',vch:[],vWatched:{},vWeek:null,cGrp:'new',cLevels:null};
 let C=null;
 let S=load(), BASE=[], WIDGET_SRC='';
 function cleanLevels(){for(const f of ['levels','qLevels','aiLv']){const v=(S[f]||[]).filter(l=>LEVELS.includes(l));S[f]=v.length?[...new Set(v)]:(f==='aiLv'?['B1']:[...LEVELS])}}
@@ -1053,11 +1084,12 @@ const slotLeft=()=>Math.max(1,Math.ceil((Math.ceil(Date.now()/slotMs())*slotMs()
 function hourWord(off=0){const p=hourPool();const h=Math.floor(Date.now()/slotMs())+off;const n=p.length;return p[(((h*7919+13)%n)+n)%n]}
 
 const cardN=()=>Math.min(50,Math.max(1,S.cardN||20));
-const unseen=()=>{const seen=new Set(S.seenAll||[]);return all().filter(w=>S.levels.includes(w.lvl)&&!isKnown(w)&&!seen.has(k(w)))};
+const cLv=()=>(S.cLevels&&S.cLevels.length?S.cLevels:S.levels);
+const unseen=(lvs)=>{const seen=new Set(S.seenAll||[]),L=lvs||cLv();return all().filter(w=>L.includes(w.lvl)&&!isKnown(w)&&!seen.has(k(w)))};
 // Öğren grubundaki kelimeler karışık kartlarda da öncelikli gelsin (en fazla %30)
 function pickN(pool){const N=cardN(),lw=shuffle(pool.filter(inLearn)).slice(0,Math.ceil(N*.3));return shuffle(lw.concat(shuffle(pool.filter(w=>!lw.includes(w)))).slice(0,N))}
 function listFor(m){
-  const lv=w=>S.levels.includes(w.lvl),N=cardN();
+  const lv=w=>cLv().includes(w.lvl),N=cardN();
   if(m==='new')return shuffle(unseen()).slice(0,N);
   if(m==='mix')return pickN(all().filter(w=>lv(w)&&!isKnown(w)));
   if(TOPICS[m])return pickN(all().filter(w=>catOf(w)===m&&lv(w)&&!isKnown(w)));
@@ -1071,11 +1103,11 @@ function listFor(m){
   if(m==='list')return listWords.length>N?pickN(listWords):listWords.slice();
   return [];
 }
-function modeName(m){return m==='hour'?'Saatin kelimesi':m==='new'?'Yeni kelimeler':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'Eklediğim kelimeler':m==='known'?'Bildiklerim':m==='learn'?'Öğren':m==='_week'?'Haftanın kelimeleri':m==='uncat'?'Kategorisiz':m==='search'?(searchTitle||'Arama'):m==='list'?(listTitle||'Liste'):TOPICS[m]||m}
+function modeName(m){return m==='hour'?'Saatin kelimesi':m==='new'?'Görülmemiş kartlar':m==='mix'?'Karışık':m==='favs'?'Favorilerim':m==='custom'?'Eklediğim kelimeler':m==='known'?'Bildiklerim':m==='learn'?'Öğren Listem':m==='_week'?'Haftanın kelimeleri':m==='uncat'?'Kategorisiz':m==='search'?(searchTitle||'Arama'):m==='list'?(listTitle||'Liste'):TOPICS[m]||m}
 function setMode(m,startWord){
   if(m!=='search'&&m!=='list')navBack=null;
   if(m==='_week')seeWeek();
-  mode=m;hOff=0;idx=0;
+  mode=m;hOff=0;idx=0;cSetOff();
   if(m!=='search'&&m!=='list'){S.mode=m;save()}
   list=m==='hour'?[]:listFor(m);
   if(startWord){const i=list.findIndex(w=>k(w)===k(startWord));if(i>=0)idx=i}
@@ -1225,7 +1257,47 @@ function renderModeList(){
   $('modeList').querySelectorAll('.li').forEach(b=>b.onclick=()=>{closeSheets();setMode(b.dataset.m)});
   $('catEdit').onclick=()=>{closeSheets();openCats()};
 }
-$('modeBtn').onclick=()=>{renderModeList();openSheet('modeSheet')};
+$('modeBtn').onclick=()=>{if(mode==='search'||mode==='list'){renderModeList();openSheet('modeSheet');return}flipTo($('card'),()=>{cSetOn(true)})};
+/* ---------- Ortak başlangıç kartı ---------- */
+function segH(items,isOn,attr){return `<div class="sseg">${items.map(([v,l])=>`<button class="${isOn(v)?'on':''}" data-${attr}="${v}">${l}</button>`).join('')}</div>`}
+function flipTo(el,fn){if(!el){fn();return}el.classList.add('flipout');setTimeout(()=>{el.classList.remove('flipout');fn()},190)}
+function flipIn(el){if(!el)return;el.classList.remove('flipin');void el.offsetWidth;el.classList.add('flipin');setTimeout(()=>el.classList.remove('flipin'),300)}
+const CGRPS=()=>['new','mix'].concat(weekWords().length?['_week']:[],['learn','favs','known','custom'],Object.keys(TOPICS),all().some(w=>!TOPICS[catOf(w)])?['uncat']:[]);
+function cGrpPool(m){const lv=w=>cLv().includes(w.lvl),A=all();
+  return m==='new'?unseen():m==='mix'?A.filter(w=>lv(w)&&!isKnown(w)):TOPICS[m]?A.filter(w=>catOf(w)===m&&lv(w)&&!isKnown(w)):m==='uncat'?A.filter(w=>!TOPICS[catOf(w)]):m==='custom'?S.custom:m==='favs'?A.filter(isFav):m==='known'?A.filter(isKnown):m==='learn'?A.filter(inLearn):m==='_week'?weekWords():[]}
+let cSetVis=false;
+function cSetOff(){cSetVis=false;if($('cSet')){$('cSet').style.display='none';$('cWrap').style.display=''}}
+function cSetOn(anim){cSetVis=true;$('cWrap').style.display='none';$('cSet').style.display='';renderCSet();if(anim)flipIn($('cSet').querySelector('.card'));drawBack()}
+function renderCSet(){
+  if(!CGRPS().includes(S.cGrp))S.cGrp='new';
+  if(!S.cLevels||!S.cLevels.length)S.cLevels=[...S.levels];
+  const pool=cGrpPool(S.cGrp),N=cardN(),lvOk=['new','mix','uncat'].includes(S.cGrp)||!!TOPICS[S.cGrp];
+  const d=day(),gN=S.goalN||10;
+  $('cSet').innerHTML=`<article class="card stc">
+    <div class="sbadge">🃏 Kelime kartları</div>
+    <h1>Bugün ne çalışalım?</h1>
+    <div class="scnt">${Math.min(N,pool.length)} kart · ${pool.length} kelime hazır</div>
+    <div class="ssub">Bugün ${d.n||0}/${gN} kart çalıştın</div>
+    <button class="so" id="csGrp"><span>Kelime grubu</span><b>${esc(S.cGrp==='new'?'Görülmemiş':modeName(S.cGrp))} · ${pool.length} ▾</b></button>
+    <div class="so" style="${lvOk?'':'opacity:.45'}"><span>Seviye</span>${segH(LEVELS.map(l=>[l,l]),v=>S.cLevels.includes(v),'cl')}</div>
+    <div class="so"><span>Kart sayısı</span>${segH([[10,'10'],[20,'20'],[30,'30'],[50,'50']],v=>v===N,'cn')}</div>
+    <button class="sgo" id="csGo">Başla <span style="font-size:20px">→</span></button>
+    <div class="sfoot">${lvOk?'Seçimlerin bir dahaki sefere hatırlanır':'Bu grupta seviye filtresi uygulanmaz'}</div>
+  </article>`;
+  $('csGrp').onclick=openCGrp;
+  $('cSet').querySelectorAll('[data-cl]').forEach(b=>b.onclick=()=>{const l=b.dataset.cl,i=S.cLevels.indexOf(l);if(i>=0){if(S.cLevels.length===1)return toast('En az bir seviye seç');S.cLevels.splice(i,1)}else S.cLevels.push(l);S.cLevels.sort();save();renderCSet()});
+  $('cSet').querySelectorAll('[data-cn]').forEach(b=>b.onclick=()=>{S.cardN=+b.dataset.cn;save();renderCSet()});
+  $('csGo').onclick=()=>{if(!cGrpPool(S.cGrp).length)return toast(S.cGrp==='new'?'Bu seviyelerde görülmemiş kart kalmadı':'Bu grupta kelime yok');
+    flipTo($('cSet').querySelector('.card'),()=>{setMode(S.cGrp);flipIn($('card'))})};
+}
+function openCGrp(){
+  const li=m=>`<button class="li ${m===S.cGrp?'on':''}" data-m="${m}"><span>${esc(modeName(m))}</span><small>${cGrpPool(m).length} kelime</small></button>`;
+  const g=CGRPS(),top=g.filter(m=>['new','mix','_week'].includes(m)),cats=g.filter(m=>TOPICS[m]||m==='uncat'),mine=['learn','favs','known','custom'];
+  $('modeList').innerHTML=top.map(li).join('')+`<div class="lsec"><span>Kategoriler</span></div>`+cats.map(li).join('')+`<div class="lsep"></div><div class="lsec"><span>Listelerim</span></div>`+mine.map(li).join('');
+  $('modeList').querySelectorAll('.li').forEach(b=>b.onclick=()=>{S.cGrp=b.dataset.m;save();closeSheets();renderCSet()});
+  openSheet('modeSheet');
+}
+function cardActive(){return mode!=='hour'&&list.length&&idx<list.length}
 
 $('searchBtn').onclick=()=>{searchTitle='';openSheet('searchSheet');$('q').value='';$('qRes').innerHTML='';setTimeout(()=>$('q').focus(),250)};
 $('q').oninput=()=>{
@@ -1453,10 +1525,11 @@ function pickCat(w){
 let P=null, pSeq=0;
 const QLENS=[10,20,30,50,0];
 const DIRS=[['en','EN → TR'],['tr','TR → EN'],['mix','Karışık']];
-function srcName(x){return x==='session'?'Kart çalışması':x==='all'?'Tümü':x==='learn'?'Öğren':x==='favs'?'Favoriler':x==='custom'?'Eklediğim kelimeler':x==='retry'?'Yanlışlar':x==='_week'?'Haftanın kelimeleri':TOPICS[x]||x}
+function srcName(x){return x==='session'?'Kart çalışması':x==='all'?'Tümü':x==='new'?'Görülmemiş kartlar':x==='learn'?'Öğren Listem':x==='favs'?'Favoriler':x==='custom'?'Eklediğim kelimeler':x==='retry'?'Yanlışlar':x==='_week'?'Haftanın kelimeleri':TOPICS[x]||x}
 function srcPool(x){
   const lv=w=>(S.qLevels&&S.qLevels.length?S.qLevels:LEVELS).includes(w.lvl);
   if(x==='learn')return all().filter(inLearn);
+  if(x==='new')return unseen(S.qLevels&&S.qLevels.length?S.qLevels:LEVELS);
   if(x==='favs')return all().filter(isFav);
   if(x==='custom')return all().filter(w=>w.ai);
   if(x==='_week')return weekWords();
@@ -1473,7 +1546,7 @@ function markLearn(w,ok){
 }
 function openSrc(){
   const li=x=>`<button class="li ${S.qSrc===x?'on':''}" data-s="${x}"><span>${esc(srcName(x))}</span><small>${srcPool(x).length} kelime</small></button>`;
-  $('srcList').innerHTML=['all'].concat(weekWords().length?['_week']:[]).map(li).join('')
+  $('srcList').innerHTML=['all','new'].concat(weekWords().length?['_week']:[]).map(li).join('')
     +'<div class="lsec"><span>Kategoriler</span></div>'+Object.keys(TOPICS).map(li).join('')
     +'<div class="lsep"></div><div class="lsec"><span>Listelerim</span></div>'+['favs','custom'].map(li).join('');
   $('srcList').querySelectorAll('.li').forEach(b=>b.onclick=()=>{S.qSrc=b.dataset.s;save();closeSheets();renderSetup()});
@@ -1482,34 +1555,31 @@ function openSrc(){
 function renderPractice(){P?renderQ():pView==='setup'?renderSetup():renderHub()}
 function renderSetup(){
   const pr=$('pr'),ln=Object.keys(S.learn).length;
-  if(S.qSrc!=='all'&&!TOPICS[S.qSrc]&&!['favs','custom','_week'].includes(S.qSrc))S.qSrc='all';
+  if(S.qSrc!=='all'&&!TOPICS[S.qSrc]&&!['new','favs','custom','_week'].includes(S.qSrc))S.qSrc='all';
   if(!S.qLevels||!S.qLevels.length)S.qLevels=[...LEVELS];
-  const lvlNote=(S.qSrc==='all'||TOPICS[S.qSrc])?'':'<p class="hint">Favoriler ve AI kelimelerinde seviye filtresi uygulanmaz.</p>';
+  const lvOk=S.qSrc==='all'||S.qSrc==='new'||!!TOPICS[S.qSrc],pool=srcPool(S.qSrc);
   pView='setup';
-  pr.innerHTML=`<div class="sec">
-    <button class="pback" id="pBack"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>Pratik</button>
-    <h2 class="h" style="margin-top:2px">🎯 Kelime Pratiği</h2>
-    <div class="learnbox"><div class="n">${ln}</div>
-      <div class="tx"><b>Öğren</b>Yanlış yaptığın kelimeler burada birikir. Üst üste 3 doğru cevapta gruptan çıkar. Çalış, grup boşalana kadar sorar.</div>
-      <button id="pLearn" ${ln?'':'disabled'}>Çalış</button></div>
-    <h2 class="h" style="margin-top:22px">Kelime grubu</h2>
-    <button class="selbtn" id="pSrc"><span><b>${esc(srcName(S.qSrc))}</b><small>${srcPool(S.qSrc).length} kelime</small></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
-    <h2 class="h" style="margin-top:22px">Seviye</h2>
-    <div class="chips left">${LEVELS.map(l=>`<button class="chip ${S.qLevels.includes(l)?'on':''}" data-lv="${l}">${l}</button>`).join('')}</div>
-    ${lvlNote}
-    <h2 class="h" style="margin-top:22px">Soru sayısı</h2>
-    <div class="chips left">${QLENS.map(n=>`<button class="chip ${S.qLen===n?'on':''}" data-n="${n}">${n||'Sınırsız'}</button>`).join('')}</div>
-    <h2 class="h" style="margin-top:22px">Yön</h2>
-    <div class="chips left">${DIRS.map(([v,l])=>`<button class="chip ${S.dir===v?'on':''}" data-d="${v}">${l}</button>`).join('')}</div>
-    <button class="primary" id="pStart" style="margin-top:26px">Başla</button>
-    <p class="qstat" style="margin-top:12px">En iyi seri: <b>${S.best}</b></p>
-  </div>`;
+  pr.innerHTML=`<div class="ptop"><button class="xbtn" id="pBack">‹ Pratik</button><span class="pprog">Hazırlık</span><span class="pscore"><span class="ok">En iyi seri: ${S.best}</span></span></div>
+    <div class="pbar"><i style="width:0"></i></div>
+    <div class="card-wrap"><article class="card stc" id="pSetCard">
+      <div class="sbadge">🎯 Kelime pratiği</div>
+      <h1>Teste hazır mısın?</h1>
+      <div class="ssub">Ayarları seç, sonra başla</div>
+      <button class="so" id="pSrc"><span>Kelime grubu</span><b>${esc(S.qSrc==='new'?'Görülmemiş':srcName(S.qSrc))} · ${pool.length} ▾</b></button>
+      <div class="so" style="${lvOk?'':'opacity:.45'}"><span>Seviye</span>${segH(LEVELS.map(l=>[l,l]),v=>S.qLevels.includes(v),'lv')}</div>
+      <div class="so"><span>Soru sayısı</span>${segH(QLENS.map(n=>[n,n||'∞']),v=>+v===S.qLen,'n')}</div>
+      <div class="so"><span>Yön</span>${segH(DIRS.map(([v,l])=>[v,l.replace(/ /g,'')]),v=>v===S.dir,'d')}</div>
+      <button class="sgo" id="pStart">Başla <span style="font-size:20px">→</span></button>
+      ${lvOk?'':'<div class="sfoot">Bu grupta seviye filtresi uygulanmaz</div>'}
+    </article></div>
+    <button class="lstrip" id="pLearn" ${ln?'':'disabled'}>📅 Öğren Listem · ${ln?ln+' kelime bekliyor':'şu an boş'}<i>Çalış</i></button>
+    <p class="hint" style="text-align:center;margin:8px 22px 0;font-size:12px">Yanlış yaptığın kelimeler Öğren Listem'e girer, üst üste 3 doğru cevapta çıkar.</p>`;
   $('pSrc').onclick=openSrc;
   $('pBack').onclick=()=>{pView='hub';renderHub()};
   pr.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{S.qLen=+b.dataset.n;save();renderSetup()});
   pr.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{const l=b.dataset.lv,i=S.qLevels.indexOf(l);if(i>=0){if(S.qLevels.length===1)return toast('En az bir seviye seç');S.qLevels.splice(i,1)}else S.qLevels.push(l);S.qLevels.sort();save();renderSetup()});
   pr.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{S.dir=b.dataset.d;save();renderSetup()});
-  $('pStart').onclick=()=>startPractice(S.qSrc,S.qLen);
+  $('pStart').onclick=()=>{if(!srcPool(S.qSrc).length)return toast(S.qSrc==='new'?'Bu seviyelerde görülmemiş kelime kalmadı':'Bu grupta kelime yok');flipTo($('pSetCard'),()=>{startPractice(S.qSrc,S.qLen);flipIn($('pr').querySelector('.card'))})};
   $('pLearn').onclick=()=>startPractice('learn',0);
 }
 function startPractice(src,len,words,label){
@@ -1782,7 +1852,7 @@ function renderToday(){
   ];
   $('tiles').innerHTML=tiles.map(([c,e,t,s,_,nw],i)=>`<button class="tile ${c}" data-i="${i}" style="position:relative">${nw?'<span class="newb">YENİ</span>':''}<div class="em">${e}</div><div><b>${t}</b><small>${s}</small></div></button>`).join('');
   const nd=newsAll()[0],ndc=$('newsDay');
-  if(nd){ndc.style.display='flex';ndc.innerHTML=`<div class="nimg" style="background-image:url('${esc(nd.img)}')"></div><div style="min-width:0"><div class="t1">📰 Günün haberi · ${NCATS[nd.cat]||''}</div><div class="t2">${esc(nd.title)}</div></div><svg class="arr" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>`;ndc.onclick=()=>{readFrom='today';openNews(nd)}}
+  if(nd){ndc.style.display='block';ndc.innerHTML=`<div class="dimg" style="background-image:url('${esc(nd.img)}')"></div><div class="t1"><span>📰 Günün haberi · ${NCATS[nd.cat]||''}</span></div><div class="t2 nt">${esc(nd.title)}</div><small>BBC News · 3 seviyede oku ve dinle</small>`;ndc.onclick=()=>{readFrom='today';openNews(nd)}}
   else ndc.style.display='none';
   if(S.worker&&(!NEWS.top||Date.now()-NEWS.top.t>30*60000)&&!todayNewsBusy){todayNewsBusy=true;loadNews('top').then(()=>{if($('v-today').classList.contains('on'))renderToday()}).catch(()=>{}).finally(()=>{todayNewsBusy=false})}
   $('tiles').querySelectorAll('.tile').forEach(b=>b.onclick=tiles[+b.dataset.i][4]);
@@ -2649,11 +2719,10 @@ function renderVidDay(){
   const v=VIDS?vidOfDay():null;
   if(!v){el.style.display='none';if(!vTodayBusy&&(!VIDS||VIDS.sig!==vSig()||Date.now()-VIDS.t>12*3600e3)){vTodayBusy=true;loadVids().then(()=>{if($('v-today').classList.contains('on'))renderVidDay()}).catch(()=>{}).finally(()=>{vTodayBusy=false})}return}
   el.style.display='block';
-  el.innerHTML=`<div class="vdhd"><span>🎬 Günün videosu</span><button id="vdAll">Haftanın ${weekVideos().length} videosu ›</button></div>
-    <button class="vdmain" id="vdPlay"><div class="vth big" style="background-image:url('${esc(v.thumb)}')"><span>${fmtDur(v.dur)}</span><b class="play">▶</b>${(S.vWatched||{})[v.id]?'<i>✓</i>':''}</div>
-    <div class="vdtx"><span class="tag">${esc(vTag(v))}</span><b>${esc(v.title)}</b><small>${esc(vChOf(v).n||'')}</small></div></button>`;
-  $('vdPlay').onclick=()=>{vFrom='today';openVideo(v)};
-  $('vdAll').onclick=()=>showTab('videos');
+  el.innerHTML=`<div class="vth big dimg" id="vdPlay" style="background-image:url('${esc(v.thumb)}')"><span>${fmtDur(v.dur)}</span><b class="play">▶</b>${(S.vWatched||{})[v.id]?'<i>✓</i>':''}</div>
+    <div class="t1"><span>🎬 Günün videosu · ${esc(vTag(v))}</span><button class="all" id="vdAll">${weekVideos().length} video ›</button></div><div class="t2 vt" id="vdT">${esc(v.title)}</div><small>${esc(vChOf(v).n||'')}</small>`;
+  $('vdPlay').onclick=$('vdT').onclick=()=>{vFrom='today';openVideo(v)};
+  $('vdAll').onclick=e=>{e.stopPropagation();showTab('videos')};
 }
 
 /* ---------- Haftanın videoları ---------- */
@@ -2747,7 +2816,7 @@ function showTab(t){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   $('v-'+t).classList.add('on');$('main').scrollTop=0;
   if(t==='quiz')renderPractice();
-  if(t==='home')setTimeout(()=>{const w=current();if(w&&$('v-home').classList.contains('on'))markSeen(w)},0);
+  if(t==='home')setTimeout(()=>{const w=current();if(w&&$('v-home').classList.contains('on')&&!cSetVis)markSeen(w)},0);
   if(t==='widget')renderWidgetTab();
   if(t==='lists')renderLists();
   if(t==='news'){renderNews();if(S.worker&&S.newsCats.some(c=>!NEWS[c]||Date.now()-NEWS[c].t>30*60000))fetchNewsUI()}
@@ -2755,7 +2824,7 @@ function showTab(t){
   if(t==='stats')renderStats();
   if(t==='videos'){renderVideos();if(S.worker&&(!VIDS||VIDS.sig!==vSig()||Date.now()-VIDS.t>12*3600e3))fetchVidsUI()}
 }
-document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{if(b.dataset.tab==='quiz'&&!P)pView='hub';showTab(b.dataset.tab)});
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{const t=b.dataset.tab,again=$('v-'+t).classList.contains('on');if(t==='quiz'&&!P)pView='hub';showTab(t);if(t==='home'&&(again||!cardActive()||mode==='search'||mode==='list')&&!cSetVis){navBack=null;cSetOn(again)}});
 
 /* Ekranın sol kenarından sağa kaydırınca geri dön */
 (function edgeBack(){let x0=null,y0=0;
