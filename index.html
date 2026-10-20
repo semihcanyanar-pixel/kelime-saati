@@ -417,7 +417,17 @@ a.ghost{display:block;text-align:center;text-decoration:none}
 .so.on .chk{background:var(--accent);border-color:var(--accent)}
 .so .chk svg{display:block;margin:auto}.so .chk{line-height:0;padding:0}
 .so .tl{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}.so .tl small{font-size:11.5px;color:var(--muted);font-weight:600;letter-spacing:0;text-transform:none}
-/* Günün haberi + videosu: ikisi de büyük */
+/* Günün haberi + videosu: satır */
+.drow{display:flex;align-items:center;gap:12px;width:100%;border:none;text-align:left;color:var(--text);padding:12px;margin-top:12px}
+.drow .dth{width:76px;height:76px;border-radius:16px;flex:none;background:var(--news) center/cover no-repeat;position:relative}
+.drow .dth .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:11px}
+.drow .dth i{position:absolute;left:4px;top:4px;background:#2E9E5E;color:#fff;font-style:normal;font-size:10px;font-weight:800;border-radius:50%;width:18px;height:18px;display:grid;place-items:center}
+.drow .dtx{flex:1;min-width:0}
+.drow .t1{font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--muted);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drow .t2{font-size:15.5px;font-weight:700;line-height:1.3;margin-top:3px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.drow small{display:block;color:var(--muted);font-size:12.5px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drow>svg{flex:none;color:var(--chev)}
+.dall{display:block;width:100%;border:none;margin-top:10px;padding:12px;text-align:center;font-weight:700;font-size:14px;color:var(--ink)}
 .dbig{display:block;width:100%;border:none;text-align:left;color:var(--text);padding:12px;margin-top:12px}
 .dbig .dimg{width:100%;aspect-ratio:16/9;border-radius:16px;background:var(--news) center/cover no-repeat;position:relative}
 .dbig .t1{font-size:11.5px;font-weight:800;letter-spacing:.6px;color:var(--muted);text-transform:uppercase;margin:10px 4px 0;display:flex;justify-content:space-between;align-items:center}
@@ -536,8 +546,8 @@ nav.tabs button{position:relative}
         <div class="wcard" id="progCard"><div class="pchd"><h3>İlerleme</h3><button id="progMore">Ayrıntılar ›</button></div><div class="rings" id="rings"></div><div class="streak" id="streak"></div></div>
         <h2 class="h">Öğrenme Yolun</h2>
         <div class="tiles" id="tiles"></div>
-        <button class="wcard dbig" id="newsDay" style="display:none"></button>
-        <div class="wcard dbig" id="vidDay" style="display:none"></div>
+        <button class="wcard drow" id="newsDay" style="display:none"></button>
+        <div id="vidDay" style="display:none"></div>
       </div>
     </section>
 
@@ -977,7 +987,7 @@ const ENP=[
 /* ---------- Dil (TR/EN): arayüz metinleri çevrilir, kelime anlamları ve çeviriler Türkçe kalır ---------- */
 const LANG=(()=>{try{return (JSON.parse(localStorage.getItem('kelimeSaati:v1')||'{}').lang)||'tr'}catch(e){return 'tr'}})();
 const LOC=LANG==='en'?'en-GB':'tr-TR';
-const I18N_SKIP='.dbig .nt,.dbig .vt,.word,#cardBody .tr,.ex,#rdText,#srText,#liveBox,.trp,.trl,.wrow,.dw b,.dw span,.wpop .pt,.wpop .pd,.wpop .pw,.opt,.qq,.ailist,.acard,.nx b,.fx b,.fx p,.t2,.t3,.hw .w,.hw .t,.hw .e,.lrect,#qRes,.res b,.rt b,.vcard b,code,.dwords,.wlist div,.newsday .t2,#stBox .gt,.lgroup .gt';
+const I18N_SKIP='.drow .nt,.drow .vt,.word,#cardBody .tr,.ex,#rdText,#srText,#liveBox,.trp,.trl,.wrow,.dw b,.dw span,.wpop .pt,.wpop .pd,.wpop .pw,.opt,.qq,.ailist,.acard,.nx b,.fx b,.fx p,.t2,.t3,.hw .w,.hw .t,.hw .e,.lrect,#qRes,.res b,.rt b,.vcard b,code,.dwords,.wlist div,.newsday .t2,#stBox .gt,.lgroup .gt';
 const I18N_MISS=new Set();
 function trx(t){
   const m=t.match(/^(\s*)([\s\S]*?)(\s*)$/),core=m[2];if(!core||!/[A-Za-zÇĞİÖŞÜçğıöşü]/.test(core))return null;
@@ -1867,7 +1877,7 @@ function renderToday(){
   ];
   $('tiles').innerHTML=tiles.map(([c,e,t,s,_,nw],i)=>`<button class="tile ${c}" data-i="${i}" style="position:relative">${nw?'<span class="newb">YENİ</span>':''}<div class="em">${e}</div><div><b>${t}</b><small>${s}</small></div></button>`).join('');
   const nd=newsAll()[0],ndc=$('newsDay');
-  if(nd){ndc.style.display='block';ndc.innerHTML=`<div class="dimg" style="background-image:url('${esc(nd.img)}')"></div><div class="t1"><span>📰 Günün haberi · ${NCATS[nd.cat]||''}</span></div><div class="t2 nt">${esc(nd.title)}</div><small>BBC News · 3 seviyede oku ve dinle</small>`;ndc.onclick=()=>{readFrom='today';openNews(nd)}}
+  if(nd){ndc.style.display='flex';ndc.innerHTML=`<div class="dth" style="background-image:url('${esc(nd.img)}')"></div><div class="dtx"><div class="t1">📰 Günün haberi · ${NCATS[nd.cat]||''}</div><div class="t2 nt">${esc(nd.title)}</div></div>${CHEV}`;ndc.onclick=()=>{readFrom='today';openNews(nd)}}
   else ndc.style.display='none';
   if(S.worker&&(!NEWS.top||Date.now()-NEWS.top.t>30*60000)&&!todayNewsBusy){todayNewsBusy=true;loadNews('top').then(()=>{if($('v-today').classList.contains('on'))renderToday()}).catch(()=>{}).finally(()=>{todayNewsBusy=false})}
   $('tiles').querySelectorAll('.tile').forEach(b=>b.onclick=tiles[+b.dataset.i][4]);
@@ -2734,10 +2744,10 @@ function renderVidDay(){
   const v=VIDS?vidOfDay():null;
   if(!v){el.style.display='none';if(!vTodayBusy&&(!VIDS||VIDS.sig!==vSig()||Date.now()-VIDS.t>12*3600e3)){vTodayBusy=true;loadVids().then(()=>{if($('v-today').classList.contains('on'))renderVidDay()}).catch(()=>{}).finally(()=>{vTodayBusy=false})}return}
   el.style.display='block';
-  el.innerHTML=`<div class="vth big dimg" id="vdPlay" style="background-image:url('${esc(v.thumb)}')"><span>${fmtDur(v.dur)}</span><b class="play">▶</b>${(S.vWatched||{})[v.id]?'<i>✓</i>':''}</div>
-    <div class="t1"><span>🎬 Günün videosu · ${esc(vTag(v))}</span><button class="all" id="vdAll">${weekVideos().length} video ›</button></div><div class="t2 vt" id="vdT">${esc(v.title)}</div><small>${esc(vChOf(v).n||'')}</small>`;
-  $('vdPlay').onclick=$('vdT').onclick=()=>{vFrom='today';openVideo(v)};
-  $('vdAll').onclick=e=>{e.stopPropagation();showTab('videos')};
+  el.innerHTML=`<button class="wcard drow" id="vdPlay"><div class="dth" style="background-image:url('${esc(v.thumb)}')"><b class="play">▶</b>${(S.vWatched||{})[v.id]?'<i>✓</i>':''}</div><div class="dtx"><div class="t1">🎬 Günün videosu</div><div class="t2 vt">${esc(v.title)}</div><small>${esc(vTag(v))} · ${fmtDur(v.dur)}</small></div>${CHEV}</button>
+    <button class="wcard dall" id="vdAll">🎬 Haftanın ${weekVideos().length} videosu ›</button>`;
+  $('vdPlay').onclick=()=>{vFrom='today';openVideo(v)};
+  $('vdAll').onclick=()=>showTab('videos');
 }
 
 /* ---------- Haftanın videoları ---------- */
