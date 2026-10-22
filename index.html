@@ -1934,7 +1934,7 @@ function pushNow(){
 }
 function schedulePush(){clearTimeout(pushT);syncMsg='Kaydediliyor…';updateAcct();pushT=setTimeout(pushNow,1200)}
 function applyState(){
-  ensureWorker();applyTheme();if((S.lang||'tr')!==LANG){localSave();return location.reload()}
+  ensureWorker();(S.stories||[]).forEach(st=>{(st.paras||[]).forEach(p=>{p.en=p.en.map(noCJK);p.tr=p.tr.map(noCJK)});if(st.title==='Untitled'&&st.paras&&st.paras[0])st.title=st.paras[0].en[0].split(/\s+/).slice(0,5).join(' ').replace(/[,.;:!?]+$/,'')+'…'});applyTheme();if((S.lang||'tr')!==LANG){localSave();return location.reload()}
   cleanLevels();rebuildTopics();migrateAi();renderLevels();
   if(mode!=='hour'&&mode!=='search'){list=listFor(mode);if(idx>=list.length)idx=0}
   render();
@@ -2510,17 +2510,20 @@ let RD=null; // {item, art, lv, quiz}
 const artCache=()=>lsGet('ks:arts',{});
 function artSave(item,fn){const c=artCache(),a=c[item.id]||{levels:[null,null,null],quiz:[],video:null};fn(a);delete c[item.id];c[item.id]=a;const ks=Object.keys(c);while(ks.length>25)delete c[ks.shift()];lsSet('ks:arts',c);if(RD&&RD.item.id===item.id)RD.art=a;return a}
 // Düz metin biçimini çöz: EN:/TR: satırları, --- paragraf, WORDS: listesi, TITLE/EMOJI/USED
+// Bazı yapay zekâ modelleri arada Çince/Japonca karakter kaçırabiliyor; temizle
+const noCJK=t=>String(t||'').replace(/[\u2E80-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF\uFF00-\uFFEF]+/g,'').replace(/\s{2,}/g,' ').trim();
 function parseLines(t){
   const paras=[],words=[],out={paras,words,title:'',emoji:'',used:[]};let cur=null,inW=false;
-  for(let line of String(t).split('\n')){line=line.trim().replace(/^\*\*|\*\*$/g,'');if(!line)continue;let m;
-    if((m=line.match(/^TITLE:\s*(.*)$/i))){out.title=m[1];continue}
+  for(let line of String(t).split('\n')){line=line.trim().replace(/\*\*/g,'').replace(/^[*_]+|[*_]+$/g,'').trim();if(!line)continue;let m;
+    if((m=line.match(/^(?:#+\s*)?(?:TITLE|BAŞLIK)\s*:\s*(.*)$/i))){out.title=m[1].replace(/^["“]|["”]$/g,'');continue}
+    if(!out.title&&!paras.length&&(m=line.match(/^#+\s*(.+)$/))){out.title=m[1];continue}
     if((m=line.match(/^EMOJI:\s*(.*)$/i))){out.emoji=m[1];continue}
     if((m=line.match(/^USED:\s*(.*)$/i))){out.used=m[1].split(',').map(x=>x.trim()).filter(Boolean);continue}
     if(/^WORDS:?$/i.test(line)){inW=true;continue}
     if(inW){if((m=line.match(/^[-*•]?\s*(.+?)\s*=\s*(.+)$/)))words.push({w:m[1],tr:m[2]});continue}
     if(/^-{3,}$/.test(line)||/^#/.test(line)){cur=null;continue}
-    if((m=line.match(/^EN:\s*(.*)$/i))){if(!cur){cur={en:[],tr:[]};paras.push(cur)}cur.en.push(m[1]);cur.tr.push('');continue}
-    if((m=line.match(/^TR:\s*(.*)$/i))&&cur&&cur.en.length){cur.tr[cur.en.length-1]=m[1];continue}
+    if((m=line.match(/^EN:\s*(.*)$/i))){if(!cur){cur={en:[],tr:[]};paras.push(cur)}cur.en.push(noCJK(m[1]));cur.tr.push('');continue}
+    if((m=line.match(/^TR:\s*(.*)$/i))&&cur&&cur.en.length){cur.tr[cur.en.length-1]=noCJK(m[1]);continue}
   }
   out.paras=paras.filter(p=>p.en.length);return out;
 }
@@ -2951,7 +2954,7 @@ async function makeStory(){
     const t=await streamCall({story:{topic,level:lv,len,words:words.map(w=>w.w),stream:true}},liveType,60000);
     let d;if(/^\s*\{/.test(t))d=JSON.parse(t);else{const x=parseLines(t);d={title:x.title,emoji:x.emoji,paras:x.paras,used:x.used}}
     if(!d.paras||!d.paras.length)throw new Error('Hikâye yazılamadı, tekrar dene');
-    const st={id:Date.now().toString(36),title:d.title||'Untitled',emoji:d.emoji||'📖',lvl:lv,topic,paras:d.paras,used:(d.used&&d.used.length?d.used:words.map(w=>w.w)),t:Date.now()};
+    const st={id:Date.now().toString(36),title:d.title||((d.paras[0]&&d.paras[0].en[0]||'').split(/\s+/).slice(0,5).join(' ').replace(/[,.;:!?]+$/,'')+'…'),emoji:d.emoji||'📖',lvl:lv,topic,paras:d.paras,used:(d.used&&d.used.length?d.used:words.map(w=>w.w)),t:Date.now()};
     S.stories.unshift(st);S.stories=S.stories.slice(0,20);save();
     stBusy=false;await liveFinish();
     if($('v-sread').classList.contains('on')){SR=st;renderSRead()}else toast(`"${st.title}" hazır · Hikâyelerim'de`);
