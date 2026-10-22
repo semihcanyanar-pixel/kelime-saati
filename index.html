@@ -1520,7 +1520,7 @@ async function genWords(topic,level,count,tKey,extra){
   finally{clearTimeout(tm)}
   const d=await r.json().catch(()=>({}));
   if(!r.ok||!Array.isArray(d.words))throw wkErr(r,d);
-  return d.words.filter(w=>w.w).map(w=>Object.assign({w:w.w,tr:w.tr,ipa:w.ipa||'',pos:w.pos||'',def:w.def,ex:w.ex,lvl:level,t:tKey||(TOPICS[w.t]?w.t:''),tl:topic,ai:true},extra||{}));
+  return d.words.filter(w=>w.w&&!badTr(w)).map(w=>Object.assign({w:w.w,tr:w.tr,ipa:w.ipa||'',pos:w.pos||'',def:w.def,ex:w.ex,lvl:level,t:tKey||(TOPICS[w.t]?w.t:''),tl:topic,ai:true},extra||{}));
 }
 function addWords(list){
   const have=new Set(all().map(k)),add=[];
@@ -1766,7 +1766,7 @@ function renderSetup(){
 }
 function startPractice(src,len,words,label){
   if(all().length<4)return toast('Yeterli kelime yok');
-  const pool=words||srcPool(src);
+  const pool=(words||srcPool(src)).filter(w=>!badTr(w));   // anlamı bozuk (düzeltilmeyi bekleyen) kelimeler sorulmaz
   if(!pool.length)return toast(src==='learn'?'Öğren grubu boş':src==='favs'?'Önce birkaç kelimeyi favorilere ekle':'Bu grupta kelime yok');
   let queue=null;
   if(len>0){
@@ -1803,7 +1803,7 @@ function nextQ(){
   P.recent.push(k(ans));if(P.recent.length>12)P.recent.shift();
   const dir=S.dir==='mix'?(Math.random()<.5?'en':'tr'):S.dir;
   const field=dir==='en'?'tr':'w';
-  const others=shuffle(all().filter(w=>k(w)!==k(ans)&&w[field]!==ans[field]));
+  const others=shuffle(all().filter(w=>k(w)!==k(ans)&&w[field]!==ans[field]&&!badTr(w)));
   const same=others.filter(w=>w.pos===ans.pos&&w.lvl===ans.lvl).concat(others.filter(w=>w.pos===ans.pos),others);
   const opts=[];for(const w of same){if(opts.length===3)break;if(!opts.some(o=>o[field]===w[field]))opts.push(w)}
   P.q={ans,dir,field,opts:shuffle([ans,...opts]),done:false};
@@ -1829,7 +1829,7 @@ function renderQ(){
   pr.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i,b));
 }
 function answer(i,btn){
-  const q=P.q;if(q.done)return;q.done=true;
+  const q=P.q;if(q.done)return;q.done=true;setTimeout(sessSave,0);
   const a=q.ans,ok=k(q.opts[i])===k(a);
   $('pr').querySelectorAll('.opt').forEach((b,j)=>{if(k(q.opts[j])===k(a))b.classList.add('ok')});
   if(ok){P.ok++;P.streak++;if(P.streak>S.best){S.best=P.streak;save()}}
@@ -1936,7 +1936,8 @@ function schedulePush(){clearTimeout(pushT);syncMsg='Kaydediliyor…';updateAcct
 function applyState(){
   ensureWorker();(S.stories||[]).forEach(st=>{(st.paras||[]).forEach(p=>{p.en=p.en.map(noCJK);p.tr=p.tr.map(noCJK)});if(st.title==='Untitled'&&st.paras&&st.paras[0])st.title=st.paras[0].en[0].split(/\s+/).slice(0,5).join(' ').replace(/[,.;:!?]+$/,'')+'…'});applyTheme();if((S.lang||'tr')!==LANG){localSave();return location.reload()}
   cleanLevels();rebuildTopics();migrateAi();renderLevels();
-  if(mode!=='hour'&&mode!=='search'){list=listFor(mode);if(idx>=list.length)idx=0}
+  // Açık bir kart çalışması varsa (eşitleme geldiğinde) listeyi baştan karıştırma; sadece silinen kelimeleri çıkar
+  if(mode!=='hour'&&mode!=='search'){if(!list.length)list=listFor(mode);else{const H=new Set(S.hidden||[]);list=list.filter(w=>!H.has(k(w)))}if(idx>list.length)idx=0}
   render();
   if($('v-today').classList.contains('on'))renderToday();
   if($('v-quiz').classList.contains('on')&&!P)renderPractice();
@@ -1961,7 +1962,7 @@ window.initCloud=function(c){
   C.A.onAuthStateChanged(C.auth,user=>{
     if(unsub){unsub();unsub=null}
     if(!user){showLogin(true);updateAcct();return}
-    showLogin(false);firstSnap=true;syncMsg='Eşitleniyor…';updateAcct();setTimeout(()=>{ensureWorker();refreshMe();maybeWelcome()},1600);
+    showLogin(false);firstSnap=true;syncMsg='Eşitleniyor…';updateAcct();setTimeout(()=>{ensureWorker();refreshMe();maybeWelcome();setTimeout(repairBad,4000)},1600);
     unsub=C.F.onSnapshot(userRef(),snap=>{
       if(snap.metadata.hasPendingWrites)return;
       if(!snap.exists()){if(firstSnap){firstSnap=false;pushNow();setTimeout(maybeDaily,1500)}return}
@@ -2510,8 +2511,32 @@ let RD=null; // {item, art, lv, quiz}
 const artCache=()=>lsGet('ks:arts',{});
 function artSave(item,fn){const c=artCache(),a=c[item.id]||{levels:[null,null,null],quiz:[],video:null};fn(a);delete c[item.id];c[item.id]=a;const ks=Object.keys(c);while(ks.length>25)delete c[ks.shift()];lsSet('ks:arts',c);if(RD&&RD.item.id===item.id)RD.art=a;return a}
 // Düz metin biçimini çöz: EN:/TR: satırları, --- paragraf, WORDS: listesi, TITLE/EMOJI/USED
+/* Anlamı bozuk kelimeler (ör. Türkçe anlam yerine okunuş "grɪp" kaydedilmiş) */
+const IPA_RE=/[ɪəʃʒθðŋæʊɔɑʌːˈˌɜɒɐɛɹɾʔɡ]/,CJK_RE=/[\u2E80-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF\uFF00-\uFFEF]/;
+const badTr=w=>{const t=String(w&&w.tr||'').trim();return !t||IPA_RE.test(t)||CJK_RE.test(t)||/^\/.*\/$/.test(t)};
+// Uygulama açılınca bozuk AI kelimelerini arka planda yeniden hazırlatıp düzelt (oturum başına en fazla 15)
+let REP_DONE=false;
+async function repairBad(){
+  if(REP_DONE||!S.worker)return;REP_DONE=true;
+  const bad=S.custom.filter(badTr).slice(0,15);let n=0;
+  for(const w of bad){
+    try{const d=await workerCall({card:w.w,cats:S.cats},30000),x=d&&d.word;
+      if(x&&!badTr(x)&&x.w.toLowerCase()===w.w.toLowerCase()){w.tr=x.tr;if(!w.ipa||!/[a-zɪəʃʒθðŋæʊɔɑʌ]/i.test(w.ipa)||w.ipa===w.tr)w.ipa=x.ipa||w.ipa;if(!w.def)w.def=x.def;if(!w.ex)w.ex=x.ex;n++}}
+    catch(e){if(e.needKey||e.status===401)break}
+  }
+  if(n){save();AMAP=null;if($('v-home').classList.contains('on'))render();toast(`${n} kelimenin anlamı düzeltildi`)}
+}
 // Bazı yapay zekâ modelleri arada Çince/Japonca karakter kaçırabiliyor; temizle
 const noCJK=t=>String(t||'').replace(/[\u2E80-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF\uFF00-\uFFEF]+/g,'').replace(/\s{2,}/g,' ').trim();
+// Zor kelimeler: sadece metinde gerçekten geçen İngilizce kelimeler kalsın (ör. "denize" gibi Türkçe kelimeler elenir)
+function cleanWords(ws,paras){
+  const txt=' '+(paras||[]).flatMap(p=>p.en).join(' ').toLowerCase().replace(/[^a-z'’\- ]+/g,' ')+' ';
+  const seen=new Set();
+  return (ws||[]).filter(w=>{const x=String(w&&w.w||'').toLowerCase().trim();
+    if(!x||!/^[a-z][a-z'’\- ]*$/.test(x)||seen.has(x))return false;seen.add(x);
+    const first=x.split(' ')[0],st=first.length>4?first.replace(/(e|y|s)$/,''):first;
+    return txt.includes(' '+st)});
+}
 function parseLines(t){
   const paras=[],words=[],out={paras,words,title:'',emoji:'',used:[]};let cur=null,inW=false;
   for(let line of String(t).split('\n')){line=line.trim().replace(/\*\*/g,'').replace(/^[*_]+|[*_]+$/g,'').trim();if(!line)continue;let m;
@@ -2622,6 +2647,7 @@ function renderRead(){
     const pend=PEND[RD.item.id+':'+RD.lv];if(pend&&pend.text)liveType(pend.text);
     return;
   }
+  L.words=cleanWords(L.words,L.paras);
   body.innerHTML=`<div id="plBox"></div>
     <div id="rdText" class="${S.newsTr?'':'notr'}">${textHtml(L.paras,'news',new Set(L.words.map(w=>w.w.toLowerCase())))}</div>
     <button class="tgl ${S.newsTr?'on':''}" id="trT"><span>Türkçesini göster</span><i></i></button>
@@ -3207,6 +3233,53 @@ setInterval(()=>{if($('v-today').classList.contains('on'))renderToday();if($('v-
 let lastHour=Math.floor(Date.now()/slotMs());
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){const h=Math.floor(Date.now()/slotMs());if(h!==lastHour){lastHour=h;if(mode==='hour'){hOff=0;render()}}}});
 
+/* ---------- Oturumu koru: iPhone uygulamayı arka planda kapatırsa kaldığın yerden devam et ---------- */
+const SESS='ks:sess';
+function curView(){return ([...document.querySelectorAll('.view.on')][0]||{id:'v-today'}).id.slice(2)}
+function sessSave(){
+  try{
+    if(!BASE.length)return;
+    const K=a=>(a||[]).map(k);
+    const o={t:Date.now(),tab:curView(),lastMain,pView,readFrom,
+      card:{mode,idx,hOff,keys:mode==='hour'?null:K(list),cSet:cSetVis,st:searchTitle,lt:listTitle},
+      rd:RD&&RD.item?{item:RD.item,lv:RD.lv}:null,sr:SR?SR.id:null,
+      P:P?{src:P.src,label:P.label,words:!!P.words,len:P.len,pool:P.pool.length<=4000?K(P.pool):null,queue:P.queue?K(P.queue):null,i:P.i,ok:P.ok,bad:P.bad,wrong:K(P.wrong),recent:P.recent,streak:P.streak,
+        q:P.q?{ans:k(P.q.ans),dir:P.q.dir,field:P.q.field,opts:K(P.q.opts),done:P.q.done}:null}:null};
+    localStorage.setItem(SESS,JSON.stringify(o));
+  }catch(e){}
+}
+function sessRestore(){
+  let o;try{o=JSON.parse(localStorage.getItem(SESS)||'null')}catch(e){}
+  if(!o||Date.now()-o.t>12*3600e3)return false;
+  const M=new Map(all().map(w=>[k(w),w])),W=a=>(a||[]).map(x=>M.get(x)).filter(Boolean);
+  try{
+    lastMain=o.lastMain||'today';pView=o.pView||'hub';readFrom=o.readFrom||'news';
+    const c=o.card||{};
+    if(c.mode){
+      mode=c.mode;hOff=c.hOff||0;searchTitle=c.st||'';listTitle=c.lt||'';
+      if(mode!=='hour'){list=W(c.keys);if(mode==='search')searchList=list.slice();if(mode==='list')listWords=list.slice();if(!list.length&&mode!=='search')list=listFor(mode)}
+      idx=Math.min(c.idx||0,Math.max(list.length,0));
+    }
+    if(o.P){const p=o.P,pool=p.pool?W(p.pool):srcPool(p.src);
+      if(pool.length){P={src:p.src,label:p.label,words:p.words,len:p.len,pool,queue:p.queue?W(p.queue):null,i:p.i||0,ok:p.ok||0,bad:p.bad||0,wrong:W(p.wrong),recent:p.recent||[],streak:p.streak||0,q:null,id:++pSeq};
+        if(P.queue&&P.len)P.len=P.queue.length;
+        const q=p.q,ans=q&&M.get(q.ans),opts=q?W(q.opts):[];
+        if(ans&&opts.length>=2&&!q.done)P.q={ans,dir:q.dir,field:q.field,opts,done:false};   // cevaplanmamış soru aynen geri gelir
+        else{if(q&&q.done)P.i++;nextQ()}                                                     // cevaplanmışsa (sayılmıştı) sıradakine geç
+      }}
+    const t=o.tab;
+    if(t==='read'&&o.rd&&o.rd.item){S.newsLv=o.rd.lv||S.newsLv;openNews(o.rd.item)}
+    else if(t==='sread'&&o.sr&&S.stories.some(x=>x.id===o.sr))openStory(o.sr);
+    else if(t==='video')showTab('videos');
+    else if(['today','home','quiz','lists','news','stories','videos','stats','guide','widget'].includes(t)){showTab(t);if(t==='home'){if(c.cSet)cSetOn(false);else{cSetOff();render()}}}
+    else return false;
+    return true;
+  }catch(e){return false}
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')sessSave()});
+addEventListener('pagehide',sessSave);
+setInterval(()=>{if(document.visibilityState==='visible')sessSave()},20000);
+
 /* başlat */
 applyTheme();
 (async function init(){
@@ -3216,7 +3289,7 @@ applyTheme();
   renderLevels();
   const p=new URLSearchParams(location.search).get('w');
   const target=p&&all().find(w=>w.w.toLowerCase()===p.toLowerCase());
-  if(target){searchList=[target];setMode('search');showTab('home')}else{showTab('today');setMode(TOPICS[mode]||['hour','new','mix','favs','custom','known','learn','_week','uncat'].includes(mode)?mode:'hour')}
+  if(target){searchList=[target];setMode('search');showTab('home')}else{showTab('today');setMode(TOPICS[mode]||['hour','new','mix','favs','custom','known','learn','_week','uncat'].includes(mode)||String(mode).startsWith('u:')?mode:'hour');sessRestore()}
   try{WIDGET_SRC=window.__WIDGET__||await (await fetch('widget.js',{cache:'no-cache'})).text()}catch(e){}
   speechSynthesis&&speechSynthesis.getVoices();
   classifyAi();
