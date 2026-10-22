@@ -435,6 +435,7 @@ a.ghost{display:block;text-align:center;text-decoration:none}
 .dbig .t2{font-size:16px;font-weight:700;line-height:1.3;margin:3px 4px 2px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .dbig small{display:block;color:var(--muted);font-size:13px;margin:0 4px}
 .dbig .all{border:none;background:var(--accent-soft);color:var(--ink);font-weight:700;font-size:12px;border-radius:10px;padding:5px 9px;text-transform:none;letter-spacing:0}
+.chip.rdy{border-color:var(--accent);color:var(--ink);font-weight:800}.chip.rdy.on{background:var(--accent);color:#fff}
 .vsep{width:1px;background:var(--line);margin:4px 2px;flex:none}
 .vframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;margin-top:-2px}
 .vframe iframe,.vframe #vpPl{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -728,6 +729,21 @@ nav.tabs button{position:relative}
 </div></div>
 
 <!-- AI kelime kartı -->
+<div class="sheet" id="keySheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
+  <div style="text-align:center;font-size:44px;margin-top:4px">🔑</div>
+  <h3 style="text-align:center;margin:4px 0 2px">Yapay zekâ özelliklerini aç</h3>
+  <p class="hint" style="text-align:center;margin:0 6px 12px;font-size:14px;line-height:1.45">Hikâyeler, seviyeli haberler, doğal ses ve AI kelime üretimi için ücretsiz bir Google Gemini anahtarı gerekiyor. 1 dakika sürer.</p>
+  <div class="group" style="margin:0">
+    <div class="grow"><i class="gi" style="background:#FDE6D6;font-weight:800;font-style:normal">1</i><span class="gt">Aşağıdaki butona dokun<small>Google AI Studio açılır, Google hesabınla giriş yap</small></span></div>
+    <div class="grow"><i class="gi" style="background:#FDE6D6;font-weight:800;font-style:normal">2</i><span class="gt">"Create API key"e bas<small>Çıkan anahtarın yanındaki kopyala ikonuna dokun</small></span></div>
+    <div class="grow"><i class="gi" style="background:#FDE6D6;font-weight:800;font-style:normal">3</i><span class="gt">Buraya dönüp yapıştır<small>Anahtar AIza ile başlar</small></span></div>
+  </div>
+  <a class="primary" id="gkGet" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-top:14px">Ücretsiz anahtarını al ↗</a>
+  <input class="field" id="gkIn" placeholder="Anahtarı buraya yapıştır" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" style="margin-top:12px">
+  <button class="ghost" id="gkSave" style="margin-top:8px">Kaydet ve devam et</button>
+  <p class="hint" style="text-align:center;font-size:12px;margin:12px 6px 0;line-height:1.45">Kartlar, Pratik, widget ve videolar anahtarsız da çalışır.<br>Ücretsiz anahtarda Google gönderilen metinleri model geliştirmek için kullanabilir; uygulama sadece haber metni ve kelime gönderir.</p>
+</div></div>
+
 <div class="sheet" id="aiCardSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
   <h3>🪄 AI ile kelime kartı üret</h3>
   <label class="lb" style="margin-top:4px">İngilizce kelime</label>
@@ -786,10 +802,13 @@ nav.tabs button{position:relative}
   <div class="glabel">Yapay zekâ</div>
   <div class="group">
     <div class="grow"><i class="gi" style="background:#DED5F6">🌱</i><span class="gt">Haftanın kelimeleri</span><span class="gv" data-for="autoOn"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="autoOn"><option value="10">10 / hafta</option><option value="20">20 / hafta</option><option value="30">30 / hafta</option><option value="40">40 / hafta</option><option value="0">Kapalı</option></select></div>
-    <button class="grow" id="wkRow"><i class="gi" style="background:#F5D6AE">🔌</i><span class="gt">Worker bağlantısı</span><span class="gv" id="wkState"></span><svg class="chev" id="wkChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <button class="grow" id="gkRow"><i class="gi" style="background:#C6E3B6">🔑</i><span class="gt" id="gkT">Gemini anahtarı<small id="gkS"></small></span><span class="gv" id="gkV"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    <div class="gbody" id="gkBody" style="display:none"></div>
+    <button class="grow" id="wkRow"><i class="gi" style="background:#F5D6AE">🔌</i><span class="gt">Sunucu<small id="wkSub">Otomatik bağlı</small></span><span class="gv" id="wkState"></span><svg class="chev" id="wkChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
     <div class="gbody" id="wkBody" style="display:none"><input class="field" id="workerUrl" placeholder="https://kelime-saati-ai.xxx.workers.dev" autocomplete="off" autocapitalize="off"></div>
   </div>
 
+  <div id="famBox"></div>
   <div class="glabel">Verilerim</div>
   <div class="stat4" id="stats"></div>
   <div class="group" style="margin-top:10px">
@@ -961,7 +980,7 @@ Object.assign(EN,{
 'Haftanın 20 videosu · İngilizce altyazılı':'20 videos a week · English subtitles','{n} izlenmemiş':'{n} unwatched','Talk show, dizi, ders':'Talk shows, series, lessons','Videolar getiriliyor…':'Getting videos…',
 'Video bulunamadı. Ayarlar → Video kanalları\'ndan kanal aç ya da ekle.':'No videos found. Turn on or add channels in Settings → Video channels.','Bu filtrede video yok.':'No videos for this filter.',
 'Bu hafta {n} video · {n} izlendi. Liste her pazartesi yenilenir.':'{n} videos this week · {n} watched. The list refreshes every Monday.','Videolar için önce ⚙️ Ayarlar\'dan Worker adresini girmelisin.':'To get videos, first enter the Worker address in ⚙️ Settings.',
-'Kolay':'Easy','Orta':'Intermediate','İleri':'Advanced','Ders':'Learn','Talk show':'Talk show','Dizi':'Series','Belgesel':'Documentary','Konuşma':'Talk','Diğer':'Other','Tüm türler':'All types','Bugün ne çalışalım?':'What shall we study today?','Teste hazır mısın?':'Ready for the test?','Ayarları seç, sonra başla':'Pick your settings, then start','Başla':'Start','Hazırlık':'Setup','Görülmemiş kartlar':'Unseen cards','Görülmemiş':'Unseen','Sadece görülmemiş':'Unseen only','Sadece çalıştığım kartlar':'Only cards I studied','Kartlarda gördüğün kelimelerden sorar':'Asks from words you saw in cards','Sadece hiç karşına çıkmamış kartlar gelir':'Only cards you have never seen','Önce kartlardan birkaç kelime çalış':'Study a few cards first','Görülenler ve Öğren Listem de gelir':'Seen words and My Learn List included','Tüm kelimelerden sorar':'Asks from all words','Bu listede kullanılmaz':'Not used for this list','{n} kart hiç görülmedi':'{n} cards never seen','{n} kelime hiç görülmedi':'{n} words never seen','Kart sayısı':'Number of cards','Seviye':'Level','🃏 Kelime kartları':'🃏 Word cards','🎯 Kelime pratiği':'🎯 Word practice','Seçimlerin bir dahaki sefere hatırlanır':'Your choices are remembered next time','Bu grupta seviye filtresi uygulanmaz':'Level filter doesn\'t apply to this group','BBC News · 3 seviyede oku ve dinle':'BBC News · read and listen in 3 levels','Tür':'Type','Önünde {n} izlenmemiş video var. Birini izleyince aynı kanaldan yenisi eklenir.':'{n} unwatched videos waiting. Watch one and a new one from the same channel is added.','İzlediklerin · {n}':'Watched · {n}','Bu filtrede izlenmemiş video yok.':'No unwatched videos for this filter.','Sil':'Delete','⏰ Saatin kelimesi':'⏰ Word of the hour','🌱 Haftanın kelimeleri':'🌱 Words of the week','{n} dk sonra yenisi':'new one in {n} min',
+'Kolay':'Easy','Orta':'Intermediate','İleri':'Advanced','Ders':'Learn','Talk show':'Talk show','Dizi':'Series','Belgesel':'Documentary','Konuşma':'Talk','Diğer':'Other','Tüm türler':'All types','Bugün ne çalışalım?':'What shall we study today?','Teste hazır mısın?':'Ready for the test?','Ayarları seç, sonra başla':'Pick your settings, then start','Başla':'Start','Hazırlık':'Setup','Görülmemiş kartlar':'Unseen cards','Görülmemiş':'Unseen','Sadece görülmemiş':'Unseen only','Sadece çalıştığım kartlar':'Only cards I studied','Kartlarda gördüğün kelimelerden sorar':'Asks from words you saw in cards','Sadece hiç karşına çıkmamış kartlar gelir':'Only cards you have never seen','Önce kartlardan birkaç kelime çalış':'Study a few cards first','Görülenler ve Öğren Listem de gelir':'Seen words and My Learn List included','Tüm kelimelerden sorar':'Asks from all words','Bu listede kullanılmaz':'Not used for this list','{n} kart hiç görülmedi':'{n} cards never seen','{n} kelime hiç görülmedi':'{n} words never seen','Kart sayısı':'Number of cards','Seviye':'Level','🃏 Kelime kartları':'🃏 Word cards','🎯 Kelime pratiği':'🎯 Word practice','Seçimlerin bir dahaki sefere hatırlanır':'Your choices are remembered next time','Bu grupta seviye filtresi uygulanmaz':'Level filter doesn\'t apply to this group','BBC News · 3 seviyede oku ve dinle':'BBC News · read and listen in 3 levels','Tür':'Type','⚡ Hazır':'⚡ Ready','Gemini anahtarı':'Gemini key','Gemini anahtarın':'Your Gemini key','Aile hesabısın, anahtar gerekmez':'Family account, no key needed','Hazır ✓':'Ready ✓','Ekli ✓':'Added ✓','Ekle':'Add','Sunucu':'Server','Otomatik bağlı':'Connected automatically','Yapay zekâ özelliklerini aç':'Unlock AI features','Ücretsiz anahtarını al ↗':'Get your free key ↗','Kaydet ve devam et':'Save and continue','Değiştir':'Change','Kaldır':'Remove','Aile üyeleri':'Family members','Yapay zekâ kendi ücretsiz kotandan çalışır':'AI runs on your own free quota','Yapay zekâ özellikleri için gerekli':'Needed for AI features','Önünde {n} izlenmemiş video var. Birini izleyince aynı kanaldan yenisi eklenir.':'{n} unwatched videos waiting. Watch one and a new one from the same channel is added.','İzlediklerin · {n}':'Watched · {n}','Bu filtrede izlenmemiş video yok.':'No unwatched videos for this filter.','Sil':'Delete','⏰ Saatin kelimesi':'⏰ Word of the hour','🌱 Haftanın kelimeleri':'🌱 Words of the week','{n} dk sonra yenisi':'new one in {n} min',
 'Haftanın videoları açık kanallardan seçilir. Dokunarak aç/kapat.':'This week\'s videos are picked from the channels that are on. Tap to turn on/off.','Kanal ekle':'Add channel','YouTube kanal linki ya da @adı':'YouTube channel link or @handle',
 'Kanal linkini ya da @adını yapıştır':'Paste the channel link or @handle','Bu kanal zaten listende':'This channel is already in your list','Kelime':'Words','🎬 Video':'🎬 Video','Cevaplanan soru':'Answered questions','Haber':'News','Hikâye':'Story','Testi çözülen ya da sonuna kadar dinlenen':'Test solved or listened to the end','Okunan ya da dinlenen':'Read or listened to',
 '📰 Haber bugünkü hedefine sayıldı':'📰 Counted toward today\'s news goal','📚 Hikâye bugünkü hedefine sayıldı':'📚 Counted toward today\'s story goal','Bu hikâye bugün zaten sayıldı':'This story was already counted today','Bu haber bugün zaten sayıldı':'This article was already counted today',
@@ -1024,7 +1043,7 @@ const TOPICS={}; // kullanıcının kategorileri (S.cats'ten kurulur)
 function rebuildTopics(){for(const x of Object.keys(TOPICS))delete TOPICS[x];(S.cats&&S.cats.length?S.cats:Object.entries(BASE_TOPICS).map(([k,n])=>({k,n}))).forEach(c=>TOPICS[c.k]=c.n)}
 const LEVELS=['A2','B1','B2','C1'];
 const KEY='kelimeSaati:v1';
-const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,cardN:20,seenAll:[],autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[],newsCats:['top','world','tech','science','health','business','culture'],newsLv:2,newsDone:{},newsTr:false,stories:[],stTopic:'Macera',stLv:'B1',stLen:'short',stSrc:['learn','_week'],stTr:true,voice:'Kore',rate:1,theme:'krem',lang:'tr',preAudio:'on',goalH:1,goalS:1,goalV:1,hidden:[],wTab:'n',vch:[],vWatched:{},vWeek:null,vCnt:null,cGrp:'mix',cLevels:null,cUnseen:true,qSeen:true};
+const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,cardN:20,seenAll:[],autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[],newsCats:['top','world','tech','science','health','business','culture'],newsLv:2,newsDone:{},newsTr:false,stories:[],stTopic:'Macera',stLv:'B1',stLen:'short',stSrc:['learn','_week'],stTr:true,voice:'Kore',rate:1,theme:'krem',lang:'tr',preAudio:'on',goalH:1,goalS:1,goalV:1,hidden:[],wTab:'n',vch:[],vWatched:{},vWeek:null,vCnt:null,cGrp:'mix',cLevels:null,cUnseen:true,qSeen:true,gkey:''};
 let C=null;
 let S=load(), BASE=[], WIDGET_SRC='';
 function cleanLevels(){for(const f of ['levels','qLevels','aiLv']){const v=(S[f]||[]).filter(l=>LEVELS.includes(l));S[f]=v.length?[...new Set(v)]:(f==='aiLv'?['B1']:[...LEVELS])}}
@@ -1334,7 +1353,46 @@ $('q').oninput=()=>{
   $('qRes').querySelectorAll('.li').forEach(b=>b.onclick=()=>{closeSheets();showTab('home');setMode('search');idx=+b.dataset.i;render()});
 };
 
-function syncSel(){document.querySelectorAll('#setSheet .gv[data-for]').forEach(v=>{const s=$(v.dataset.for);v.textContent=s.options[s.selectedIndex]?s.options[s.selectedIndex].text:''});$('wkState').textContent=S.worker?'Bağlı ✓':'Ayarlanmadı'}
+function syncSel(){document.querySelectorAll('#setSheet .gv[data-for]').forEach(v=>{const s=$(v.dataset.for);v.textContent=s.options[s.selectedIndex]?s.options[s.selectedIndex].text:''});$('wkState').textContent=S.worker?'Bağlı ✓':'Ayarlanmadı';$('wkState').style.color=S.worker?'#2E9E5E':'';$('wkSub').textContent=cleanUrl(S.worker||'').replace(/\/$/,'')===DEF_WORKER?'Otomatik bağlı':S.worker?'Özel adres':'Adres yok'}
+/* Ayarlar: Gemini anahtarı + aile üyeleri (yönetici) */
+const maskKey=k=>k?k.slice(0,4)+'•'.repeat(14)+k.slice(-4):'';
+function renderAiSet(){
+  const fam=ME&&ME.family,b=$('gkBody');
+  $('gkT').firstChild.textContent=fam?'Gemini anahtarı':'Gemini anahtarın';
+  if(fam){$('gkS').textContent='Aile hesabısın, anahtar gerekmez';$('gkV').textContent='Hazır ✓';$('gkV').style.color='#2E9E5E';b.style.display='none'}
+  else if(S.gkey){$('gkS').textContent='Yapay zekâ kendi ücretsiz kotandan çalışır';$('gkV').textContent='Ekli ✓';$('gkV').style.color='#2E9E5E'}
+  else{$('gkS').textContent=ME?'Yapay zekâ özellikleri için gerekli':'Durum kontrol ediliyor…';$('gkV').textContent=ME?'Ekle':'';$('gkV').style.color='var(--accent)';b.style.display='none'}
+  b.innerHTML=S.gkey?`<input class="field" value="${maskKey(S.gkey)}" readonly style="font-family:monospace;letter-spacing:.5px"><div style="display:flex;gap:8px;margin-top:8px"><button class="ghost" id="gkChg" style="margin:0;flex:1">Değiştir</button><button class="ghost" id="gkDel" style="margin:0;flex:1;color:#C0443A">Kaldır</button></div><p class="hint" style="margin:8px 2px 2px;font-size:12px">Anahtar sadece senin hesabında saklanır, başka kimse göremez.</p>`:'';
+  if($('gkChg'))$('gkChg').onclick=()=>openKeySheet();
+  if($('gkDel'))$('gkDel').onclick=()=>{if(!confirm('Gemini anahtarın kaldırılsın mı?'))return;S.gkey='';save();renderAiSet();toast('Anahtar kaldırıldı')};
+  renderFam();
+}
+$('gkRow').onclick=()=>{if(ME&&ME.family)return toast('Aile hesabısın, anahtar gerekmez');if(!S.gkey)return openKeySheet();const b=$('gkBody');b.style.display=b.style.display==='none'?'':'none'};
+let FAMD=null;
+async function renderFam(){
+  const box=$('famBox');if(!ME||!ME.admin){box.innerHTML='';return}
+  const row=x=>`<div class="grow"><i class="gi" style="background:#F6CBD3">👤</i><span class="gt">${esc(x.e)}<small>${x.t?'Eklendi · '+new Date(x.t).toLocaleDateString(LOC,{day:'numeric',month:'long'}):''}</small></span><button class="famdel" data-e="${esc(x.e)}" style="border:none;background:#FBD9D4;color:#9C3B32;border-radius:10px;padding:6px 10px;font-weight:700;font-size:12.5px">Çıkar</button></div>`;
+  box.innerHTML=`<div class="glabel">Aile üyeleri <span style="background:var(--accent-soft);color:var(--ink);border-radius:8px;padding:2px 7px;font-size:10px;margin-left:6px;letter-spacing:.5px">YÖNETİCİ</span></div>
+    <div class="group"><div class="grow"><i class="gi" style="background:#FDE6D6">👑</i><span class="gt">${esc(ME.email)}<small>Sen · yönetici</small></span></div>
+    <div id="famRows">${FAMD?FAMD.map(row).join(''):'<div class="grow"><span class="gt"><small>Yükleniyor…</small></span></div>'}</div>
+    <div class="gbody" style="display:flex;gap:8px"><input class="field" id="famIn" type="email" placeholder="E-posta adresi" autocapitalize="off" style="flex:1;margin:0"><button class="primary" id="famAdd" style="width:auto;margin:0;padding:0 16px">Ekle</button></div></div>
+    <p class="ghint">Aile üyeleri Gemini anahtarı girmeden yapay zekâ özelliklerini senin kotanla kullanır. Sadece uygulamada hesabını açmış kişileri ekle. Bu bölümü sadece sen görürsün.</p>`;
+  const op=async(o,e)=>{try{const d=await workerCall({fam:{op:o,email:e}},15000);FAMD=d.list||[];renderFam();if(o!=='list')toast(o==='add'?`${e} eklendi`:`${e} çıkarıldı`)}catch(x){toast(x.message)}};
+  $('famAdd').onclick=()=>{const e=$('famIn').value.trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))return toast('Geçerli bir e-posta yaz');op('add',e)};
+  box.querySelectorAll('.famdel').forEach(b=>b.onclick=()=>{if(confirm(b.dataset.e+' aile listesinden çıkarılsın mı?'))op('del',b.dataset.e)});
+  if(!FAMD){FAMD=[];op('list')}
+}
+let keyThen=null;
+function openKeySheet(then){keyThen=then||null;$('gkIn').value='';closeSheets();openSheet('keySheet')}
+$('gkSave').onclick=async()=>{
+  const k=$('gkIn').value.trim().replace(/\s/g,'');
+  if(!/^AIza[\w-]{30,}$/.test(k))return toast('Anahtar AIza ile başlamalı, tamamını kopyaladığından emin ol');
+  const b=$('gkSave');b.disabled=true;b.innerHTML='<span class="spin"></span>';
+  const old=S.gkey;S.gkey=k;
+  try{const d=await workerCall({me:1},15000);if(!d.hasKey)throw new Error('Anahtar kabul edilmedi');ME=d;lsSet('ks:me',ME);save();closeSheets();toast('Anahtar kaydedildi ✓');const f=keyThen;keyThen=null;if(f)f()}
+  catch(e){S.gkey=old;toast('Kaydedilemedi: '+e.message)}
+  b.disabled=false;b.textContent='Kaydet ve devam et';
+};
 $('setBtn').onclick=()=>{
   updateAcct();
   renderLook();
@@ -1342,7 +1400,7 @@ $('setBtn').onclick=()=>{
   $('voiceSel').value=S.voice||'Kore';$('rateSel').value=String(S.rate||1);$('preSel').value=S.preAudio||'on';$('nCatVal').textContent=nCatText();
   const r10=x=>Math.min(50,Math.max(10,Math.round((+x||10)/10)*10));if(S.goalN!==r10(S.goalN)||S.goalR!==r10(S.goalR)){S.goalN=r10(S.goalN);S.goalR=r10(S.goalR);save()}
   $('workerUrl').value=S.worker;$('goalN').value=S.goalN;$('goalR').value=S.goalR;$('goalH').value=S.goalH||1;$('goalS').value=S.goalS||1;$('goalV').value=S.goalV||1;$('vchVal').textContent=vChans().filter(c=>c.on).length+' açık';$('autoOn').value=S.autoOn?String(S.weekCnt||20):'0';
-  $('wkBody').style.display=S.worker?'none':'';$('wkChev').style.transform=S.worker?'':'rotate(180deg)';
+  $('wkBody').style.display='none';$('wkChev').style.transform='';renderAiSet();refreshMe();
   syncSel();
   $('stats').innerHTML=[[all().length,'kelime'],[S.favs.length,'favori'],[S.known.length,'biliyorum'],[Object.keys(S.learn).length,'öğreniliyor']].map(([n,l])=>`<div><b>${n}</b><small>${l}</small></div>`).join('');
   openSheet('setSheet');
@@ -1364,11 +1422,11 @@ const TOPIC_EN={daily:'daily life and home',work:'work and career',travel:'trave
 async function genWords(topic,level,count,tKey,extra){
   const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),60000);
   let r;
-  try{r=await fetch(cleanUrl(S.worker),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({topic,level,count,cats:S.cats,exclude:[...S.custom.map(w=>w.w),...shuffle(BASE.filter(w=>w.lvl===level)).slice(0,100).map(w=>w.w)]}),signal:ctl.signal})}
+  try{r=await wkFetch({topic,level,count,cats:S.cats,exclude:[...S.custom.map(w=>w.w),...shuffle(BASE.filter(w=>w.lvl===level)).slice(0,100).map(w=>w.w)]},ctl.signal)}
   catch(x){throw new Error(x.name==='AbortError'?'AI 60 sn içinde cevap vermedi, tekrar dene':'Worker\'a ulaşılamadı ('+(x.message||'bağlantı')+')')}
   finally{clearTimeout(tm)}
   const d=await r.json().catch(()=>({}));
-  if(!r.ok||!Array.isArray(d.words))throw new Error(d.error||('Hata '+r.status));
+  if(!r.ok||!Array.isArray(d.words))throw wkErr(r,d);
   return d.words.filter(w=>w.w).map(w=>Object.assign({w:w.w,tr:w.tr,ipa:w.ipa||'',pos:w.pos||'',def:w.def,ex:w.ex,lvl:level,t:tKey||(TOPICS[w.t]?w.t:''),tl:topic,ai:true},extra||{}));
 }
 function addWords(list){
@@ -1468,9 +1526,9 @@ let catBusy=false;
 async function callWorker(body){
   const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),60000);
   try{
-    const r=await fetch(cleanUrl(S.worker),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl.signal});
+    const r=await wkFetch(body,ctl.signal);
     const d=await r.json().catch(()=>({}));
-    if(!r.ok)throw new Error(d.error||('Hata '+r.status));
+    if(!r.ok)throw wkErr(r,d);
     return d;
   }catch(x){throw new Error(x.name==='AbortError'?'AI 60 sn içinde cevap vermedi':(x.message||'bağlantı hatası'))}
   finally{clearTimeout(tm)}
@@ -1783,7 +1841,7 @@ function pushNow(){
 }
 function schedulePush(){clearTimeout(pushT);syncMsg='Kaydediliyor…';updateAcct();pushT=setTimeout(pushNow,1200)}
 function applyState(){
-  applyTheme();if((S.lang||'tr')!==LANG){localSave();return location.reload()}
+  ensureWorker();applyTheme();if((S.lang||'tr')!==LANG){localSave();return location.reload()}
   cleanLevels();rebuildTopics();migrateAi();renderLevels();
   if(mode!=='hour'&&mode!=='search'){list=listFor(mode);if(idx>=list.length)idx=0}
   render();
@@ -1810,7 +1868,7 @@ window.initCloud=function(c){
   C.A.onAuthStateChanged(C.auth,user=>{
     if(unsub){unsub();unsub=null}
     if(!user){showLogin(true);updateAcct();return}
-    showLogin(false);firstSnap=true;syncMsg='Eşitleniyor…';updateAcct();
+    showLogin(false);firstSnap=true;syncMsg='Eşitleniyor…';updateAcct();setTimeout(()=>{ensureWorker();refreshMe()},1200);
     unsub=C.F.onSnapshot(userRef(),snap=>{
       if(snap.metadata.hasPendingWrites)return;
       if(!snap.exists()){if(firstSnap){firstSnap=false;pushNow();setTimeout(maybeDaily,1500)}return}
@@ -1851,6 +1909,8 @@ $('logoutBtn').onclick=async()=>{
 
 /* BUGÜN paneli */
 let todayNewsBusy=false;
+let AC=null,ACt=0;
+function isReady(x){const lv=[1,2,3].includes(S.newsLv)?S.newsLv:2;if((x.rl||[]).includes(lv))return true;if(Date.now()-ACt>1500){AC=artCache();ACt=Date.now()}const c=AC[x.id];return !!(c&&c.levels&&c.levels[lv-1])}
 function newsFresh(){return newsAll().filter(x=>!S.newsDone[x.id]&&Date.now()-new Date(x.date)<864e5).length}
 function ring(v,goal,c1,c2,label,id){
   const r=46,C=2*Math.PI*r,p=Math.min(v/goal,1),done=v>=goal&&goal>0;
@@ -2143,13 +2203,33 @@ const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 const rLbl=r=>(r=r||1,(r%1?String(r):r.toFixed(1))+'x');
 const fmtT=s=>{s=Math.max(0,Math.round(s||0));return Math.floor(s/60)+':'+pad(s%60)};
 const ago=iso=>{const m=Math.round((Date.now()-new Date(iso))/60000);return m<60?`${Math.max(m,1)} dk önce`:m<1440?`${Math.round(m/60)} saat önce`:m<2880?'dün':`${Math.round(m/1440)} gün önce`};
+/* ---------- Sunucu (worker) bağlantısı: giriş jetonu + kişisel Gemini anahtarı ---------- */
+var DEF_WORKER='https://kelime-saati-ai.semihcanyanar.workers.dev';
+function ensureWorker(){if(!S.worker&&/^https:/.test(DEF_WORKER)){S.worker=DEF_WORKER;localSave()}}
+let TAP=0;document.addEventListener('pointerdown',()=>{TAP=Date.now()},true);
+async function wkFetch(body,signal){
+  const h={'Content-Type':'application/json'};
+  try{const u=C&&C.auth.currentUser;if(u)h.Authorization='Bearer '+await u.getIdToken()}catch(e){}
+  if(S.gkey)h['X-Gemini-Key']=S.gkey;
+  return fetch(cleanUrl(S.worker),{method:'POST',headers:h,body:JSON.stringify(body),signal});
+}
+function wkErr(r,d,body){
+  const e=new Error(d.error||('Hata '+r.status));e.status=r.status;e.quota=d.quota;e.needKey=!!d.needKey;
+  // Kullanıcı bir şeye dokunduysa (arka plan işi değilse) anahtar kurulumunu aç
+  if(d.needKey&&Date.now()-TAP<4000&&!(body&&(body.tts||body.gloss||body.glossBatch||body.artmeta)))setTimeout(()=>openKeySheet(),50);
+  if(r.status===401)e.message='Önce uygulamaya giriş yap';
+  return e;
+}
+let ME=lsGet('ks:me',null);
+async function refreshMe(){if(!S.worker)return ME;try{ME=await workerCall({me:1},15000);lsSet('ks:me',ME)}catch(e){}if($('setSheet').classList.contains('on'))renderAiSet();return ME}
+function needsKey(){return ME&&!ME.family&&!S.gkey}
 async function workerCall(body,ms){
   if(!S.worker)throw new Error('Önce Ayarlar\'dan Worker adresini gir');
   const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),ms||60000);
   try{
-    const r=await fetch(cleanUrl(S.worker),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl.signal});
+    const r=await wkFetch(body,ctl.signal);
     const d=await r.json().catch(()=>({}));
-    if(!r.ok){const e=new Error(d.error||('Hata '+r.status));e.status=r.status;e.quota=d.quota;throw e}
+    if(!r.ok)throw wkErr(r,d,body);
     return d;
   }catch(x){if(x.name==='AbortError')throw new Error('Cevap gecikti, tekrar dene');throw x}
   finally{clearTimeout(tm)}
@@ -2197,16 +2277,18 @@ async function loadAllNews(force){return Promise.allSettled(S.newsCats.map(c=>lo
 function newsStatus(x){const d=S.newsDone[x.id];return d&&d.s>=0?`<span class="nst ok">✓ Test: ${d.s}/3 doğru${d.lv?` · Seviye ${d.lv}`:''}</span>`:''}
 function renderNews(){
   const doneN=Object.values(S.newsDone).filter(x=>x&&x.s>=0&&x.it).length;
-  $('nCats').innerHTML=[['all','Hepsi'],...S.newsCats.map(c=>[c,NCATS[c]]),['_done','✓ Çözdüklerim']].map(([k,n])=>`<button class="chip ${nCat===k?'on':''}" data-c="${k}">${n}${k==='_done'&&doneN?`<small>${doneN}</small>`:''}</button>`).join('');
-  $('nCats').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{nCat=b.dataset.c;renderNews();if(nCat!=='all'&&nCat!=='_done'&&!NEWS[nCat])fetchNewsUI()});
+  const rdyN=newsAll().filter(isReady).length;
+  $('nCats').innerHTML=[['_ready','⚡ Hazır'],['all','Hepsi'],...S.newsCats.map(c=>[c,NCATS[c]]),['_done','✓ Çözdüklerim']].map(([k,n])=>`<button class="chip ${nCat===k?'on':''} ${k==='_ready'?'rdy':''}" data-c="${k}">${n}${k==='_done'&&doneN?`<small>${doneN}</small>`:''}${k==='_ready'&&rdyN?`<small>${rdyN}</small>`:''}</button>`).join('');
+  $('nCats').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{nCat=b.dataset.c;renderNews();if(!['all','_done','_ready'].includes(nCat)&&!NEWS[nCat])fetchNewsUI()});
   if(nCat==='_done')return renderDoneNews();
-  const items=nCat==='all'?newsAll():((NEWS[nCat]&&NEWS[nCat].items)||[]);
+  const items=nCat==='all'?newsAll():nCat==='_ready'?newsAll().filter(isReady):((NEWS[nCat]&&NEWS[nCat].items)||[]);
+  if(nCat==='_ready'&&!items.length&&!newsBusy){$('nList').innerHTML='<div class="loadbox">⚡ Henüz hazır haber yok.<br><small>Her gece 03:00\'te her kategoriden 2 haber hazırlanır; gün içinde açılan haberler de buraya eklenir.</small></div>';return}
   const box=$('nList');
   if(!S.worker){box.innerHTML='<div class="loadbox">Haberler için önce ⚙️ Ayarlar\'dan Worker adresini girmelisin.</div>';return}
   if(!items.length){box.innerHTML=newsBusy?'<div class="loadbox"><span class="spin"></span>Haberler yükleniyor…</div>':`<div class="loadbox">${newsErr||'Haber bulunamadı.'}<br><button class="ghost" id="nRetry" style="max-width:200px;margin:14px auto 0">Tekrar dene</button></div>`;if($('nRetry'))$('nRetry').onclick=()=>fetchNewsUI(true);return}
   const [f,...rest]=items;
-  box.innerHTML=`<button class="feat" data-id="${f.id}"><div class="fimg" style="background-image:url('${esc(f.img)}')"></div><div class="fx"><span class="tag">${NCATS[f.cat]||''} · ${ago(f.date)}</span><b>${esc(f.title)}</b><p>${esc(f.desc)}</p>${newsStatus(f)}</div></button>`
-    +rest.slice(0,40).map(x=>`<button class="nrow" data-id="${x.id}"><div class="nth" style="background-image:url('${esc(x.img)}')"></div><div class="nx"><span class="tag">${NCATS[x.cat]||''} · ${ago(x.date)}</span><b>${esc(x.title)}</b>${newsStatus(x)}</div></button>`).join('');
+  box.innerHTML=`<button class="feat" data-id="${f.id}"><div class="fimg" style="background-image:url('${esc(f.img)}')"></div><div class="fx"><span class="tag">${isReady(f)?'⚡ ':''}${NCATS[f.cat]||''} · ${ago(f.date)}</span><b>${esc(f.title)}</b><p>${esc(f.desc)}</p>${newsStatus(f)}</div></button>`
+    +rest.slice(0,40).map(x=>`<button class="nrow" data-id="${x.id}"><div class="nth" style="background-image:url('${esc(x.img)}')"></div><div class="nx"><span class="tag">${isReady(x)?'⚡ ':''}${NCATS[x.cat]||''} · ${ago(x.date)}</span><b>${esc(x.title)}</b>${newsStatus(x)}</div></button>`).join('');
   box.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{const x=items.find(i=>i.id===b.dataset.id);if(x){readFrom='news';openNews(x)}});
   // En üstteki haberi sessizce hazırla, açınca beklemeden gelsin
   getLevel(f,[1,2,3].includes(S.newsLv)?S.newsLv:2).catch(()=>{});
@@ -2256,8 +2338,8 @@ async function streamCall(body,onText,ms){
   if(!S.worker)throw new Error('Önce Ayarlar\'dan Worker adresini gir');
   const ctl=new AbortController();let tm=setTimeout(()=>ctl.abort(),ms||60000);
   try{
-    const r=await fetch(cleanUrl(S.worker),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctl.signal});
-    if(!r.ok){const d=await r.json().catch(()=>({}));const e=new Error(d.error||('Hata '+r.status));e.status=r.status;throw e}
+    const r=await wkFetch(body,ctl.signal);
+    if(!r.ok){const d=await r.json().catch(()=>({}));throw wkErr(r,d,body)}
     let all='';
     if(r.body&&r.body.getReader){const rd=r.body.getReader(),dec=new TextDecoder();
       for(;;){const {done,value}=await rd.read();if(done)break;all+=dec.decode(value,{stream:true});clearTimeout(tm);tm=setTimeout(()=>ctl.abort(),ms||60000);onText&&onText(all)}}
@@ -2396,6 +2478,7 @@ function textHtml(paras,kind,kw){
       if(p.tr.some(Boolean))h+=`<p class="trp">${esc(p.tr.join(' '))}</p>`}
     else h+=p.en.map((s,j)=>{const i=SENTS.push({en:s})-1;return `<div class="bi sn" data-s="${i}"><p class="en">${wordSpans(s,kw)}</p><p class="trl">${esc(p.tr[j]||'')}</p></div>`}).join('');
   });
+  glossPrefetch(kind==='news'&&RD&&RD.item?RD.item.link:'');
   return h;
 }
 function stems(w){w=w.toLowerCase().replace(/[’']s$/,'');const o=[w];
@@ -2431,7 +2514,33 @@ async function gtxDirect(w){
     if(!tr)throw 0;return {tr,alts:alts.slice(0,5)};
   }finally{clearTimeout(tm)}
 }
-function glSave(){const ks=Object.keys(GL);while(ks.length>400)delete GL[ks.shift()];lsSet('ks:gloss',GL)}
+function glSave(){const ks=Object.keys(GL);while(ks.length>3000)delete GL[ks.shift()];lsSet('ks:gloss',GL)}
+// Tek kelime: Google'a doğrudan sor; 0,7 sn'de gelmezse sunucuya da sor, önce gelen kazanır.
+// Google bir kez cevap vermezse bu oturumda doğrudan sunucuya git.
+let GTX_BAD=false;
+function glossRace(key,ctx){
+  const viaW=()=>workerCall({gloss:{w:key,ctx}},20000).then(g=>{if(!g||!g.tr)throw new Error('yok');return g});
+  if(GTX_BAD)return viaW();
+  return new Promise((res,rej)=>{
+    let done=false,wP=null,gFail=false,wFail=false;
+    const ok=g=>{if(!done){done=true;res(g)}};
+    const check=()=>{if(!done&&gFail&&wP&&wFail)rej(new Error('yok'))};
+    const startW=()=>{if(wP||done)return;wP=viaW().then(ok,()=>{wFail=true;check()})};
+    gtxDirect(key).then(ok,()=>{GTX_BAD=true;gFail=true;startW();check()});
+    setTimeout(startW,700);
+  });
+}
+// Metindeki tüm kelimelerin anlamını tek seferde al (dokununca anında çıksın)
+const GLQ=new Set();let glT=null;
+function glossPrefetch(key){
+  clearTimeout(glT);glT=setTimeout(async()=>{
+    if(!S.worker)return;
+    const ws=[...new Set(SENTS.flatMap(x=>(x.en.toLowerCase().match(/[a-z][a-z'’-]+/g)||[])))].filter(w=>w.length>2&&!GL[w]&&!GLQ.has(w)&&!findWord(w));
+    if(ws.length<3&&!key)return;
+    ws.forEach(w=>GLQ.add(w));
+    try{const d=await workerCall({glossBatch:{words:ws.slice(0,600),key:key||''}},20000);let n=0;for(const [w,tr] of Object.entries(d.map||{})){if(!GL[w]){GL[w]={tr,alts:[]};n++}}if(n)glSave()}catch(e){ws.forEach(w=>GLQ.delete(w))}
+  },1200);
+}
 async function showPop(el){
   hidePop();el.classList.add('on');
   const raw=el.textContent,sn=el.closest('.sn'),si=+sn.dataset.s,ctx=SENTS[si]?SENTS[si].en:'';
@@ -2473,7 +2582,7 @@ async function showPop(el){
   if(dw)return draw(null,'new',{tr:dw.tr,alts:[]});
   draw(null,'load');
   try{
-    const g=await gtxDirect(key).catch(()=>workerCall({gloss:{w:key,ctx}},20000));
+    const g=await glossRace(key,ctx);
     if(!g.tr)throw 0;GL[key]={tr:g.tr,alts:g.alts||[]};glSave();
     draw(null,'new',GL[key]);
   }catch(e){draw(null,'err')}
