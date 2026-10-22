@@ -455,6 +455,11 @@ a.ghost{display:block;text-align:center;text-decoration:none}
 .pgoal{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.pgoal span{background:var(--soft);border-radius:10px;padding:5px 9px;font-size:12.5px;font-weight:700}
 .welg{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}.welg span{background:var(--card);border-radius:12px;padding:7px 11px;font-size:13.5px;font-weight:700;box-shadow:var(--shadow)}
 @media print{body *{visibility:hidden}#v-guide,#v-guide *{visibility:visible}#v-guide{position:absolute;left:0;top:0;width:100%}#v-guide .shdr,.gdtoc,.gogo,#pgSel,#pgSeg{display:none!important}.gds{break-inside:avoid;box-shadow:none;border:1px solid #ddd}body{background:#fff}}
+#quotaBox .qtop{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin:2px 2px 4px}
+.qtop button{border:none;background:var(--accent-soft);color:var(--ink);font-weight:800;font-size:12px;border-radius:10px;padding:5px 10px;letter-spacing:0;text-transform:none;display:flex;align-items:center;gap:5px}
+.qrow{display:flex;gap:10px;align-items:flex-start;text-decoration:none;color:var(--text);padding:10px 2px;border-top:1px solid var(--line)}.qrow .gt{flex:1;font-size:15px;font-weight:600}.qrow .gt small{display:block;font-weight:500}.qrow .gv{white-space:nowrap;font-size:13.5px;color:var(--muted)}.qi{font-style:normal;font-size:18px;width:26px;text-align:center;flex:none}
+.qbar{display:block;height:6px;border-radius:3px;background:var(--line);margin-top:6px;overflow:hidden}.qbar em{display:block;height:100%;border-radius:3px}
+.qlink{color:var(--muted);font-size:14px;margin-left:4px}
 .vsep{width:1px;background:var(--line);margin:4px 2px;flex:none}
 .vframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;margin-top:-2px}
 .vframe iframe,.vframe #vpPl{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -839,6 +844,13 @@ nav.tabs button{position:relative}
     <button class="grow" id="nCatRow"><i class="gi" style="background:#CDE8F7">📰</i><span class="gt">Haber konuları</span><span class="gv" id="nCatVal"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
 
+  <div class="glabel">Kelimelerim</div>
+  <div class="group">
+    <button class="grow" id="unhide"><i class="gi" style="background:#C6E3B6">♻️</i><span class="gt">Silinen kelimeleri geri getir<small id="unhideS"></small></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+    <button class="grow" id="resetKnown"><i class="gi" style="background:#FBD9D4">✅</i><span class="gt" style="color:#C0443A">"Biliyorum" işaretlerini sıfırla<small id="resetKnownS"></small></span></button>
+    <button class="grow" id="clearAi"><i class="gi" style="background:#FBD9D4">✨</i><span class="gt" style="color:#C0443A">AI kelimelerini sil<small id="clearAiS"></small></span></button>
+  </div>
+
   <div class="glabel">Yapay zekâ</div>
   <div class="group">
     <div class="grow"><i class="gi" style="background:#DED5F6">🌱</i><span class="gt">Haftanın kelimeleri</span><span class="gv" data-for="autoOn"></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg><select class="gsel" id="autoOn"><option value="10">10 / hafta</option><option value="20">20 / hafta</option><option value="30">30 / hafta</option><option value="40">40 / hafta</option><option value="0">Kapalı</option></select></div>
@@ -846,13 +858,8 @@ nav.tabs button{position:relative}
     <div class="gbody" id="gkBody" style="display:none"></div>
     <button class="grow" id="wkRow"><i class="gi" style="background:#F5D6AE">🔌</i><span class="gt">Sunucu<small id="wkSub">Otomatik bağlı</small></span><span class="gv" id="wkState"></span><svg class="chev" id="wkChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
     <div class="gbody" id="wkBody" style="display:none"><input class="field" id="workerUrl" placeholder="https://kelime-saati-ai.xxx.workers.dev" autocomplete="off" autocapitalize="off"></div>
-  </div>
-
-  <div class="glabel">Kelimelerim</div>
-  <div class="group">
-    <button class="grow" id="unhide"><i class="gi" style="background:#C6E3B6">♻️</i><span class="gt">Silinen kelimeleri geri getir<small id="unhideS"></small></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
-    <button class="grow" id="resetKnown"><i class="gi" style="background:#FBD9D4">✅</i><span class="gt" style="color:#C0443A">"Biliyorum" işaretlerini sıfırla<small id="resetKnownS"></small></span></button>
-    <button class="grow" id="clearAi"><i class="gi" style="background:#FBD9D4">✨</i><span class="gt" style="color:#C0443A">AI kelimelerini sil<small id="clearAiS"></small></span></button>
+    <button class="grow" id="qtRow" style="display:none"><i class="gi" style="background:#E2E7EC">📊</i><span class="gt">Kota durumu<small id="qtS">Yapay zekâ ve sunucu kullanımı</small></span><span class="gv" id="qtV"></span><svg class="chev" id="qtChev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <div class="gbody qbody" id="quotaBox" style="display:none"></div>
   </div>
 
   <div id="famBox"></div>
@@ -1023,7 +1030,7 @@ Object.assign(EN,{
 'Haftanın 20 videosu · İngilizce altyazılı':'20 videos a week · English subtitles','{n} izlenmemiş':'{n} unwatched','Talk show, dizi, ders':'Talk shows, series, lessons','Videolar getiriliyor…':'Getting videos…',
 'Video bulunamadı. Ayarlar → Video kanalları\'ndan kanal aç ya da ekle.':'No videos found. Turn on or add channels in Settings → Video channels.','Bu filtrede video yok.':'No videos for this filter.',
 'Bu hafta {n} video · {n} izlendi. Liste her pazartesi yenilenir.':'{n} videos this week · {n} watched. The list refreshes every Monday.','Videolar için önce ⚙️ Ayarlar\'dan Worker adresini girmelisin.':'To get videos, first enter the Worker address in ⚙️ Settings.',
-'Kolay':'Easy','Orta':'Intermediate','İleri':'Advanced','Ders':'Learn','Talk show':'Talk show','Dizi':'Series','Belgesel':'Documentary','Konuşma':'Talk','Diğer':'Other','Tüm türler':'All types','Bugün ne çalışalım?':'What shall we study today?','Teste hazır mısın?':'Ready for the test?','Ayarları seç, sonra başla':'Pick your settings, then start','Başla':'Start','Hazırlık':'Setup','Görülmemiş kartlar':'Unseen cards','Görülmemiş':'Unseen','Sadece görülmemiş':'Unseen only','Sadece çalıştığım kartlar':'Only cards I studied','Kartlarda gördüğün kelimelerden sorar':'Asks from words you saw in cards','Sadece hiç karşına çıkmamış kartlar gelir':'Only cards you have never seen','Önce kartlardan birkaç kelime çalış':'Study a few cards first','Görülenler ve Öğren Listem de gelir':'Seen words and My Learn List included','Tüm kelimelerden sorar':'Asks from all words','Bu listede kullanılmaz':'Not used for this list','{n} kart hiç görülmedi':'{n} cards never seen','{n} kelime hiç görülmedi':'{n} words never seen','Kart sayısı':'Number of cards','Seviye':'Level','🃏 Kelime kartları':'🃏 Word cards','🎯 Kelime pratiği':'🎯 Word practice','Seçimlerin bir dahaki sefere hatırlanır':'Your choices are remembered next time','Bu grupta seviye filtresi uygulanmaz':'Level filter doesn\'t apply to this group','BBC News · 3 seviyede oku ve dinle':'BBC News · read and listen in 3 levels','Tür':'Type','Tema':'Theme','Dil':'Language','Hesap':'Account','Kelimelerim':'My words','Geri al':'Undo','Silinen kelimeleri geri getir':'Restore deleted words','İngilizce altyazılı videolar':'Videos with English subtitles','{n} izlenmemiş video':'{n} unwatched videos','Rehber':'Guide','Uygulama rehberi':'App guide','Hoş geldin!':'Welcome!','Rehberi aç':'Open the guide','Şimdi değil':'Not now','Bu programı seç':'Choose this plan','Günlük program':'Daily plan','Hafif':'Light','Dengeli':'Balanced','Yoğun':'Intensive','Kapalı':'Off','⚡ Hazır':'⚡ Ready','Gemini anahtarı':'Gemini key','Gemini anahtarın':'Your Gemini key','Aile hesabısın, anahtar gerekmez':'Family account, no key needed','Hazır ✓':'Ready ✓','Ekli ✓':'Added ✓','Ekle':'Add','Sunucu':'Server','Otomatik bağlı':'Connected automatically','Yapay zekâ özelliklerini aç':'Unlock AI features','Ücretsiz anahtarını al ↗':'Get your free key ↗','Kaydet ve devam et':'Save and continue','Değiştir':'Change','Kaldır':'Remove','Aile üyeleri':'Family members','Yapay zekâ kendi ücretsiz kotandan çalışır':'AI runs on your own free quota','Yapay zekâ özellikleri için gerekli':'Needed for AI features','Önünde {n} izlenmemiş video var. Birini izleyince aynı kanaldan yenisi eklenir.':'{n} unwatched videos waiting. Watch one and a new one from the same channel is added.','İzlediklerin · {n}':'Watched · {n}','Bu filtrede izlenmemiş video yok.':'No unwatched videos for this filter.','Sil':'Delete','⏰ Saatin kelimesi':'⏰ Word of the hour','🌱 Haftanın kelimeleri':'🌱 Words of the week','{n} dk sonra yenisi':'new one in {n} min',
+'Kolay':'Easy','Orta':'Intermediate','İleri':'Advanced','Ders':'Learn','Talk show':'Talk show','Dizi':'Series','Belgesel':'Documentary','Konuşma':'Talk','Diğer':'Other','Tüm türler':'All types','Bugün ne çalışalım?':'What shall we study today?','Teste hazır mısın?':'Ready for the test?','Ayarları seç, sonra başla':'Pick your settings, then start','Başla':'Start','Hazırlık':'Setup','Görülmemiş kartlar':'Unseen cards','Görülmemiş':'Unseen','Sadece görülmemiş':'Unseen only','Sadece çalıştığım kartlar':'Only cards I studied','Kartlarda gördüğün kelimelerden sorar':'Asks from words you saw in cards','Sadece hiç karşına çıkmamış kartlar gelir':'Only cards you have never seen','Önce kartlardan birkaç kelime çalış':'Study a few cards first','Görülenler ve Öğren Listem de gelir':'Seen words and My Learn List included','Tüm kelimelerden sorar':'Asks from all words','Bu listede kullanılmaz':'Not used for this list','{n} kart hiç görülmedi':'{n} cards never seen','{n} kelime hiç görülmedi':'{n} words never seen','Kart sayısı':'Number of cards','Seviye':'Level','🃏 Kelime kartları':'🃏 Word cards','🎯 Kelime pratiği':'🎯 Word practice','Seçimlerin bir dahaki sefere hatırlanır':'Your choices are remembered next time','Bu grupta seviye filtresi uygulanmaz':'Level filter doesn\'t apply to this group','BBC News · 3 seviyede oku ve dinle':'BBC News · read and listen in 3 levels','Tür':'Type','Kota durumu':'Quota status','Güncelle':'Refresh','Gece hazırlığı':'Night prep','Önbellek yazma':'Cache writes','Tema':'Theme','Dil':'Language','Hesap':'Account','Kelimelerim':'My words','Geri al':'Undo','Silinen kelimeleri geri getir':'Restore deleted words','İngilizce altyazılı videolar':'Videos with English subtitles','{n} izlenmemiş video':'{n} unwatched videos','Rehber':'Guide','Uygulama rehberi':'App guide','Hoş geldin!':'Welcome!','Rehberi aç':'Open the guide','Şimdi değil':'Not now','Bu programı seç':'Choose this plan','Günlük program':'Daily plan','Hafif':'Light','Dengeli':'Balanced','Yoğun':'Intensive','Kapalı':'Off','⚡ Hazır':'⚡ Ready','Gemini anahtarı':'Gemini key','Gemini anahtarın':'Your Gemini key','Aile hesabısın, anahtar gerekmez':'Family account, no key needed','Hazır ✓':'Ready ✓','Ekli ✓':'Added ✓','Ekle':'Add','Sunucu':'Server','Otomatik bağlı':'Connected automatically','Yapay zekâ özelliklerini aç':'Unlock AI features','Ücretsiz anahtarını al ↗':'Get your free key ↗','Kaydet ve devam et':'Save and continue','Değiştir':'Change','Kaldır':'Remove','Aile üyeleri':'Family members','Yapay zekâ kendi ücretsiz kotandan çalışır':'AI runs on your own free quota','Yapay zekâ özellikleri için gerekli':'Needed for AI features','Önünde {n} izlenmemiş video var. Birini izleyince aynı kanaldan yenisi eklenir.':'{n} unwatched videos waiting. Watch one and a new one from the same channel is added.','İzlediklerin · {n}':'Watched · {n}','Bu filtrede izlenmemiş video yok.':'No unwatched videos for this filter.','Sil':'Delete','⏰ Saatin kelimesi':'⏰ Word of the hour','🌱 Haftanın kelimeleri':'🌱 Words of the week','{n} dk sonra yenisi':'new one in {n} min',
 'Haftanın videoları açık kanallardan seçilir. Dokunarak aç/kapat.':'This week\'s videos are picked from the channels that are on. Tap to turn on/off.','Kanal ekle':'Add channel','YouTube kanal linki ya da @adı':'YouTube channel link or @handle',
 'Kanal linkini ya da @adını yapıştır':'Paste the channel link or @handle','Bu kanal zaten listende':'This channel is already in your list','Kelime':'Words','🎬 Video':'🎬 Video','Cevaplanan soru':'Answered questions','Haber':'News','Hikâye':'Story','Testi çözülen ya da sonuna kadar dinlenen':'Test solved or listened to the end','Okunan ya da dinlenen':'Read or listened to',
 '📰 Haber bugünkü hedefine sayıldı':'📰 Counted toward today\'s news goal','📚 Hikâye bugünkü hedefine sayıldı':'📚 Counted toward today\'s story goal','Bu hikâye bugün zaten sayıldı':'This story was already counted today','Bu haber bugün zaten sayıldı':'This article was already counted today',
@@ -1424,7 +1431,43 @@ async function renderFam(){
   $('famAdd').onclick=()=>{const e=$('famIn').value.trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))return toast('Geçerli bir e-posta yaz');op('add',e)};
   box.querySelectorAll('.famdel').forEach(b=>b.onclick=()=>{if(confirm(b.dataset.e+' aile listesinden çıkarılsın mı?'))op('del',b.dataset.e)});
   if(!FAMD){FAMD=[];op('list')}
+  renderQuota();
 }
+/* Kota durumu (sadece yönetici) */
+let QDAT=null,QBUSY=false;
+function grRes(t){const m=String(t).match(/(?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?/)||[];const h=+m[1]||0,mi=+m[2]||0;return h?`${h} sa ${mi} dk`:mi?`${mi} dk`:'1 dk'}
+function ptClock(){const la=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'})),m=new Date(la);m.setHours(0,0,0,0);const nx=new Date(m);nx.setDate(nx.getDate()+1);return {start:Date.now()-(la-m),reset:new Date(Date.now()+(nx-la))}}
+const hhmm=d=>new Date(d).toLocaleTimeString(LOC,{hour:'2-digit',minute:'2-digit'});
+async function loadQuota(now){if(QBUSY)return;QBUSY=true;renderQuota();try{const d=await workerCall({quota:now?{now:1}:{}},30000);if(!d||!d.groq||!d.gem)throw new Error('worker güncel değil');QDAT=d}catch(e){if(now)toast('Kota bilgisi alınamadı: '+e.message)}QBUSY=false;renderQuota()}
+function renderQuota(){
+  const box=$('quotaBox'),rw=$('qtRow');if(!box)return;
+  if(!ME||!ME.admin){rw.style.display='none';box.style.display='none';return}
+  rw.style.display='';
+  const q=QDAT,pc=x=>Math.max(0,Math.min(100,Math.round(x))),col=p=>p>=85?'#D2463A':p>=50?'#E8793F':'#2E9E5E';
+  const bar=(p,c)=>`<i class="qbar"><em style="width:${p}%;background:${c||col(p)}"></em></i>`;
+  const row=(ic,t,sub,val,p,url,c)=>`<a class="qrow" ${url?`href="${url}" target="_blank" rel="noopener"`:''}><i class="qi">${ic}</i><span class="gt">${t}<small>${sub}</small>${p!=null?bar(p,c):''}</span><span class="gv">${val}</span>${url?'<span class="qlink">↗</span>':''}</a>`;
+  let rows='',warn=[];
+  if(q){
+    const {start,reset}=ptClock(),rs=hhmm(reset);
+    const g=q.groq.rl;
+    if(g&&g.left/g.limit<.15)warn.push('Groq');
+    rows+=q.hasGroq?row('⚡','Groq',g?`Kesin · ${g.reset?grRes(g.reset)+' sonra yenilenir':''}`:'↻ Güncelle\'ye bas',g?`${g.left.toLocaleString(LOC)} / ${g.limit.toLocaleString(LOC)} kaldı`:'—',g?pc(g.left/g.limit*100):null,'https://console.groq.com/settings/limits',g?col(100-g.left/g.limit*100):null):row('⚡','Groq','Anahtar eklenmemiş','—',null,'https://console.groq.com/keys');
+    const gm=(k,ic,t)=>{const x=q[k],full=x.e429>start,p=full?100:pc(x.used/x.limit*100);if(full)warn.push(t);return row(ic,t,`Bugün ${x.used} istek · ${full?`⚠ ${hhmm(x.e429)}'de doldu, ${rs}'de yenilenir`:'✓ Çalışıyor'}`,full?'Doldu':`~%${p}`,p,'https://aistudio.google.com/usage',full?'#D2463A':null)};
+    rows+=gm('gem','✨','Gemini metin')+gm('tts','🔊','Gemini ses');
+    rows+=row('☁️','Workers AI',q.hasAI?`Bugün ${q.wai.used} istek (yedek)`:'Bağlantı eklenmemiş',q.hasAI?String(q.wai.used):'—',null,'https://dash.cloudflare.com/?to=/:account/ai/workers-ai');
+    const kp=pc(q.kvw.used/q.kvw.limit*100);if(kp>=85)warn.push('Önbellek');rows+=row('💾','Önbellek yazma',`Bugün ${q.kvw.used} / ${q.kvw.limit.toLocaleString(LOC)}`,`%${kp}`,kp,'https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces');
+    const yp=pc(q.yt.used/q.yt.limit*100);rows+=row('▶️','YouTube',`Bugün ~${q.yt.used.toLocaleString(LOC)} / ${q.yt.limit.toLocaleString(LOC)} birim`,`%${yp}`,yp,'https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas');
+    rows+=row('🌙','Gece hazırlığı',`Bu gece ${q.night.total} haberin ${q.night.ready}'i hazır`,q.night.ready>=q.night.total&&q.night.total?'✓':`${q.night.ready}/${q.night.total}`,null,'');
+  }else rows=`<p class="hint" style="margin:6px 2px">${QBUSY?'Yükleniyor…':'Görmek için ↻ Güncelle\'ye bas'}</p>`;
+  $('qtV').textContent=!q?'':warn.length?'⚠ '+warn[0]+(warn.length>1?' +'+(warn.length-1):''):'✓ Normal';
+  $('qtV').style.color=!q?'':warn.length?'#D2463A':'#2E9E5E';
+  box.innerHTML=`<div class="qtop"><span>${q?`Son kayıt: ${q.saved?hhmm(q.saved):'—'}`:''}</span><button id="qRef" ${QBUSY?'disabled':''}>${QBUSY?'<span class="spin" style="width:11px;height:11px;margin:0"></span>':'↻'} Güncelle</button></div>${rows}
+    <p class="hint" style="margin:8px 2px 2px;font-size:12px;line-height:1.45">Sayılar saatte bir kaydedilir, ↻ ile anında güncellenir. Groq dışındakiler yaklaşıktır; kesin rakam için ↗ ile paneli aç. Bu bölümü sadece sen görürsün.</p>`;
+  $('qRef').onclick=()=>loadQuota(true);
+  if(!q&&!QBUSY&&!QDAT_T){QDAT_T=1;loadQuota(false)}
+}
+$('qtRow').onclick=()=>{const b=$('quotaBox'),o=b.style.display==='none';b.style.display=o?'':'none';$('qtChev').style.transform=o?'rotate(180deg)':''};
+let QDAT_T=0;
 let keyThen=null;
 function openKeySheet(then){keyThen=then||null;$('gkIn').value='';closeSheets();openSheet('keySheet')}
 $('gkSave').onclick=async()=>{
