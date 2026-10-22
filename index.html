@@ -462,6 +462,16 @@ a.ghost{display:block;text-align:center;text-decoration:none}
 .qlink{color:var(--muted);font-size:14px;margin-left:4px}
 .vsep{width:1px;background:var(--line);margin:4px 2px;flex:none}
 .vframe{position:relative;width:100%;aspect-ratio:16/9;background:#000;margin-top:-2px}
+.vtl{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px}
+.vbig{border:none;background:var(--accent-soft);color:var(--ink);font-weight:800;font-size:13px;border-radius:10px;padding:7px 11px;white-space:nowrap}
+.vbx,.vrot{display:none}
+body.vfull .vframe{position:fixed;inset:0;z-index:200;width:100vw;height:100dvh;aspect-ratio:auto;margin:0;display:flex;align-items:center;justify-content:center}
+/* Oynatıcı her zaman tam 16:9 kalır: altyazı videonun üstünde, doğru yerinde durur */
+body.vfull .vframe #vpPl,body.vfull .vframe iframe{position:relative;inset:auto;width:min(100vw - env(safe-area-inset-left) - env(safe-area-inset-right),(100dvh - var(--st) - var(--sb)) * 16 / 9);height:auto;aspect-ratio:16/9}
+body.vfull .vbx{display:grid;place-items:center;position:absolute;z-index:3;top:calc(var(--st) + 10px);right:calc(env(safe-area-inset-right) + 12px);width:40px;height:40px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;font-size:18px;font-weight:800}
+body.vfull .vrot{display:block;position:absolute;z-index:3;left:0;right:0;bottom:calc(var(--sb) + 28px);text-align:center;color:rgba(255,255,255,.75);font-size:13px;font-weight:600}
+@media (orientation:landscape){body.vfull .vrot{display:none}}
+body.vfull nav.tabs,body.vfull header{display:none}
 .vframe iframe,.vframe #vpPl{position:absolute;inset:0;width:100%;height:100%;border:0}
 .vpfb{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;text-align:center;padding:20px;font-size:15px}
 .vpfb .primary{width:auto;padding:12px 18px;text-decoration:none}
@@ -1030,7 +1040,7 @@ Object.assign(EN,{
 'Haftanın 20 videosu · İngilizce altyazılı':'20 videos a week · English subtitles','{n} izlenmemiş':'{n} unwatched','Talk show, dizi, ders':'Talk shows, series, lessons','Videolar getiriliyor…':'Getting videos…',
 'Video bulunamadı. Ayarlar → Video kanalları\'ndan kanal aç ya da ekle.':'No videos found. Turn on or add channels in Settings → Video channels.','Bu filtrede video yok.':'No videos for this filter.',
 'Bu hafta {n} video · {n} izlendi. Liste her pazartesi yenilenir.':'{n} videos this week · {n} watched. The list refreshes every Monday.','Videolar için önce ⚙️ Ayarlar\'dan Worker adresini girmelisin.':'To get videos, first enter the Worker address in ⚙️ Settings.',
-'Kolay':'Easy','Orta':'Intermediate','İleri':'Advanced','Ders':'Learn','Talk show':'Talk show','Dizi':'Series','Belgesel':'Documentary','Konuşma':'Talk','Diğer':'Other','Tüm türler':'All types','Bugün ne çalışalım?':'What shall we study today?','Teste hazır mısın?':'Ready for the test?','Ayarları seç, sonra başla':'Pick your settings, then start','Başla':'Start','Hazırlık':'Setup','Görülmemiş kartlar':'Unseen cards','Görülmemiş':'Unseen','Sadece görülmemiş':'Unseen only','Sadece çalıştığım kartlar':'Only cards I studied','Kartlarda gördüğün kelimelerden sorar':'Asks from words you saw in cards','Sadece hiç karşına çıkmamış kartlar gelir':'Only cards you have never seen','Önce kartlardan birkaç kelime çalış':'Study a few cards first','Görülenler ve Öğren Listem de gelir':'Seen words and My Learn List included','Tüm kelimelerden sorar':'Asks from all words','Bu listede kullanılmaz':'Not used for this list','{n} kart hiç görülmedi':'{n} cards never seen','{n} kelime hiç görülmedi':'{n} words never seen','Kart sayısı':'Number of cards','Seviye':'Level','🃏 Kelime kartları':'🃏 Word cards','🎯 Kelime pratiği':'🎯 Word practice','Seçimlerin bir dahaki sefere hatırlanır':'Your choices are remembered next time','Bu grupta seviye filtresi uygulanmaz':'Level filter doesn\'t apply to this group','BBC News · 3 seviyede oku ve dinle':'BBC News · read and listen in 3 levels','Tür':'Type','Sorular hazırlanıyor…':'Preparing questions…','Kota durumu':'Quota status','Güncelle':'Refresh','Gece hazırlığı':'Night prep','Önbellek yazma':'Cache writes','Tema':'Theme','Dil':'Language','Hesap':'Account','Kelimelerim':'My words','Geri al':'Undo','Silinen kelimeleri geri getir':'Restore deleted words','İngilizce altyazılı videolar':'Videos with English subtitles','{n} izlenmemiş video':'{n} unwatched videos','Rehber':'Guide','Uygulama rehberi':'App guide','Hoş geldin!':'Welcome!','Rehberi aç':'Open the guide','Şimdi değil':'Not now','Bu programı seç':'Choose this plan','Günlük program':'Daily plan','Hafif':'Light','Dengeli':'Balanced','Yoğun':'Intensive','Kapalı':'Off','⚡ Hazır':'⚡ Ready','Gemini anahtarı':'Gemini key','Gemini anahtarın':'Your Gemini key','Aile hesabısın, anahtar gerekmez':'Family account, no key needed','Hazır ✓':'Ready ✓','Ekli ✓':'Added ✓','Ekle':'Add','Sunucu':'Server','Otomatik bağlı':'Connected automatically','Yapay zekâ özelliklerini aç':'Unlock AI features','Ücretsiz anahtarını al ↗':'Get your free key ↗','Kaydet ve devam et':'Save and continue','Değiştir':'Change','Kaldır':'Remove','Aile üyeleri':'Family members','Yapay zekâ kendi ücretsiz kotandan çalışır':'AI runs on your own free quota','Yapay zekâ özellikleri için gerekli':'Needed for AI features','Önünde {n} izlenmemiş video var. Birini izleyince aynı kanaldan yenisi eklenir.':'{n} unwatched videos waiting. Watch one and a new one from the same channel is added.','İzlediklerin · {n}':'Watched · {n}','Bu filtrede izlenmemiş video yok.':'No unwatched videos for this filter.','Sil':'Delete','⏰ Saatin kelimesi':'⏰ Word of the hour','🌱 Haftanın kelimeleri':'🌱 Words of the week','{n} dk sonra yenisi':'new one in {n} min',
+'Kolay':'Easy','Orta':'Intermediate','İleri':'Advanced','Ders':'Learn','Talk show':'Talk show','Dizi':'Series','Belgesel':'Documentary','Konuşma':'Talk','Diğer':'Other','Tüm türler':'All types','Bugün ne çalışalım?':'What shall we study today?','Teste hazır mısın?':'Ready for the test?','Ayarları seç, sonra başla':'Pick your settings, then start','Başla':'Start','Hazırlık':'Setup','Görülmemiş kartlar':'Unseen cards','Görülmemiş':'Unseen','Sadece görülmemiş':'Unseen only','Sadece çalıştığım kartlar':'Only cards I studied','Kartlarda gördüğün kelimelerden sorar':'Asks from words you saw in cards','Sadece hiç karşına çıkmamış kartlar gelir':'Only cards you have never seen','Önce kartlardan birkaç kelime çalış':'Study a few cards first','Görülenler ve Öğren Listem de gelir':'Seen words and My Learn List included','Tüm kelimelerden sorar':'Asks from all words','Bu listede kullanılmaz':'Not used for this list','{n} kart hiç görülmedi':'{n} cards never seen','{n} kelime hiç görülmedi':'{n} words never seen','Kart sayısı':'Number of cards','Seviye':'Level','🃏 Kelime kartları':'🃏 Word cards','🎯 Kelime pratiği':'🎯 Word practice','Seçimlerin bir dahaki sefere hatırlanır':'Your choices are remembered next time','Bu grupta seviye filtresi uygulanmaz':'Level filter doesn\'t apply to this group','BBC News · 3 seviyede oku ve dinle':'BBC News · read and listen in 3 levels','Tür':'Type','⛶ Büyük ekran':'⛶ Big screen','↻ Telefonu yan çevir, video tüm ekranı kaplasın':'↻ Turn your phone sideways to fill the screen','Sorular hazırlanıyor…':'Preparing questions…','Sorular hazırlanamadı':'Couldn\'t prepare questions','Tekrar dene':'Try again','Kota durumu':'Quota status','Güncelle':'Refresh','Gece hazırlığı':'Night prep','Önbellek yazma':'Cache writes','Tema':'Theme','Dil':'Language','Hesap':'Account','Kelimelerim':'My words','Geri al':'Undo','Silinen kelimeleri geri getir':'Restore deleted words','İngilizce altyazılı videolar':'Videos with English subtitles','{n} izlenmemiş video':'{n} unwatched videos','Rehber':'Guide','Uygulama rehberi':'App guide','Hoş geldin!':'Welcome!','Rehberi aç':'Open the guide','Şimdi değil':'Not now','Bu programı seç':'Choose this plan','Günlük program':'Daily plan','Hafif':'Light','Dengeli':'Balanced','Yoğun':'Intensive','Kapalı':'Off','⚡ Hazır':'⚡ Ready','Gemini anahtarı':'Gemini key','Gemini anahtarın':'Your Gemini key','Aile hesabısın, anahtar gerekmez':'Family account, no key needed','Hazır ✓':'Ready ✓','Ekli ✓':'Added ✓','Ekle':'Add','Sunucu':'Server','Otomatik bağlı':'Connected automatically','Yapay zekâ özelliklerini aç':'Unlock AI features','Ücretsiz anahtarını al ↗':'Get your free key ↗','Kaydet ve devam et':'Save and continue','Değiştir':'Change','Kaldır':'Remove','Aile üyeleri':'Family members','Yapay zekâ kendi ücretsiz kotandan çalışır':'AI runs on your own free quota','Yapay zekâ özellikleri için gerekli':'Needed for AI features','Önünde {n} izlenmemiş video var. Birini izleyince aynı kanaldan yenisi eklenir.':'{n} unwatched videos waiting. Watch one and a new one from the same channel is added.','İzlediklerin · {n}':'Watched · {n}','Bu filtrede izlenmemiş video yok.':'No unwatched videos for this filter.','Sil':'Delete','⏰ Saatin kelimesi':'⏰ Word of the hour','🌱 Haftanın kelimeleri':'🌱 Words of the week','{n} dk sonra yenisi':'new one in {n} min',
 'Haftanın videoları açık kanallardan seçilir. Dokunarak aç/kapat.':'This week\'s videos are picked from the channels that are on. Tap to turn on/off.','Kanal ekle':'Add channel','YouTube kanal linki ya da @adı':'YouTube channel link or @handle',
 'Kanal linkini ya da @adını yapıştır':'Paste the channel link or @handle','Bu kanal zaten listende':'This channel is already in your list','Kelime':'Words','🎬 Video':'🎬 Video','Cevaplanan soru':'Answered questions','Haber':'News','Hikâye':'Story','Testi çözülen ya da sonuna kadar dinlenen':'Test solved or listened to the end','Okunan ya da dinlenen':'Read or listened to',
 '📰 Haber bugünkü hedefine sayıldı':'📰 Counted toward today\'s news goal','📚 Hikâye bugünkü hedefine sayıldı':'📚 Counted toward today\'s story goal','Bu hikâye bugün zaten sayıldı':'This story was already counted today','Bu haber bugün zaten sayıldı':'This article was already counted today',
@@ -2534,11 +2544,11 @@ function validQuiz(qs,paras){
   const sents=(paras||[]).flatMap(p=>p.en).map(normT),units=sents.concat(sents.slice(1).map((x,i)=>sents[i]+' '+x)),full=' '+sents.join(' ')+' ';
   const out=[],seen=new Set();
   for(const x of Array.isArray(qs)?qs:[]){
-    const q=String(x&&x.q||'').trim(),o=(Array.isArray(x&&x.o)?x.o:[]).map(v=>String(v||'').trim()).filter(Boolean),a=parseInt(x&&x.a);
+    const q=String(x&&x.q||'').trim(),o=(Array.isArray(x&&x.o)?x.o:[]).filter(v=>v!=null).map(v=>String(v).trim()).filter(Boolean),a=parseInt(x&&x.a);
     if(!q||o.length!==4||!(a>=0&&a<4)||CJK_RE.test(q+o.join('')))continue;
     const sig=o.map(v=>normT(v).split(' ').sort().join(' '));if(sig.some(v=>!v)||new Set(sig).size!==4)continue;
     const ev=normT(x.evidence||x.ev||'');if(ev.length<12)continue;
-    const et=ev.split(' ');if(!units.some(u=>u.includes(ev)||et.filter(t=>(' '+u+' ').includes(' '+t+' ')).length/et.length>=.85))continue;
+    const et=ev.split(' ');if(!units.some(u=>u.includes(ev)||et.filter(t=>(' '+u+' ').includes(' '+t+' ')).length/et.length>=.75))continue;
     const must=(o[a].match(/\b(\d[\d.,]*|[A-Z][a-z]+(?:[A-Z][a-z]+)?)\b/g)||[]).slice(/^[A-Z]/.test(o[a])?1:0);
     if(must.some(m=>!full.includes(normT(m))))continue;
     const nq=normT(q);if(seen.has(nq))continue;seen.add(nq);out.push({q,o,a,evidence:x.evidence||''});
@@ -2561,13 +2571,12 @@ function parseLines(t){
     if(!out.title&&!paras.length&&(m=line.match(/^#+\s*(.+)$/))){out.title=m[1];continue}
     if((m=line.match(/^EMOJI:\s*(.*)$/i))){out.emoji=m[1];continue}
     if((m=line.match(/^USED:\s*(.*)$/i))){out.used=m[1].split(',').map(x=>x.trim()).filter(Boolean);continue}
-    if(/^QUIZ:?$/i.test(line)){inQ=true;inW=false;continue}
+    if(/^(?:#+\s*)?QUIZ\b/i.test(line)&&!/=/.test(line)){inQ=true;inW=false;continue}
     if(inQ){
-      if((m=line.match(/^Q\d*[:.)]\s*(.+)$/i))){cq={q:m[1],o:[],a:-1,evidence:''};quiz.push(cq);continue}
-      if(!cq)continue;
-      if((m=line.match(/^([A-D])[).:]\s*(.+)$/))){cq.o['ABCD'.indexOf(m[1])]=m[2];continue}
-      if((m=line.match(/^ANSWER:\s*\(?([A-D])/i))){cq.a='ABCD'.indexOf(m[1].toUpperCase());continue}
-      if((m=line.match(/^EVIDENCE:\s*(.+)$/i))){cq.evidence=m[1].replace(/^["“]|["”]$/g,'');continue}
+      if((m=line.match(/^(?:(?:CORRECT\s+)?ANSWER|CORRECT)\s*[:\-]\s*\(?([A-Da-d])\b/i))){if(cq)cq.a='ABCD'.indexOf(m[1].toUpperCase());continue}
+      if((m=line.match(/^EVIDENCE\s*[:\-]\s*(.+)$/i))){if(cq)cq.evidence=m[1].replace(/^["“]|["”]$/g,'');continue}
+      if((m=line.match(/^\(?([A-Da-d])\s*[).:\-–]\s+(.+)$/))&&cq){cq.o['ABCD'.indexOf(m[1].toUpperCase())]=m[2];continue}
+      if((m=line.match(/^(?:Q(?:uestion)?\s*\d*|\d+)\s*[:.)\-]\s*(.+)$/i))){cq={q:m[1],o:[],a:-1,evidence:''};quiz.push(cq);continue}
       continue;
     }
     if(/^WORDS:?$/i.test(line)){inW=true;continue}
@@ -2663,7 +2672,7 @@ function renderRead(){
   <div class="sec rd"><div class="rt"><b>${esc(it.title)}</b><small>BBC · ${date} · ${NCATS[it.cat]||''}</small></div>
   <div class="seg" id="lvSeg" style="margin:14px 0 12px">${[1,2,3].map(n=>`<button class="${RD.lv===n?'on':''}" data-n="${n}">Seviye ${n}</button>`).join('')}</div>
   <div id="rdBody"></div></div>`;
-  $('lvSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{RD.lv=+b.dataset.n;S.newsLv=RD.lv;RD.err='';RD.q=null;save();stopPlayer();renderRead();loadLevel()});
+  $('lvSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{RD.lv=+b.dataset.n;S.newsLv=RD.lv;RD.err='';RD.q=null;RD.qzErr=null;RD.qzLoad=false;save();stopPlayer();renderRead();loadLevel()});
   const body=$('rdBody');
   const L=a&&a.levels&&a.levels[RD.lv-1];
   if(!L){
@@ -2695,23 +2704,31 @@ function renderVid(){
   box.innerHTML=`${a.video?`<a class="vcard" href="https://www.youtube.com/watch?v=${esc(a.video.id)}" target="_blank" rel="noopener"><div class="vt" style="background-image:url('${esc(a.video.thumb||'')}')">▶</div><div><b>${esc(a.video.title)}</b><small>BBC News · YouTube'da izle</small></div></a>`:''}
     <div class="lnks"><a class="ghost" href="${esc(it.link)}" target="_blank" rel="noopener">🌐 BBC'de aslını oku</a>${a.video?'':`<a class="ghost" href="https://www.youtube.com/results?search_query=${encodeURIComponent('BBC News '+it.title)}" target="_blank" rel="noopener">▶️ YouTube'da ara</a>`}</div>`;
 }
-// Seviyenin sorusu yoksa ya da eksikse (eski kayıt) sunucudan, o seviyenin metnine göre iste
+// Seviyenin sorusu yoksa ya da eksikse, ekrandaki seviye metnini sunucuya gönderip soru iste
 const QZP={};
-function ensureQuiz(rd){
-  const it=rd.item,n=rd.lv,key=it.id+':'+n;if(QZP[key])return;
-  rd.qzLoad=true;QZP[key]=1;
-  const run=tries=>workerCall({artquiz:{url:it.link,lv:n}},60000).then(d=>{const q=d&&d.quiz||[];artSave(it,a=>{const L=a.levels[n-1];if(L&&q.length)L.quiz=q})})
-    .catch(e=>{if(e.status===404&&tries<2)return new Promise(r=>setTimeout(r,3000)).then(()=>run(tries+1))});   // metin sunucuya yeni yazıldıysa biraz bekle
-  setTimeout(()=>run(0).finally(()=>{rd.qzLoad=false;if(RD===rd&&rd.lv===n&&$('qzBox'))renderQuiz()}),1200);
+function ensureQuiz(rd,force){
+  const it=rd.item,n=rd.lv,key=it.id+':'+n;if(QZP[key]&&!force)return;
+  const L=rd.art&&rd.art.levels&&rd.art.levels[n-1];if(!L)return;
+  rd.qzLoad=true;rd.qzErr=null;QZP[key]=1;
+  workerCall({artquiz:{url:it.link,lv:n,paras:L.paras.map(p=>({en:p.en}))}},60000)
+    .then(d=>{const q=(d&&d.quiz)||[];if(q.length)artSave(it,a=>{const X=a.levels[n-1];if(X)X.quiz=q});
+      if(q.length<3)rd.qzErr={msg:q.length?'':'Sorular hazırlanamadı',why:(d&&d.why)||[]}})
+    .catch(e=>{rd.qzErr={msg:'Sorular hazırlanamadı: '+(e.message||'bağlantı'),why:[]}})
+    .finally(()=>{rd.qzLoad=false;if(RD===rd&&rd.lv===n&&$('qzBox'))renderQuiz()});
 }
 function renderQuiz(){
   const box=$('qzBox');if(!box)return;
   const L=RD.art&&RD.art.levels&&RD.art.levels[RD.lv-1];
   const qs=L?validQuiz(L.quiz,L.paras):[];
-  if(qs.length<3&&L&&!RD.qzLoad){ensureQuiz(RD)}
-  if(!qs.length){box.innerHTML=RD.qzLoad?'<div class="loadbox" style="margin-top:14px"><span class="spin"></span>Sorular hazırlanıyor…</div>':'';return}
+  if(qs.length<3&&L&&!RD.qzLoad&&!RD.qzErr)ensureQuiz(RD);
+  if(!qs.length){
+    const er=RD.qzErr;
+    box.innerHTML=RD.qzLoad||!er?'<div class="loadbox" style="margin-top:14px"><span class="spin"></span>Sorular hazırlanıyor…</div>'
+      :`<div class="loadbox" style="margin-top:14px">${esc(er.msg||'Sorular hazırlanamadı')}${ME&&ME.admin&&er.why&&er.why.length?`<br><small style="color:var(--muted)">Neden: ${esc(er.why.join(', '))}</small>`:''}<br><button class="ghost" id="qzRe" style="max-width:200px;margin:12px auto 0">Tekrar dene</button></div>`;
+    if($('qzRe'))$('qzRe').onclick=()=>{RD.qzErr=null;ensureQuiz(RD,true);renderQuiz()};
+    return}
   const q=RD.q;
-  if(!q){const d=S.newsDone[RD.item.id];box.innerHTML=`<button class="primary" id="qzGo" style="margin-top:14px">📝 ${d&&d.s>=0?`Testi tekrar çöz (önceki: ${d.s}/3)`:'3 soruyla test et'}</button>`;$('qzGo').onclick=()=>{RD.q={i:0,ok:0,done:false};renderQuiz()};return}
+  if(!q){const d=S.newsDone[RD.item.id];box.innerHTML=`<button class="primary" id="qzGo" style="margin-top:14px">📝 ${d&&d.s>=0?`Testi tekrar çöz (önceki: ${d.s}/3)`:qs.length+' soruyla test et'}</button>`;$('qzGo').onclick=()=>{RD.q={i:0,ok:0,done:false};renderQuiz()};return}
   if(q.i>=qs.length){const prev=S.newsDone[RD.item.id]||{};const it=RD.item;S.newsDone[it.id]={s:Math.max(q.ok,prev.s??-1),lv:RD.lv,t:Date.now(),it:{id:it.id,title:it.title,desc:it.desc,link:it.link,date:it.date,cat:it.cat,img:it.img}};pruneNews();save();markRead('h',it.id);
     box.innerHTML=`<div class="qz" style="text-align:center"><h4>SONUÇ</h4><div class="res-big" style="font-size:52px">${q.ok} / ${qs.length}</div><p class="hint">${q.ok===qs.length?'Kusursuz! 🎉':q.ok?'Güzel, devam!':'Bir daha oku, sonra tekrar dene'}</p><button class="ghost" id="qzAgain">Tekrar çöz</button></div>`;
     $('qzAgain').onclick=()=>{RD.q={i:0,ok:0};renderQuiz()};return}
@@ -3176,16 +3193,19 @@ async function fetchVidsUI(force){vBusy=true;vErr='';renderVideos();try{await lo
 let VP=null,vFrom='videos',ytApi=null;
 function loadYTApi(){if(ytApi)return ytApi;return ytApi=new Promise(ok=>{if(window.YT&&YT.Player)return ok();window.onYouTubeIframeAPIReady=()=>ok();const sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';document.head.appendChild(sc);setTimeout(ok,8000)})}
 function markWatched(v){S.vWatched=S.vWatched||{};const first=!S.vWatched[v.id];S.vWatched[v.id]=Date.now();if(first){vCount(v.ref);vRefill(v.ref)}const ks=Object.keys(S.vWatched);if(ks.length>400){ks.sort((a,b)=>S.vWatched[a]-S.vWatched[b]).slice(0,ks.length-400).forEach(k=>delete S.vWatched[k])}save();markRead('v',v.id);return first}
-function stopVideo(){if(VP){clearInterval(VP.tm);try{VP.pl&&VP.pl.destroy()}catch(e){}VP=null}}
+function stopVideo(){document.body.classList.remove('vfull');if(VP){clearInterval(VP.tm);try{VP.pl&&VP.pl.destroy()}catch(e){}VP=null}}
 function openVideo(v){
   stopVideo();showTab('video');
   const c=vChOf(v),ws=weekVideos(),i=ws.findIndex(x=>x.id===v.id),nx=ws.slice(i+1).concat(ws.slice(0,Math.max(i,0))).find(x=>!(S.vWatched||{})[x.id]&&x.id!==v.id);
   $('vpBox').innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>${esc(c.n||'Video')}</b><span class="sp40"></span></div>
-    <div class="vframe"><div id="vpPl"></div><div class="vpfb" id="vpFb" style="display:none"><div>Bu video uygulama içinde oynatılamıyor.</div><a class="primary" id="vpOut2" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">▶ YouTube'da aç</a></div></div>
-    <div class="sec"><span class="tag" style="display:block;margin-top:12px">${esc(vTag(v))} · ${fmtDur(v.dur)}</span><h2 class="vtitle">${esc(v.title)}</h2>
+    <div class="vframe" id="vFrame"><div id="vpPl"></div><button class="vbx" id="vpX" aria-label="Küçült">✕</button><div class="vrot">↻ Telefonu yan çevir, video tüm ekranı kaplasın</div><div class="vpfb" id="vpFb" style="display:none"><div>Bu video uygulama içinde oynatılamıyor.</div><a class="primary" id="vpOut2" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">▶ YouTube'da aç</a></div></div>
+    <div class="sec"><div class="vtl"><span class="tag">${esc(vTag(v))} · ${fmtDur(v.dur)}</span><button class="vbig" id="vpBig">⛶ Büyük ekran</button></div><h2 class="vtitle">${esc(v.title)}</h2>
     <p class="hint" id="vpSt">İngilizce altyazı açık gelir. Videonun büyük kısmını izleyince günlük hedefine sayılır.</p>
     <div class="lnks"><a class="ghost" id="vpOut" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">YouTube'da aç</a>${nx?'<button class="ghost" id="vpNext">Sonraki video ›</button>':''}</div>
     ${ws.length?`<div class="glabel">Bu haftanın videoları</div>${ws.filter(x=>x.id!==v.id).slice(0,6).map(vRow).join('')}<button class="ghost" id="vpAll">Hepsini gör</button>`:''}</div>`;
+  // Büyük ekran: iPhone'un kendi oynatıcısına geçmeden (altyazı kaybolmasın) videoyu ekrana yay
+  $('vpBig').onclick=()=>{document.body.classList.add('vfull');window.scrollTo(0,0)};
+  $('vpX').onclick=()=>document.body.classList.remove('vfull');
   const out=()=>{if(markWatched(v))$('vpSt').textContent='✓ İzlendi olarak işaretlendi'};
   $('vpOut').onclick=out;$('vpOut2').onclick=out;
   if($('vpNext'))$('vpNext').onclick=()=>openVideo(nx);
@@ -3195,8 +3215,8 @@ function openVideo(v){
   if(v.emb===false){$('vpPl').style.display='none';$('vpFb').style.display='flex';return}
   loadYTApi().then(()=>{
     if(VP!==me)return;
-    if(!(window.YT&&YT.Player)){$('vpPl').outerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}?playsinline=1&cc_load_policy=1&cc_lang_pref=en&hl=en&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;return}
-    me.pl=new YT.Player('vpPl',{videoId:v.id,host:'https://www.youtube-nocookie.com',playerVars:{playsinline:1,cc_load_policy:1,cc_lang_pref:'en',hl:'en',rel:0,modestbranding:1},
+    if(!(window.YT&&YT.Player)){$('vpPl').outerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}?playsinline=1&cc_load_policy=1&cc_lang_pref=en&hl=en&rel=0&fs=0" allow="autoplay; encrypted-media"></iframe>`;return}
+    me.pl=new YT.Player('vpPl',{videoId:v.id,host:'https://www.youtube-nocookie.com',playerVars:{playsinline:1,cc_load_policy:1,cc_lang_pref:'en',hl:'en',rel:0,modestbranding:1,fs:0},
       events:{onError:e=>{if([100,101,150].includes(e.data)){$('vpFb').style.display='flex';const f=$('vpBox').querySelector('iframe');if(f)f.style.display='none'}},
         onStateChange:e=>{if(e.data===0&&!me.done){me.done=true;markWatched(v);$('vpSt').textContent='✓ İzlendi, günlük hedefine sayıldı'}}}});
     me.tm=setInterval(()=>{if(VP!==me||me.done||!me.pl||!me.pl.getDuration)return;const d=me.pl.getDuration(),t=me.pl.getCurrentTime();if(d>0&&t/d>=0.7){me.done=true;markWatched(v);$('vpSt').textContent='✓ İzlendi, günlük hedefine sayıldı'}},3000);
