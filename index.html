@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Kelime Saati">
 <meta name="theme-color" content="#FBEEE2">
-<script>try{var _s=JSON.parse(localStorage.getItem('kelimeSaati:v1')||'{}'),_t=_s.theme||'krem';if(_t==='oto')_t=matchMedia('(prefers-color-scheme: dark)').matches?'gece':'krem';document.documentElement.dataset.theme=_t}catch(e){}</script>
+<script>try{var _p=localStorage.getItem('ks:active')||'',_s=JSON.parse(localStorage.getItem('kelimeSaati:v1'+(_p?':'+_p:''))||'{}'),_t=_s.theme||'krem';if(_t==='oto')_t=matchMedia('(prefers-color-scheme: dark)').matches?'gece':'krem';document.documentElement.dataset.theme=_t}catch(e){}</script>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>Kelime Saati</title>
@@ -267,6 +267,15 @@ nav.tabs button.on{color:var(--accent)}
 #pvSeg{margin:6px 0 14px}
 .hwbg{border-radius:26px;padding:26px 0;background:linear-gradient(180deg,#F2B48E,#B9846B 60%,#7B5B4D);display:flex;justify-content:center}
 .hwbg .hw{margin:0;width:62%}
+.pf{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:var(--card);border:1.5px solid var(--line);margin-bottom:8px;width:100%;text-align:left;font:inherit;color:var(--text);box-sizing:border-box}
+.pf .av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:18px;color:#fff;flex:none}
+.pf .ai{flex:1;min-width:0}.pf .ai b,.pf .pfn{display:block;font-size:16px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pf .pfn{border:none;background:none;padding:0;color:inherit;font-family:inherit;text-align:left;max-width:100%}.pf .pfn span{color:var(--muted);font-weight:400;font-size:13px}
+.pf .ai small{display:block;color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pf.on{border-color:var(--accent)}.pf .ck{color:var(--accent);font-weight:800;font-size:18px}.pf .chev{color:var(--muted);font-size:20px}
+.pf.add{border-style:dashed;background:transparent;color:var(--ink);justify-content:center;font-weight:700}
+.pnote{font-size:12.5px;color:var(--muted);margin:6px 2px 0;line-height:1.45}
+#pfBtn{position:relative}#pfBtn .bdg{position:absolute;right:-1px;bottom:-1px;min-width:16px;height:16px;border-radius:8px;background:var(--accent);color:#fff;font:800 9.5px/16px -apple-system,sans-serif;text-align:center;border:1.5px solid var(--bg);padding:0 2px;box-sizing:border-box}
 .acct2{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:20px;padding:14px;box-shadow:0 2px 10px rgba(120,80,40,.06)}
 .acct2 .av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#F2A36F,#E8793F);color:#fff;font-weight:800;font-size:20px;display:grid;place-items:center;flex:none}
 .acct2 .ai{flex:1;min-width:0}.acct2 b{display:block;font-size:16px;overflow:hidden;text-overflow:ellipsis}.acct2 small{color:var(--muted);font-size:13px}
@@ -573,6 +582,7 @@ nav.tabs button{position:relative}
     <div class="htext"><div class="hsub" id="hSub"></div><h1 class="htitle" id="hTitle"></h1></div>
     <button class="icon-btn" id="helpBtn" aria-label="Rehber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10 5 7 4.5 3 5v14c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5z"/><path d="M12 6.5v14"/></svg></button>
     <button class="icon-btn" id="searchBtn" aria-label="Ara"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></button>
+    <button class="icon-btn" id="pfBtn" aria-label="Profil" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.5 14.3c.5-.2 1-.3 1.5-.3 2.1 0 3.8 1.4 4.3 4"/></svg><span class="bdg" id="pfBdg"></span></button>
     <button class="icon-btn" id="setBtn" aria-label="Ayarlar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </header>
 
@@ -879,7 +889,7 @@ nav.tabs button{position:relative}
     <button class="grow" id="bkOut"><i class="gi" style="background:#FDE6D6">📤</i><span class="gt">Yedeği kopyala<small>Notlar'a yapıştırıp saklayabilirsin</small></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
     <button class="grow" id="bkIn"><i class="gi" style="background:#FDE6D6">📥</i><span class="gt">Yedeği geri yükle</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
-  <div id="acctWrap" style="display:none"><div class="glabel">Hesap</div><div class="acct2"><div class="av" id="acAv">?</div><div class="ai"><b id="acEmail">—</b><small id="acSync"></small></div><button class="mini" id="logoutBtn">Çıkış</button></div></div>
+  <div id="acctWrap" style="display:none"><div class="glabel">Hesap</div><div id="acList"></div><button class="pf add" id="acAdd">＋ Profil ekle</button></div>
 </div></div>
 
 <div class="login" id="login"><div class="lbox">
@@ -892,8 +902,20 @@ nav.tabs button{position:relative}
   <div class="lerr" id="lErr"></div>
   <button class="linkbtn" id="lToggle">Hesabın yok mu? Hesap oluştur</button><br>
   <button class="linkbtn" id="lForgot" style="font-weight:600;color:var(--muted)">Şifremi unuttum</button>
+  <div id="lProfs"></div>
 </div></div>
 
+<div class="sheet" id="pfSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Profil seç</h3><div id="pfList"></div>
+  <button class="pf add" id="pfAdd">＋ Profil ekle</button>
+  <p class="pnote">Profiller arasında tek dokunuşla geçilir; şifre bir kez girilir. Her profilin kelimeleri, hedefleri ve ilerlemesi ayrı tutulur.</p></div></div>
+<div class="sheet" id="pfAddSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Profil ekle</h3>
+  <input class="field" id="pfName" placeholder="Adı" autocomplete="off" maxlength="30" style="margin-bottom:8px">
+  <input class="field" id="pfEmail" type="email" placeholder="E-posta" autocomplete="off" autocapitalize="off" autocorrect="off" style="margin-bottom:8px">
+  <input class="field" id="pfPass" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password" style="margin-bottom:12px">
+  <button class="primary" id="pfGo" style="width:100%">Giriş yap ve ekle</button>
+  <div class="lerr" id="pfErr"></div>
+  <button class="linkbtn" id="pfMode">Hesabı yok mu? Yeni hesap oluştur</button>
+  <p class="pnote">Ad, profilde ve üstteki simgede görünür; Ayarlar › Hesap'tan adına dokunarak değiştirebilirsin.</p></div></div>
 <div class="toast" id="toast"></div>
 <div class="wpop" id="wpop"></div>
 
@@ -1102,7 +1124,9 @@ const BASE_TOPICS={daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat'
 const TOPICS={}; // kullanıcının kategorileri (S.cats'ten kurulur)
 function rebuildTopics(){for(const x of Object.keys(TOPICS))delete TOPICS[x];(S.cats&&S.cats.length?S.cats:Object.entries(BASE_TOPICS).map(([k,n])=>({k,n}))).forEach(c=>TOPICS[c.k]=c.n)}
 const LEVELS=['A2','B1','B2','C1'];
-const KEY='kelimeSaati:v1';
+// Profiller: her profilin (hesabın) bu cihazdaki verisi ayrı anahtarda durur
+const PSLOT=(()=>{try{return localStorage.getItem('ks:active')||''}catch(e){return ''}})(),SFX=PSLOT?':'+PSLOT:'';
+const KEY='kelimeSaati:v1'+SFX;
 const DEF={levels:[...LEVELS],wTopics:[],known:[],favs:[],custom:[],worker:'',dir:'en',qSrc:'all',qLen:20,learn:{},best:0,mode:'hour',goalN:10,goalR:20,qLevels:['A2','B1','B2','C1'],wInt:60,cats:Object.entries({daily:'Günlük Hayat',work:'İş & Kariyer',travel:'Seyahat',emotions:'Duygular & Kişilik',tech:'Teknoloji',health:'Sağlık & Spor',society:'Toplum & Haberler',academic:'Akademik'}).map(([k,n])=>({k,n})),catMap:{},aiLv:['B1'],aiCnt:10,autoOn:true,weekCnt:20,wkTry:null,cardN:20,seenAll:[],autoDay:'',autoWeek:'',weekSeen:'',daily:{},seenDay:'',seen:[],newsCats:['top','world','tech','science','health','business','culture'],newsLv:2,newsDone:{},newsTr:false,stories:[],stTopic:'Macera',stLv:'B1',stLen:'short',stSrc:['learn','_week'],stTr:true,voice:'Kore',rate:1,theme:'krem',lang:'tr',preAudio:'on',goalH:1,goalS:1,goalV:1,hidden:[],wTab:'n',vch:[],vWatched:{},vWeek:null,vCnt:null,cGrp:'mix',cLevels:null,cUnseen:true,qSeen:true,gkey:''};
 let C=null;
 let S=load(), BASE=[], WIDGET_SRC='';
@@ -1485,7 +1509,7 @@ $('gkSave').onclick=async()=>{
   if(!/^AIza[\w-]{30,}$/.test(k))return toast('Anahtar AIza ile başlamalı, tamamını kopyaladığından emin ol');
   const b=$('gkSave');b.disabled=true;b.innerHTML='<span class="spin"></span>';
   const old=S.gkey;S.gkey=k;
-  try{const d=await workerCall({me:1},15000);if(!d.hasKey)throw new Error('Anahtar kabul edilmedi');ME=d;lsSet('ks:me',ME);save();closeSheets();toast('Anahtar kaydedildi ✓');const f=keyThen;keyThen=null;if(f)f()}
+  try{const d=await workerCall({me:1},15000);if(!d.hasKey)throw new Error('Anahtar kabul edilmedi');ME=d;lsSet('ks:me'+SFX,ME);save();closeSheets();toast('Anahtar kaydedildi ✓');const f=keyThen;keyThen=null;if(f)f()}
   catch(e){S.gkey=old;toast('Kaydedilemedi: '+e.message)}
   b.disabled=false;b.textContent='Kaydet ve devam et';
 };
@@ -1904,6 +1928,7 @@ function mergeState(loc,rem){
   r.cats=(rem.cats&&rem.cats.length)?rem.cats:loc.cats;
   r.catMap=Object.assign({},loc.catMap||{},rem.catMap||{});
   r.wToken=rem.wToken||loc.wToken||'';
+  r.name=rem.name||loc.name||'';
   if(!r.worker&&loc.worker)r.worker=loc.worker;
   if((loc.autoDay||'')>(r.autoDay||''))r.autoDay=loc.autoDay;
   if((loc.autoWeek||'')>(r.autoWeek||''))r.autoWeek=loc.autoWeek;
@@ -1935,10 +1960,10 @@ function publishWidget(){
     .catch(e=>{console.warn('widget yayını',e);if(/permission/i.test(e.code||'')){syncMsg='Widget kaydı için Firebase kuralı eksik';updateAcct()}});
 }
 function pushNow(){
-  if(!C||!C.auth.currentUser)return;
+  if(!C||!C.auth.currentUser)return Promise.resolve();
   clearTimeout(pushT);
   if(!S.wToken)publishWidget();
-  C.F.setDoc(userRef(),{s:JSON.stringify(S),d:DEVICE,t:C.F.serverTimestamp()})
+  return C.F.setDoc(userRef(),{s:JSON.stringify(S),d:DEVICE,t:C.F.serverTimestamp()})
     .then(()=>{syncMsg='Eşitlendi ✓';updateAcct();publishWidget()})
     .catch(e=>{syncMsg='Kaydedilemedi: '+(e.code||e.message);updateAcct()});
 }
@@ -1957,9 +1982,93 @@ function applyState(){
 function updateAcct(){
   const u=C&&C.auth.currentUser;
   $('acctWrap').style.display=u?'block':'none';
-  if(u){$('acEmail').textContent=u.email;$('acSync').textContent=syncMsg||'Eşitlendi ✓';$('acAv').textContent=(u.email||'?')[0].toUpperCase()}
+  if(u)upsertProf();
+  drawPfBtn();
+  if(!u)return;
+  $('acList').innerHTML=pfSorted().map(p=>{const on=p.slot===PSLOT;
+    return `<div class="pf ${on?'on':''}">${pfAv(p)}<div class="ai">${on?`<button class="pfn" id="acName">${esc(pName(p))} <span>✎</span></button>`:`<b>${esc(pName(p))}</b>`}<small>${esc(p.email||'')}${on?' · '+esc(syncMsg||'Eşitlendi ✓'):''}</small></div>${on?'<button class="mini" id="logoutBtn">Çıkış</button>':`<button class="mini" data-pfsw="${esc(p.slot)}">Geç</button>`}</div>`}).join('');
+  $('logoutBtn').onclick=doLogout;
+  $('acName').onclick=renameProf;
+  $('acList').querySelectorAll('[data-pfsw]').forEach(b=>b.onclick=()=>switchProfile(b.dataset.pfsw));
 }
-function showLogin(on){$('login').classList.toggle('on',on);if(on){$('lErr').textContent='';closeSheets()}}
+/* ---------- Profiller (aynı cihazda birden çok hesap) ---------- */
+const PF_COL=['#E8793F','#3E7FA8','#4F8F5B','#9B5BB0','#C2544F','#B08A2E'];
+function profs(){const a=lsGet('ks:profiles',[]);return Array.isArray(a)?a:[]}
+function pfSorted(){return profs().sort((a,b)=>(b.slot===PSLOT)-(a.slot===PSLOT))}
+function setProfs(a){lsSet('ks:profiles',a)}
+function pName(p){return (p&&(p.name||(p.email||'').split('@')[0]))||'Profil'}
+function pfAv(p){let h=0;for(const c of String(p.uid||p.slot||''))h=(h*31+c.charCodeAt(0))>>>0;return `<div class="av" style="background:${PF_COL[h%PF_COL.length]}">${esc(pName(p).charAt(0).toLocaleUpperCase('tr'))}</div>`}
+function upsertProf(){
+  const u=C&&C.auth.currentUser;if(!u)return;
+  const a=profs().filter(x=>x.slot===PSLOT||x.uid!==u.uid);let p=a.find(x=>x.slot===PSLOT);
+  if(!p){p={slot:PSLOT};a.unshift(p)}
+  const nm=S.name||p.name||'';if(p.uid===u.uid&&p.email===u.email&&p.name===nm&&a.length===profs().length)return;
+  Object.assign(p,{uid:u.uid,email:u.email,name:nm});setProfs(a);
+}
+function drawPfBtn(){
+  const b=$('pfBtn');if(!b)return;const u=C&&C.auth.currentUser;
+  b.style.display=u?'':'none';if(!u)return;
+  const p=profs().find(x=>x.slot===PSLOT)||{name:S.name,email:u.email};
+  $('pfBdg').textContent=pName(p).charAt(0).toLocaleUpperCase('tr');b.setAttribute('aria-label','Profil: '+pName(p));
+}
+function renameProf(){
+  const cur=S.name||pName(profs().find(x=>x.slot===PSLOT));
+  const n=prompt('Profil adı',cur);if(n===null)return;const v=n.trim().slice(0,30);if(!v)return;
+  S.name=v;save();updateAcct();renderPfSheet();toast('Ad kaydedildi ✓');
+}
+async function switchProfile(slot){
+  if(slot===PSLOT)return closeSheets();
+  if(!profs().some(x=>x.slot===slot))return;
+  toast('Profil değiştiriliyor…');
+  try{if(typeof sessSave==='function')sessSave()}catch(e){}
+  localSave();
+  try{await Promise.race([pushNow(),new Promise(r=>setTimeout(r,3000))])}catch(e){}
+  try{localStorage.setItem('ks:active',slot)}catch(e){}
+  location.reload();
+}
+function renderPfSheet(){
+  const el=$('pfList');if(!el)return;
+  el.innerHTML=pfSorted().map(p=>{const on=p.slot===PSLOT;return `<button class="pf ${on?'on':''}" data-pfsw="${esc(p.slot)}">${pfAv(p)}<div class="ai"><b>${esc(pName(p))}</b><small>${esc(p.email||'')}</small></div>${on?'<span class="ck">✓</span>':'<span class="chev">›</span>'}</button>`}).join('');
+  el.querySelectorAll('[data-pfsw]').forEach(b=>b.onclick=()=>switchProfile(b.dataset.pfsw));
+}
+let pfSignUp=false;
+function openPfAdd(){
+  closeSheets();pfSignUp=false;drawPfMode();
+  ['pfName','pfEmail','pfPass'].forEach(i=>$(i).value='');$('pfErr').textContent='';
+  openSheet('pfAddSheet');setTimeout(()=>$('pfName').focus(),250);
+}
+function drawPfMode(){$('pfGo').textContent=pfSignUp?'Hesap oluştur ve ekle':'Giriş yap ve ekle';$('pfMode').textContent=pfSignUp?'Hesabı var mı? Giriş yap':'Hesabı yok mu? Yeni hesap oluştur';$('pfPass').autocomplete=pfSignUp?'new-password':'current-password'}
+async function addProfile(){
+  const name=$('pfName').value.trim().slice(0,30),email=$('pfEmail').value.trim(),pass=$('pfPass').value,err=t=>{$('pfErr').textContent=t};
+  if(!name)return err('Profil için bir ad yaz');
+  if(!email||!pass)return err('E-posta ve şifreyi gir');
+  const FB=window.FB;if(!FB)return err('Bağlantı kurulamadı, internetini kontrol et');
+  const ex=profs().find(x=>(x.email||'').toLowerCase()===email.toLowerCase());
+  if(ex){if(ex.slot===PSLOT)return err('Bu hesap zaten açık');return switchProfile(ex.slot)}
+  const b=$('pfGo');b.disabled=true;err('');
+  try{
+    const slot='p'+Date.now().toString(36);
+    const auth=FB.A.getAuth(FB.initializeApp(FB.cfg,slot));
+    const cr=pfSignUp?await FB.A.createUserWithEmailAndPassword(auth,email,pass):await FB.A.signInWithEmailAndPassword(auth,email,pass);
+    const u=cr.user;
+    lsSet('kelimeSaati:v1:'+slot,{name,worker:S.worker||'',theme:S.theme,lang:S.lang});
+    const a=profs();a.push({slot,uid:u.uid,email:u.email,name});setProfs(a);
+    $('pfPass').value='';
+    await switchProfile(slot);
+  }catch(x){err(authMsg(x.code||''));b.disabled=false}
+}
+async function doLogout(){
+  if(!confirm('Bu profilden çıkış yapılsın mı? Verileri hesabında kayıtlı kalır.'))return;
+  pushNow();clearTimeout(pushT);
+  try{await C.A.signOut(C.auth)}catch(e){}
+  const rest=profs().filter(x=>x.slot!==PSLOT);setProfs(rest);
+  try{['kelimeSaati:v1','ks:me','ks:sess'].forEach(k=>localStorage.removeItem(k+SFX))}catch(e){}
+  if(rest.length){try{localStorage.setItem('ks:active',rest[0].slot)}catch(e){}return location.reload()}
+  S=freshDef();localSave();applyState();showTab('today');
+}
+function showLogin(on){$('login').classList.toggle('on',on);if(on){$('lErr').textContent='';closeSheets();
+  const o=profs().filter(x=>x.slot!==PSLOT);$('lProfs').innerHTML=o.length?'<p style="margin:22px 0 8px">ya da başka bir profille devam et</p>'+o.map(p=>`<button class="pf" data-pfsw="${esc(p.slot)}">${pfAv(p)}<div class="ai"><b>${esc(pName(p))}</b><small>${esc(p.email||'')}</small></div><span class="chev">›</span></button>`).join(''):'';
+  $('lProfs').querySelectorAll('[data-pfsw]').forEach(b=>b.onclick=()=>switchProfile(b.dataset.pfsw))}}
 function lerr(t,ok){const e=$('lErr');e.textContent=t;e.classList.toggle('ok',!!ok)}
 function authMsg(c){return({
   'auth/invalid-email':'E-posta adresi geçersiz','auth/user-not-found':'E-posta ya da şifre hatalı','auth/wrong-password':'E-posta ya da şifre hatalı',
@@ -2004,12 +2113,12 @@ $('lForgot').onclick=async()=>{
   const e=$('lEmail').value.trim();if(!e)return lerr('Önce e-posta adresini yaz');
   try{await C.A.sendPasswordResetEmail(C.auth,e);lerr('Şifre sıfırlama bağlantısı e-postana gönderildi',true)}catch(x){lerr(authMsg(x.code))}
 };
-$('logoutBtn').onclick=async()=>{
-  if(!confirm('Çıkış yapılsın mı? Verilerin hesabında kayıtlı kalır.'))return;
-  pushNow();clearTimeout(pushT);
-  try{await C.A.signOut(C.auth)}catch(e){}
-  S=freshDef();localSave();applyState();showTab('today');
-};
+$('acAdd').onclick=openPfAdd;
+$('pfBtn').onclick=()=>{renderPfSheet();openSheet('pfSheet')};
+$('pfAdd').onclick=openPfAdd;
+$('pfMode').onclick=()=>{pfSignUp=!pfSignUp;drawPfMode();$('pfErr').textContent=''};
+$('pfGo').onclick=addProfile;
+$('pfPass').onkeydown=e=>{if(e.key==='Enter')addProfile()};
 
 /* BUGÜN paneli */
 let todayNewsBusy=false;
@@ -2422,8 +2531,8 @@ function wkErr(r,d,body){
   if(r.status===401)e.message='Önce uygulamaya giriş yap';
   return e;
 }
-let ME=lsGet('ks:me',null);
-async function refreshMe(){if(!S.worker)return ME;try{ME=await workerCall({me:1},15000);lsSet('ks:me',ME)}catch(e){}if($('setSheet').classList.contains('on'))renderAiSet();return ME}
+let ME=lsGet('ks:me'+SFX,null);
+async function refreshMe(){if(!S.worker)return ME;try{ME=await workerCall({me:1},15000);lsSet('ks:me'+SFX,ME)}catch(e){}if($('setSheet').classList.contains('on'))renderAiSet();return ME}
 function needsKey(){return ME&&!ME.family&&!S.gkey}
 async function workerCall(body,ms){
   if(!S.worker)throw new Error('Önce Ayarlar\'dan Worker adresini gir');
@@ -3317,7 +3426,7 @@ let lastHour=Math.floor(Date.now()/slotMs());
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){const h=Math.floor(Date.now()/slotMs());if(h!==lastHour){lastHour=h;if(mode==='hour'){hOff=0;render()}}}});
 
 /* ---------- Oturumu koru: iPhone uygulamayı arka planda kapatırsa kaldığın yerden devam et ---------- */
-const SESS='ks:sess';
+const SESS='ks:sess'+SFX;
 function curView(){return ([...document.querySelectorAll('.view.on')][0]||{id:'v-today'}).id.slice(2)}
 function sessSave(){
   try{
@@ -3388,7 +3497,9 @@ if(cfg&&cfg.apiKey&&!/BURAYA/.test(cfg.apiKey)){
   try{
     const V='10.12.2',B=`https://www.gstatic.com/firebasejs/${V}/`;
     const [{initializeApp},A,F]=await Promise.all([import(B+'firebase-app.js'),import(B+'firebase-auth.js'),import(B+'firebase-firestore.js')]);
-    const app=initializeApp(cfg);
+    const slot=(()=>{try{return localStorage.getItem('ks:active')||''}catch(e){return ''}})();
+    const app=slot?initializeApp(cfg,slot):initializeApp(cfg);
+    window.FB={initializeApp,A,F,cfg};
     window.initCloud({auth:A.getAuth(app),db:F.getFirestore(app),A,F});
   }catch(e){console.warn('Firebase yüklenemedi',e)}
 }
