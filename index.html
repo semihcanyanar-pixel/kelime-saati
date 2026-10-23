@@ -2418,7 +2418,7 @@ async function wkFetch(body,signal){
 function wkErr(r,d,body){
   const e=new Error(d.error||('Hata '+r.status));e.status=r.status;e.quota=d.quota;e.needKey=!!d.needKey;
   // Kullanıcı bir şeye dokunduysa (arka plan işi değilse) anahtar kurulumunu aç
-  if(d.needKey&&Date.now()-TAP<4000&&!(body&&(body.tts||body.gloss||body.glossBatch||body.artmeta)))setTimeout(()=>openKeySheet(),50);
+  if(d.needKey&&Date.now()-TAP<4000&&!(body&&(body.tts||body.gloss||body.glossBatch||body.artmeta||body.trfix)))setTimeout(()=>openKeySheet(),50);
   if(r.status===401)e.message='Önce uygulamaya giriş yap';
   return e;
 }
@@ -2537,6 +2537,30 @@ async function repairBad(){
   if(n){save();AMAP=null;if($('v-home').classList.contains('on'))render();toast(`${n} kelimenin anlamı düzeltildi`)}
 }
 // Bazı yapay zekâ modelleri arada Çince/Japonca karakter kaçırabiliyor; temizle
+const TR_ENX=/[wqx]|ph|th|sh|ck|ee|oo|ou|ea/i,TR_STOP=new Set(['the','and','was','were','with','that','this','from','have','has','his','they','she','you','but','are','very','what','when','where','there','would','could']);
+const TR_OKW=new Set(['her','can','son','bin','ben','set','sat','ton','top','bar','dam','tam','kan','pin','din','hat','kim','pas','ara','ama','adam','kale','alt','ilk','bas','yan','ten','tek','ders','gel','koy','van','ana','eve','ole','sen','fan','bal']);
+// Türkçe satırda çevrilmeden kalmış İngilizce kelimeleri bulur (ör. "nowhere.", "Ephesus")
+function trLeaks(en,tr){
+  const enT=new Set((String(en).match(/[A-Za-z]+/g)||[]).map(x=>x.toLowerCase())),out=[];
+  for(const w of String(tr).match(/[A-Za-zÇĞİÖŞÜçğıöşüÂâÎîÛû]+/g)||[]){
+    const lw=w.toLowerCase();
+    if(/[çğıöşüâîûÇĞİÖŞÜ]/.test(w)||lw.length<3)continue;
+    if(TR_OKW.has(lw))continue;
+    if(TR_STOP.has(lw)||(enT.has(lw)&&(w[0]===lw[0]||TR_ENX.test(lw))))out.push(w);
+  }
+  return out;
+}
+// Hikâyedeki hatalı (yarım çevrilmiş) Türkçe satırları arka planda düzelt; her hikâye bir kez denenir
+async function fixStoryTr(st){
+  if(!st||st.trv||!S.worker)return;const items=[],pos=[];let k=0;
+  st.paras.forEach((p,pi)=>p.en.forEach((e,j)=>{const t=p.tr[j]||'';if(t&&trLeaks(e,t).length&&items.length<20){items.push({en:e,tr:t});pos.push([pi,j,k])}k++}));
+  if(!items.length){st.trv=1;save();return}
+  let d;try{d=await workerCall({trfix:{items}},45000)}catch(e){return}
+  const a=d&&Array.isArray(d.tr)?d.tr:[];let n=0;
+  pos.forEach(([pi,j,i],x)=>{const t=a[x];if(!t)return;st.paras[pi].tr[j]=t;n++;
+    if(SR===st&&$('v-sread').classList.contains('on')){const el=$('srBox').querySelector(`.sn[data-s="${i}"] .trl`);if(el)el.textContent=t}});
+  st.trv=1;save();if(n)toast(`${n} Türkçe satır düzeltildi`);
+}
 const noCJK=t=>String(t||'').replace(/[\u2E80-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF\uFF00-\uFFEF]+/g,'').replace(/\s{2,}/g,' ').trim();
 // Haber testi: soru seviyenin kendi metninden olmalı; kanıt cümlesi metinde geçmeli, şıklar birbirinden farklı olmalı
 const normT=t=>String(t||'').toLowerCase().replace(/[’`]/g,"'").replace(/[^a-z0-9' ]+/g,' ').replace(/\s+/g,' ').trim();
@@ -2678,7 +2702,7 @@ function renderRead(){
   if(!L){
     if(RD.err){body.innerHTML=`<div class="loadbox">${esc(RD.err)}<br><button class="ghost" id="rdRetry" style="max-width:200px;margin:14px auto 0">Tekrar dene</button></div>`;$('rdRetry').onclick=()=>{RD.err='';renderRead();loadLevel()};return}
     body.innerHTML=`<div class="livehd"><span class="dot"></span>Seviye ${RD.lv} yazılıyor ve çevriliyor</div><div id="liveBox" class="${S.newsTr?'':'notr'}"></div>`;
-    liveStart($('liveBox'),'news');liveDraw('',true);
+    liveStart(body.querySelector('#liveBox'),'news');liveDraw('',true);
     const pend=PEND[RD.item.id+':'+RD.lv];if(pend&&pend.text)liveType(pend.text);
     return;
   }
@@ -2691,7 +2715,7 @@ function renderRead(){
     <button class="ghost" id="rdDone">✓ Okudum, hedefime say</button>`;
   $('rdDone').onclick=()=>{if(!markRead('h',it.id))toast('Bu haber bugün zaten sayıldı')};
   renderVid();
-  mountPlayer($('plBox'),$('rdText'),'n'+it.id+'-'+RD.lv);
+  mountPlayer(body.querySelector('#plBox'),$('rdText'),'n'+it.id+'-'+RD.lv);
   $('trT').onclick=()=>{S.newsTr=!S.newsTr;save();$('trT').classList.toggle('on',S.newsTr);$('rdText').classList.toggle('notr',!S.newsTr)};
   $('dwT').onclick=()=>{const o=$('dwB').style.display==='none';$('dwB').style.display=o?'':'none';$('dwA').textContent=o?'▴':'▾'};
   $('dwB').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>addFromText(L.words[+b.dataset.i].w,findCtx(L.paras,L.words[+b.dataset.i].w),b));
@@ -2928,7 +2952,7 @@ function setTime(){
 }
 function togglePlay(){if(!PL)return;primeTTS();if(PL.playing||PL.busy)return pausePlayer();playFrom(PL.idx>=0?PL.idx:0,true)}
 function pausePlayer(){if(!PL)return;PL.playing=false;PL.busy=false;PL.gen++;if(PL.audio)PL.audio.pause();try{if(speechSynthesis.speaking||speechSynthesis.pending)speechSynthesis.cancel()}catch(e){}setIcon()}
-function stopPlayer(){if(!PL)return;pausePlayer();if(PL.audio){PL.audio.src='';PL.audio=null}(PL.chunks||[]).forEach(c=>{if(c.url)URL.revokeObjectURL(c.url)});PL=null}
+function stopPlayer(){if(!PL)return;pausePlayer();try{PL.box.innerHTML=''}catch(e){}if(PL.audio){PL.audio.src='';PL.audio=null}(PL.chunks||[]).forEach(c=>{if(c.url)URL.revokeObjectURL(c.url)});PL=null}
 async function wavDur(blob){try{const h=new DataView(await blob.slice(0,44).arrayBuffer());const br=h.getUint32(28,true)||48000;return (blob.size-44)/br}catch(e){return (blob.size-44)/48000}}
 function loadChunk(me,c){
   if(c.url)return Promise.resolve();if(c.p)return c.p;
@@ -3031,7 +3055,7 @@ async function makeStory(){
   stopPlayer();showTab('sread');
   $('srBox').innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>Yeni hikâye</b><span class="sp40"></span></div>
     <div class="sec rd"><div class="livehd"><span class="dot"></span>Hikâye yazılıyor ve çevriliyor</div><div id="liveBox" style="margin-top:8px"></div></div>`;
-  liveStart($('liveBox'),'story');liveDraw('',true);
+  liveStart($('srBox').querySelector('#liveBox'),'story');liveDraw('',true);
   try{
     const t=await streamCall({story:{topic,level:lv,len,words:words.map(w=>w.w),stream:true}},liveType,60000);
     let d;if(/^\s*\{/.test(t))d=JSON.parse(t);else{const x=parseLines(t);d={title:x.title,emoji:x.emoji,paras:x.paras,used:x.used}}
@@ -3039,11 +3063,11 @@ async function makeStory(){
     const st={id:Date.now().toString(36),title:d.title||((d.paras[0]&&d.paras[0].en[0]||'').split(/\s+/).slice(0,5).join(' ').replace(/[,.;:!?]+$/,'')+'…'),emoji:d.emoji||'📖',lvl:lv,topic,paras:d.paras,used:(d.used&&d.used.length?d.used:words.map(w=>w.w)),t:Date.now()};
     S.stories.unshift(st);S.stories=S.stories.slice(0,20);save();
     stBusy=false;await liveFinish();
-    if($('v-sread').classList.contains('on')){SR=st;renderSRead()}else toast(`"${st.title}" hazır · Hikâyelerim'de`);
+    if($('v-sread').classList.contains('on')){SR=st;renderSRead()}else toast(`"${st.title}" hazır · Hikâyelerim'de`);fixStoryTr(st);
   }catch(e){stBusy=false;toast('Hikâye yazılamadı: '+e.message);if($('v-sread').classList.contains('on'))showTab('stories')}
 }
 let SR=null;
-function openStory(id){const st=S.stories.find(x=>x.id===id);if(!st)return;stopPlayer();SR=st;showTab('sread');renderSRead()}
+function openStory(id){const st=S.stories.find(x=>x.id===id);if(!st)return;stopPlayer();SR=st;showTab('sread');renderSRead();fixStoryTr(st)}
 function renderSRead(){
   const st=SR,kw=new Set((st.used||[]).map(x=>String(x).toLowerCase()));
   const mine=(st.used||[]).map(x=>findWord(String(x))).filter(Boolean);
@@ -3055,7 +3079,7 @@ function renderSRead(){
   <button class="primary" id="srQuiz" style="margin-top:12px">📝 Hikâyedeki kelimelerle pratik yap</button>
   <button class="ghost" id="srDone">✓ Okudum, hedefime say</button></div>`;
   $('srDone').onclick=()=>{if(!markRead('s',st.id))toast('Bu hikâye bugün zaten sayıldı')};
-  mountPlayer($('plBox'),$('srText'),'s'+st.id);
+  mountPlayer($('srBox').querySelector('#plBox'),$('srText'),'s'+st.id);
   $('srTr').onclick=()=>{S.stTr=!S.stTr;save();$('srTr').classList.toggle('on',S.stTr);$('srText').classList.toggle('notr',!S.stTr)};
   $('srQuiz').onclick=()=>{if(!mine.length)return toast('Hikâyede listendeki kelime bulunamadı');stopPlayer();pView='setup';showTab('quiz');startPractice('list',mine.length,mine,st.title)};
   $('srDel').onclick=()=>{if(!confirm('Bu hikâye silinsin mi?'))return;S.stories=S.stories.filter(x=>x.id!==st.id);save();stopPlayer();showTab('stories')};
