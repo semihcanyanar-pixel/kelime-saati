@@ -1138,7 +1138,7 @@ let mode=S.mode||'hour', list=[], idx=0, hOff=0, searchList=[], searchTitle='', 
 function freshDef(){return JSON.parse(JSON.stringify(DEF))}
 function load(){try{return Object.assign(freshDef(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return freshDef()}}
 function localSave(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function save(){localSave();if(C&&C.auth.currentUser)schedulePush()}
+function save(){try{if(typeof goalSnap==='function')snapGoals()}catch(e){}localSave();if(C&&C.auth.currentUser)schedulePush()}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const k=w=>w.w.toLowerCase();
@@ -1922,7 +1922,7 @@ function mergeState(loc,rem){
   r.custom=(rem.custom||[]).concat((loc.custom||[]).filter(w=>!ck.has(w.w.toLowerCase())));
   r.learn=Object.assign({},loc.learn||{},rem.learn||{});
   r.daily=Object.assign({},loc.daily||{});
-  for(const [d,v] of Object.entries(rem.daily||{})){const l=r.daily[d];r.daily[d]=l?{n:Math.max(l.n||0,v.n||0),r:Math.max(l.r||0,v.r||0),ok:Math.max(l.ok||0,v.ok||0),h:Math.max(l.h||0,v.h||0),s:Math.max(l.s||0,v.s||0),v:Math.max(l.v||0,v.v||0),done:[...new Set([...(l.done||[]),...(v.done||[])])]}:v}
+  for(const [d,v] of Object.entries(rem.daily||{})){const l=r.daily[d];r.daily[d]=l?{n:Math.max(l.n||0,v.n||0),r:Math.max(l.r||0,v.r||0),ok:Math.max(l.ok||0,v.ok||0),h:Math.max(l.h||0,v.h||0),s:Math.max(l.s||0,v.s||0),v:Math.max(l.v||0,v.v||0),g:v.g||l.g,done:[...new Set([...(l.done||[]),...(v.done||[])])]}:v}
   r.hidden=[...new Set([...(rem.hidden||[]),...(loc.hidden||[])])];
   r.vWatched=Object.assign({},loc.vWatched||{},rem.vWatched||{});r.vch=(rem.vch&&rem.vch.length)?rem.vch:(loc.vch||[]);
   r.best=Math.max(loc.best||0,rem.best||0);r.learnedN=Math.max(loc.learnedN||0,rem.learnedN||0);
@@ -1930,6 +1930,7 @@ function mergeState(loc,rem){
   r.catMap=Object.assign({},loc.catMap||{},rem.catMap||{});
   r.wToken=rem.wToken||loc.wToken||'';
   r.name=rem.name||loc.name||'';
+  r.gFix=rem.gFix||loc.gFix||0;
   if(!r.worker&&loc.worker)r.worker=loc.worker;
   if((loc.autoDay||'')>(r.autoDay||''))r.autoDay=loc.autoDay;
   if((loc.autoWeek||'')>(r.autoWeek||''))r.autoWeek=loc.autoWeek;
@@ -2141,6 +2142,21 @@ const KINDS=[['n','Kelime','#7FE0A8','#22B86A','📇'],['r','Pratik','#8FD3FF','
 const gz=v=>v==null?1:+v;
 const goalOf=k=>k==='n'?S.goalN:k==='r'?S.goalR:k==='h'?gz(S.goalH):k==='s'?gz(S.goalS):gz(S.goalV);
 const onKinds=()=>KINDS.filter(([k])=>goalOf(k)>0);
+/* Her günün hedefi o günün kaydında saklanır (g); geçmiş oranlar sonradan hedef değişince kaymasın */
+const goalSnap=()=>{const g={};KINDS.forEach(([k])=>g[k]=goalOf(k));return g};
+let GKEYS=null;   // g'si olan günler (sıralı), hesap başına bir kez kurulur
+function goalAt(dk,k){
+  const v=S.daily&&S.daily[dk];if(v&&v.g&&v.g[k]!=null)return v.g[k];
+  if(!GKEYS)GKEYS=Object.keys(S.daily||{}).filter(x=>S.daily[x]&&S.daily[x].g).sort();
+  let lo=0,hi=GKEYS.length-1,f=null;while(lo<=hi){const m=(lo+hi)>>1;if(GKEYS[m]<=dk){f=GKEYS[m];lo=m+1}else hi=m-1}   // o günden önceki son kayıtlı hedef
+  return f&&S.daily[f].g[k]!=null?S.daily[f].g[k]:goalOf(k);
+}
+function snapGoals(){
+  if(!S.daily)S.daily={};const t=dkey(),g=goalSnap(),sig=JSON.stringify(g);let ch=false;
+  if(!S.gFix){for(const [d,v] of Object.entries(S.daily))if(d<t&&v&&!v.g){v.g=Object.assign({},g);ch=true}S.gFix=1;ch=true}   // eski günler bugünkü hedefle sabitlenir (bir kez)
+  const v=day(t);if(JSON.stringify(v.g||null)!==sig){v.g=g;ch=true}
+  if(ch)GKEYS=null;return ch;
+}
 function renderToday(){
   if(!BASE.length)return;
   const d=day(),ln=Object.keys(S.learn).length,st=streakDays();
@@ -2196,10 +2212,10 @@ function maxWeekOff(){
   const [y,mo,d]=ks[0].split('-').map(Number),f=new Date(y,mo-1,d,12);f.setDate(f.getDate()-(f.getDay()+6)%7);
   return Math.max(0,Math.round((weekStart(0)-f)/(7*864e5)));
 }
-function renderWeekChart(){
+function renderWeekChart(){GKEYS=null;
   const mx=maxWeekOff();if(wOff>mx)wOff=mx;if(wOff<0)wOff=0;
   const st=weekStart(wOff),names=LANG==='en'?['Mo','Tu','We','Th','Fr','Sa','Su']:['Pt','Sa','Ça','Pe','Cu','Ct','Pz'],today=dkey(),days=[];
-  for(let i=0;i<7;i++){const x=new Date(st);x.setDate(st.getDate()+i);const key=dkey(x),v=S.daily[key]||{};days.push({d:names[i],n:v.n||0,r:v.r||0,ok:v.ok||0,h:v.h||0,s:v.s||0,v:v.v||0,today:key===today,future:key>today})}
+  for(let i=0;i<7;i++){const x=new Date(st);x.setDate(st.getDate()+i);const key=dkey(x),v=S.daily[key]||{};days.push({dk:key,d:names[i],n:v.n||0,r:v.r||0,ok:v.ok||0,h:v.h||0,s:v.s||0,v:v.v||0,today:key===today,future:key>today})}
   const en=new Date(st);en.setDate(st.getDate()+6);
   const range=st.getMonth()===en.getMonth()?`${st.getDate()}–${en.getDate()} ${MONTHS[en.getMonth()]}`:`${st.getDate()} ${MONTHS[st.getMonth()]} – ${en.getDate()} ${MONTHS[en.getMonth()]}`;
   $('wRange').innerHTML=`${wOff===0?'Bu hafta':wOff===1?'Geçen hafta':wOff+' hafta önce'}<small>${range}${en.getFullYear()!==new Date().getFullYear()?' '+en.getFullYear():''}</small>`;
@@ -2210,8 +2226,8 @@ function renderWeekChart(){
   const max=Math.max(goal,...days.map(x=>x[f]||0));
   $('weekC').style.setProperty('--c1',tab[2]);$('weekC').style.setProperty('--c2',tab[3]);
   $('wGoal').textContent=`Günlük hedef: ${goal} · koyu çubuk = hedef tamam`;
-  $('weekC').innerHTML=days.map(x=>{const v=x[f]||0;return `<div class="wk ${x.today?'today':''} ${v?'':'zero'} ${x.future?'future':''} ${v>=goal&&v?'hit':''}"><span class="v">${v||''}</span><div class="b" style="height:${Math.max(v/max*100,3)}%"></div><span class="d">${x.d}</span></div>`}).join('');
-  const sum=k=>days.reduce((a,x)=>a+(x[k]||0),0),tok=sum('ok'),tr=sum('r'),hitDays=days.filter(x=>KINDS.every(([k])=>(x[k]||0)>=goalOf(k))).length;
+  $('weekC').innerHTML=days.map(x=>{const v=x[f]||0;return `<div class="wk ${x.today?'today':''} ${v?'':'zero'} ${x.future?'future':''} ${v&&v>=goalAt(x.dk,f)?'hit':''}"><span class="v">${v||''}</span><div class="b" style="height:${Math.max(v/max*100,3)}%"></div><span class="d">${x.d}</span></div>`}).join('');
+  const sum=k=>days.reduce((a,x)=>a+(x[k]||0),0),tok=sum('ok'),tr=sum('r'),hitDays=days.filter(x=>!x.future&&KINDS.every(([k])=>(x[k]||0)>=goalAt(x.dk,k))).length;
   $('wStats').innerHTML=KINDS.map(([k,l,,c2,e])=>`<div><b style="color:${c2}">${sum(k)}</b><small>${e} ${l}</small></div>`).join('');
   $('weekSum').textContent=(sum('n')+tr+sum('h')+sum('s')+sum('v'))?`${wOff===0?'Bu hafta':'O hafta'}: pratikte %${tr?Math.round(tok/tr*100):0} doğru · ${hitDays} gün tüm hedefler tamam`:(wOff===0?'Bu hafta henüz etkinlik yok':'O hafta etkinlik yok');
 }
@@ -2222,7 +2238,7 @@ $('progCard').onclick=e=>{if(!e.target.closest('.ring'))showTab('stats')};
 /* İlerleme sayfası */
 let mOff=0;
 const actOf=v=>v&&((v.n||0)+(v.r||0)+(v.h||0)+(v.s||0)+(v.v||0))>0;
-const allGoalsOf=v=>v&&KINDS.every(([k])=>(v[k]||0)>=goalOf(k));
+const allGoalsOf=(v,dk)=>v&&KINDS.every(([k])=>(v[k]||0)>=goalAt(dk,k));
 function bestStreak(){const ks=Object.keys(S.daily||{}).filter(k=>actOf(S.daily[k])).sort();let best=0,run=0,prev=null;
   for(const k of ks){const [y,m,d]=k.split('-').map(Number),t=Date.UTC(y,m-1,d);run=prev!=null&&t-prev===864e5?run+1:1;prev=t;if(run>best)best=run}return best}
 function renderStats(){
@@ -2236,21 +2252,21 @@ function renderStats(){
 }
 // Hedef tutturma: her hafta (geçen günler × açık hedefler) içinde tutturulanların oranı
 function renderGoal8(){
-  const K=onKinds(),today=dkey(),first=Object.keys(S.daily||{}).filter(x=>actOf(S.daily[x])).sort()[0]||today,ws=[];
+  const K=KINDS,today=dkey(),first=Object.keys(S.daily||{}).filter(x=>actOf(S.daily[x])).sort()[0]||today,ws=[];
   for(let i=7;i>=0;i--){const st=weekStart(i);let hit=0,tot=0;
     for(let j=0;j<7;j++){const x=new Date(st);x.setDate(st.getDate()+j);const dk=dkey(x);if(dk>today||dk<first)continue;const v=S.daily[dk]||{};
-      K.forEach(([k])=>{tot++;if((v[k]||0)>=goalOf(k))hit++})}
+      K.forEach(([k])=>{const g=goalAt(dk,k);if(!(g>0))return;tot++;if((v[k]||0)>=g)hit++})}
     ws.push({p:tot?Math.round(hit/tot*100):null,lbl:`${st.getDate()} ${MONTHS[st.getMonth()]}`,cur:i===0})}
   $('goal8').innerHTML=ws.map(w=>`<div class="ab ${w.cur?'cur':''}"><span>${w.p==null?'':'%'+w.p}</span><div class="bb"><i style="height:${w.p==null?0:Math.max(w.p,3)}%"></i></div><small>${w.lbl}</small></div>`).join('');
 }
-function renderCal(){
+function renderCal(){GKEYS=null;
   const now=new Date(),m=new Date(now.getFullYear(),now.getMonth()-mOff,1),y=m.getFullYear(),mo=m.getMonth(),days=new Date(y,mo+1,0).getDate(),lead=(m.getDay()+6)%7,today=dkey();
   const MF=LANG==='en'?['January','February','March','April','May','June','July','August','September','October','November','December']:['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
   const names=LANG==='en'?['Mo','Tu','We','Th','Fr','Sa','Su']:['Pt','Sa','Ça','Pe','Cu','Ct','Pz'];
-  let a=0,g=0;for(let d=1;d<=days;d++){const v=S.daily[dkey(new Date(y,mo,d))];if(actOf(v))a++;if(allGoalsOf(v))g++}
+  let a=0,g=0;for(let d=1;d<=days;d++){const v=S.daily[dkey(new Date(y,mo,d))];if(actOf(v))a++;if(allGoalsOf(v,dkey(new Date(y,mo,d))))g++}
   $('mName').innerHTML=`${MF[mo]} ${y}<small>${a} gün çalıştın · ${g} gün tüm hedefler</small>`;
   let h=names.map(n=>`<b>${n}</b>`).join('')+'<i></i>'.repeat(lead);
-  for(let d=1;d<=days;d++){const k=dkey(new Date(y,mo,d)),v=S.daily[k],c=allGoalsOf(v)?'c2':actOf(v)?'c1':'';h+=`<span class="${c} ${k===today?'today':''} ${k>today?'fut':''}">${d}</span>`}
+  for(let d=1;d<=days;d++){const k=dkey(new Date(y,mo,d)),v=S.daily[k],c=allGoalsOf(v,k)?'c2':actOf(v)?'c1':'';h+=`<span class="${c} ${k===today?'today':''} ${k>today?'fut':''}">${d}</span>`}
   $('cal').innerHTML=h;
   const oldest=Object.keys(S.daily||{}).sort()[0];let maxM=0;if(oldest){const [oy,om]=oldest.split('-').map(Number);maxM=(now.getFullYear()-oy)*12+now.getMonth()-(om-1)}
   $('mPrev').disabled=mOff>=maxM;$('mNext').disabled=mOff===0;
