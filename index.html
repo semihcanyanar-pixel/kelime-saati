@@ -510,6 +510,8 @@ body.vfull nav.tabs,body.vfull header{display:none}
 .acc8 .bb{flex:1;width:100%;max-width:26px;display:flex;align-items:flex-end;background:var(--soft);border-radius:8px;overflow:hidden}
 .acc8 .bb i{display:block;width:100%;background:linear-gradient(180deg,#8FD3FF,#1E9BEA);border-radius:8px}
 .acc8 .ab.cur span{color:var(--text)}
+.g8 .bb i{background:linear-gradient(180deg,#9BE7B9,#22B86A)}
+
 .acc8 small{font-size:9.5px;color:var(--muted);white-space:nowrap}
 .lsep{height:2px;background:var(--line);border-radius:1px;margin:18px 0 0}
 .catrow{display:flex;align-items:center;gap:8px;padding:12px 2px;border-bottom:1px solid var(--line)}
@@ -641,12 +643,12 @@ nav.tabs button{position:relative}
       <div class="shdr"><button class="bk" data-back><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><b>İlerleme</b><span class="sp40"></span></div>
       <div class="sec">
         <div class="st2"><div class="wcard"><div class="sbig" id="stCur"></div><small>Şu anki seri</small></div><div class="wcard"><div class="sbig" id="stBest"></div><small>En uzun seri</small></div></div>
-        <h2 class="h">Haftalık</h2>
-        <div class="wcard"><div class="wnav"><button id="wPrev" aria-label="Önceki hafta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="wRange"></span><button id="wNext" aria-label="Sonraki hafta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button></div><div class="seg sm" id="wTabs"></div><p class="hint" id="wGoal" style="text-align:right;margin:8px 4px -4px;font-size:11.5px"></p><div class="week" id="weekC"></div><div class="wstats" id="wStats"></div><p class="hint" id="weekSum" style="text-align:center"></p></div>
         <h2 class="h">Toplam</h2>
         <div class="tot" id="tot"></div>
-        <h2 class="h">Pratik doğruluğu</h2>
-        <div class="wcard"><div class="acc8" id="acc8"></div><p class="hint" style="text-align:center">Son 8 haftada pratikteki doğru cevap oranın</p></div>
+        <h2 class="h">Haftalık</h2>
+        <div class="wcard"><div class="wnav"><button id="wPrev" aria-label="Önceki hafta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><span id="wRange"></span><button id="wNext" aria-label="Sonraki hafta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button></div><div class="seg sm" id="wTabs"></div><p class="hint" id="wGoal" style="text-align:right;margin:8px 4px -4px;font-size:11.5px"></p><div class="week" id="weekC"></div><div class="wstats" id="wStats"></div><p class="hint" id="weekSum" style="text-align:center"></p></div>
+        <h2 class="h">Hedeflerin</h2>
+        <div class="wcard"><div class="acc8 g8" id="goal8"></div><p class="hint" style="text-align:center">Son 8 haftada günlük hedeflerinin ne kadarını tutturdun</p></div>
       </div>
     </section>
 
@@ -2230,8 +2232,16 @@ function renderStats(){
   const D=Object.values(S.daily||{}),sum=k=>D.reduce((a,v)=>a+(v[k]||0),0),r=sum('r'),ok=sum('ok');
   const T=[['📇',(S.seenAll||[]).length,'görülen kelime'],['✅',S.known.length,'bildiğin kelime'],['🎓',S.learnedN||0,'Öğren\'den çıkan'],['🎯',r,'cevaplanan soru'],['📰',sum('h'),'haber'],['📚',sum('s'),'hikâye'],['🎬',Math.max(sum('v'),Object.keys(S.vWatched||{}).length),'video'],['💯',r?Math.round(ok/r*100)+'%':'—','genel doğruluk']];
   $('tot').innerHTML=T.map(([e,n,l])=>`<div class="wcard"><span>${e}</span><b>${n}</b><small>${l}</small></div>`).join('');
-  const ws=[];for(let i=7;i>=0;i--){const st=weekStart(i);let rr=0,oo=0;for(let j=0;j<7;j++){const x=new Date(st);x.setDate(st.getDate()+j);const v=S.daily[dkey(x)];if(v){rr+=v.r||0;oo+=v.ok||0}}ws.push({p:rr?Math.round(oo/rr*100):null,lbl:`${st.getDate()} ${MONTHS[st.getMonth()]}`,cur:i===0})}
-  $('acc8').innerHTML=ws.map(w=>`<div class="ab ${w.cur?'cur':''}"><span>${w.p==null?'':w.p+'%'}</span><div class="bb"><i style="height:${w.p==null?0:Math.max(w.p,3)}%"></i></div><small>${w.lbl}</small></div>`).join('');
+  renderGoal8();
+}
+// Hedef tutturma: her hafta (geçen günler × açık hedefler) içinde tutturulanların oranı
+function renderGoal8(){
+  const K=onKinds(),today=dkey(),first=Object.keys(S.daily||{}).filter(x=>actOf(S.daily[x])).sort()[0]||today,ws=[];
+  for(let i=7;i>=0;i--){const st=weekStart(i);let hit=0,tot=0;
+    for(let j=0;j<7;j++){const x=new Date(st);x.setDate(st.getDate()+j);const dk=dkey(x);if(dk>today||dk<first)continue;const v=S.daily[dk]||{};
+      K.forEach(([k])=>{tot++;if((v[k]||0)>=goalOf(k))hit++})}
+    ws.push({p:tot?Math.round(hit/tot*100):null,lbl:`${st.getDate()} ${MONTHS[st.getMonth()]}`,cur:i===0})}
+  $('goal8').innerHTML=ws.map(w=>`<div class="ab ${w.cur?'cur':''}"><span>${w.p==null?'':'%'+w.p}</span><div class="bb"><i style="height:${w.p==null?0:Math.max(w.p,3)}%"></i></div><small>${w.lbl}</small></div>`).join('');
 }
 function renderCal(){
   const now=new Date(),m=new Date(now.getFullYear(),now.getMonth()-mOff,1),y=m.getFullYear(),mo=m.getMonth(),days=new Date(y,mo+1,0).getDate(),lead=(m.getDay()+6)%7,today=dkey();
@@ -2659,15 +2669,28 @@ function trLeaks(en,tr){
   return out;
 }
 // Hikâyedeki hatalı (yarım çevrilmiş) Türkçe satırları arka planda düzelt; her hikâye bir kez denenir
-async function fixStoryTr(st){
-  if(!st||st.trv||!S.worker)return;const items=[],pos=[];let k=0;
-  st.paras.forEach((p,pi)=>p.en.forEach((e,j)=>{const t=p.tr[j]||'';if(t&&trLeaks(e,t).length&&items.length<20){items.push({en:e,tr:t});pos.push([pi,j,k])}k++}));
-  if(!items.length){st.trv=1;save();return}
-  let d;try{d=await workerCall({trfix:{items}},45000)}catch(e){return}
-  const a=d&&Array.isArray(d.tr)?d.tr:[];let n=0;
-  pos.forEach(([pi,j,i],x)=>{const t=a[x];if(!t)return;st.paras[pi].tr[j]=t;n++;
-    if(SR===st&&$('v-sread').classList.contains('on')){const el=$('srBox').querySelector(`.sn[data-s="${i}"] .trl`);if(el)el.textContent=t}});
-  st.trv=1;save();if(n)toast(`${n} Türkçe satır düzeltildi`);
+async function fixStoryTr(st){return fixStoryTr2(st)}
+// Türkçe satır puanı: çevrilmemiş kelime, alt çizgi (Ayşe_bir_gün), bitişik uzun kelime zinciri
+function trBad(en,tr){tr=String(tr||'');return trLeaks(en,tr).length+(/_/.test(tr)?2:0)+(/[^\s_]{28,}/.test(tr)?1:0)}
+const unU=t=>String(t||'').replace(/_+/g,' ').replace(/\s{2,}/g,' ').trim();
+// Hikâyenin Türkçe satırlarını denetle: zayıf model yazdıysa ya da çok hata varsa tümünü, yoksa sadece hatalı satırları yeniden çevirt (her hikâye bir kez)
+async function fixStoryTr2(st){
+  if(!st||(st.trv||0)>=2||!S.worker)return;
+  const L=[];let k=0;st.paras.forEach((p,pi)=>p.en.forEach((e,j)=>{L.push({pi,j,i:k++,en:e,tr:p.tr[j]||''})}));
+  const paint=x=>{if(SR===st&&$('v-sread').classList.contains('on')){const el=$('srBox').querySelector(`.sn[data-s="${x.i}"] .trl`);if(el)el.textContent=st.paras[x.pi].tr[x.j]}};
+  const bad=L.filter(x=>x.tr&&trBad(x.en,x.tr)),under=L.some(x=>/_/.test(x.tr));
+  L.forEach(x=>{if(/_/.test(x.tr)){x.tr=unU(x.tr);st.paras[x.pi].tr[x.j]=x.tr;paint(x)}});
+  const full=(!!st.by&&st.by!=='gemini')||under||bad.length>=2;
+  const todo=full?L.filter(x=>x.tr):bad;
+  if(!todo.length){st.trv=2;save();return}
+  let n=0;
+  for(let b=0;b<todo.length;b+=15){
+    const part=todo.slice(b,b+15);let d;
+    try{d=await workerCall({trfix:{items:part.map(x=>({en:x.en,tr:x.tr})),full}},60000)}catch(e){save();return}
+    const a=d&&Array.isArray(d.tr)?d.tr:[];
+    part.forEach((x,q)=>{const t=a[q];if(t&&t!==x.tr){st.paras[x.pi].tr[x.j]=t;n++;paint(x)}});
+  }
+  st.trv=2;save();if(n)toast(`${n} Türkçe satır düzeltildi`);
 }
 const noCJK=t=>String(t||'').replace(/[\u2E80-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF\uFF00-\uFFEF]+/g,'').replace(/\s{2,}/g,' ').trim();
 // Haber testi: soru seviyenin kendi metninden olmalı; kanıt cümlesi metinde geçmeli, şıklar birbirinden farklı olmalı
@@ -2715,17 +2738,19 @@ function parseLines(t){
     if(inW){if((m=line.match(/^[-*•]?\s*(.+?)\s*=\s*(.+)$/)))words.push({w:m[1],tr:m[2]});continue}
     if(/^-{3,}$/.test(line)||/^#/.test(line)){cur=null;continue}
     if((m=line.match(/^EN:\s*(.*)$/i))){if(!cur){cur={en:[],tr:[]};paras.push(cur)}cur.en.push(noCJK(m[1]));cur.tr.push('');continue}
-    if((m=line.match(/^TR:\s*(.*)$/i))&&cur&&cur.en.length){cur.tr[cur.en.length-1]=noCJK(m[1]);continue}
+    if((m=line.match(/^TR:\s*(.*)$/i))&&cur&&cur.en.length){cur.tr[cur.en.length-1]=unU(noCJK(m[1]));continue}
   }
   out.paras=paras.filter(p=>p.en.length);return out;
 }
 // Akışlı istek: metin geldikçe onText(tümü) çağrılır
+let LAST_LLM='';
 async function streamCall(body,onText,ms){
   if(!S.worker)throw new Error('Önce Ayarlar\'dan Worker adresini gir');
   const ctl=new AbortController();let tm=setTimeout(()=>ctl.abort(),ms||60000);
   try{
     const r=await wkFetch(body,ctl.signal);
     if(!r.ok){const d=await r.json().catch(()=>({}));throw wkErr(r,d,body)}
+    LAST_LLM=r.headers.get('X-LLM')||'';
     let all='';
     if(r.body&&r.body.getReader){const rd=r.body.getReader(),dec=new TextDecoder();
       for(;;){const {done,value}=await rd.read();if(done)break;all+=dec.decode(value,{stream:true});clearTimeout(tm);tm=setTimeout(()=>ctl.abort(),ms||60000);onText&&onText(all)}}
@@ -2884,7 +2909,7 @@ function textHtml(paras,kind,kw){
   paras.forEach(p=>{
     if(kind==='news'){h+='<p class="txt">'+p.en.map(s=>{const i=SENTS.push({en:s})-1;return `<span class="sn" data-s="${i}">${wordSpans(s,kw)}</span>`}).join(' ')+'</p>';
       if(p.tr.some(Boolean))h+=`<p class="trp">${esc(p.tr.join(' '))}</p>`}
-    else h+=p.en.map((s,j)=>{const i=SENTS.push({en:s})-1;return `<div class="bi sn" data-s="${i}"><p class="en">${wordSpans(s,kw)}</p><p class="trl">${esc(p.tr[j]||'')}</p></div>`}).join('');
+    else h+=p.en.map((s,j)=>{const i=SENTS.push({en:s})-1;return `<div class="bi sn" data-s="${i}"><p class="en">${wordSpans(s,kw)}</p><p class="trl">${esc(unU(p.tr[j]))}</p></div>`}).join('');
   });
   glossPrefetch(kind==='news'&&RD&&RD.item?RD.item.link:'');
   return h;
@@ -3122,7 +3147,7 @@ function speakFrom(i){
 const ST_TOPICS=['Macera','Gizem','Günlük hayat','Bilim kurgu','Seyahat','Romantik','Komedi','İş hayatı','Spor','Tarih','Doğa','Korku'];
 const stSrcName=x=>x==='_rand'?'Rastgele':x==='learn'?'Öğren':x==='_week'?'Haftanın kelimeleri':x==='favs'?'Favoriler':x==='custom'?'Eklediğim kelimeler':TOPICS[x]||x;
 function stSrcPool(x){const A=all();return x==='_rand'?A:x==='learn'?A.filter(inLearn):x==='_week'?weekWords():x==='favs'?A.filter(isFav):x==='custom'?S.custom.slice():A.filter(w=>catOf(w)===x)}
-function stPool(){const m=new Map();(S.stSrc.length?S.stSrc:['_rand']).forEach(x=>stSrcPool(x).forEach(w=>m.set(k(w),w)));return m.size?[...m.values()]:all()}
+function stPool(raw){const m=new Map();(S.stSrc.length?S.stSrc:['_rand']).forEach(x=>stSrcPool(x).forEach(w=>m.set(k(w),w)));let a=m.size?[...m.values()]:all();if(!raw&&S.stSeen){const sn=new Set(S.seenAll||[]);a=a.filter(w=>sn.has(k(w)))}return a}
 function pickStoryWords(){
   const N=S.stLen==='long'?13:7,lv=LEVELS.indexOf(S.stLv),seen=new Set(S.seenAll||[]);
   const sc=w=>(inLearn(w)?0:2)+(seen.has(k(w))?1:0)+(LEVELS.indexOf(w.lvl)>lv+1?2:0)+Math.random()*1.5;
@@ -3139,6 +3164,7 @@ function renderStories(){
     <label class="lb">Seviye</label><div class="seg" id="stLv">${LEVELS.map(l=>`<button class="${S.stLv===l?'on':''}" data-l="${l}">${l}</button>`).join('')}</div>
     <label class="lb">Hangi kelimeler geçsin?</label>
     <button class="selbtn" id="stSrcB"><span><b>${esc(S.stSrc.map(stSrcName).join(', ')||'Rastgele')}</b><small>${stPool().length} kelime arasından seçilecek</small></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+    <button class="so ${S.stSeen?'on':''}" id="stSeen"><span class="tl">Sadece çalıştığım kelimeler<small>${(()=>{const t=stPool(true),sn=new Set(S.seenAll||[]),n=t.filter(w=>sn.has(k(w))).length;return S.stSeen?`Kartlarda gördüğün ${n} kelimeden seçer`:`Kartlarda gördüğün ${n} kelimeyle sınırla`})()}</small></span><i class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i></button>
     <label class="lb">Uzunluk</label><div class="seg" id="stLen"><button class="${S.stLen!=='long'?'on':''}" data-v="short">Kısa · ~1 dk</button><button class="${S.stLen==='long'?'on':''}" data-v="long">Orta · ~3 dk</button></div>
     <button class="primary" id="stGo" ${stBusy?'disabled':''}>${stBusy?'<span class="spin"></span>Hikâye yazılıyor…':'Hikâyeyi yaz'}</button></div>
     ${S.stories.length?`<div class="glabel">Hikâyelerim</div><div class="group">${S.stories.map(x=>`<button class="grow" data-id="${x.id}"><i class="gi" style="background:#F8D9B9">${esc(x.emoji||'📖')}</i><span class="gt">${esc(x.title)}<small>${esc(x.lvl)} · ${esc(x.topic)} · ${(x.used||[]).length} kelime · ${ago(new Date(x.t).toISOString())}</small></span>${CHEV}</button>`).join('')}</div>`:''}`;
@@ -3147,7 +3173,8 @@ function renderStories(){
   $('stLv').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.stLv=b.dataset.l;save();renderStories()});
   $('stLen').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.stLen=b.dataset.v;save();renderStories()});
   $('stSrcB').onclick=openStSrc;
-  $('stGo').onclick=makeStory;
+  $('stSeen').onclick=()=>{S.stSeen=!S.stSeen;save();renderStories()};
+  $('stGo').onclick=()=>{if(S.stSeen&&stPool().filter(w=>!isKnown(w)).length<3)return toast('Önce kartlardan birkaç kelime çalış');makeStory()};
   $('stBox').querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>openStory(b.dataset.id));
 }
 function openStSrc(){
@@ -3168,7 +3195,7 @@ async function makeStory(){
     const t=await streamCall({story:{topic,level:lv,len,words:words.map(w=>w.w),stream:true}},liveType,60000);
     let d;if(/^\s*\{/.test(t))d=JSON.parse(t);else{const x=parseLines(t);d={title:x.title,emoji:x.emoji,paras:x.paras,used:x.used}}
     if(!d.paras||!d.paras.length)throw new Error('Hikâye yazılamadı, tekrar dene');
-    const st={id:Date.now().toString(36),title:d.title||((d.paras[0]&&d.paras[0].en[0]||'').split(/\s+/).slice(0,5).join(' ').replace(/[,.;:!?]+$/,'')+'…'),emoji:d.emoji||'📖',lvl:lv,topic,paras:d.paras,used:(d.used&&d.used.length?d.used:words.map(w=>w.w)),t:Date.now()};
+    const st={id:Date.now().toString(36),title:d.title||((d.paras[0]&&d.paras[0].en[0]||'').split(/\s+/).slice(0,5).join(' ').replace(/[,.;:!?]+$/,'')+'…'),emoji:d.emoji||'📖',lvl:lv,topic,paras:d.paras,by:LAST_LLM,used:(d.used&&d.used.length?d.used:words.map(w=>w.w)),t:Date.now()};
     S.stories.unshift(st);S.stories=S.stories.slice(0,20);save();
     stBusy=false;await liveFinish();
     if($('v-sread').classList.contains('on')){SR=st;renderSRead()}else toast(`"${st.title}" hazır · Hikâyelerim'de`);fixStoryTr(st);
