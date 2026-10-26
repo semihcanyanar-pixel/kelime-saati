@@ -319,6 +319,8 @@ nav.tabs button.on{color:var(--accent)}
 .sn{border-radius:6px;transition:background .2s;-webkit-box-decoration-break:clone;box-decoration-break:clone}.sn.cur{background:#FDE6D6}
 .wd{border-radius:4px}.wd.on{background:var(--accent);color:#fff}
 .kw{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px}
+.svb{color:var(--ink);border-color:var(--accent);font-weight:700;margin-top:12px}.svb.on{color:var(--muted);border-color:var(--line);font-weight:600}
+.kw2{text-decoration:underline;text-decoration-color:#1E9BEA;text-decoration-thickness:2px;text-underline-offset:3px}
 .tgl{display:flex;justify-content:space-between;align-items:center;width:100%;border:none;background:var(--card);border-radius:14px;padding:12px 14px;margin-top:16px;font-weight:600;font-size:15px;color:var(--text)}
 .tgl i{width:44px;height:26px;border-radius:13px;background:var(--toggle);position:relative;flex:none;transition:background .2s}.tgl i::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#FFF;transition:left .2s}
 .tgl.on i{background:#34C77B}.tgl.on i::after{left:21px}
@@ -763,6 +765,7 @@ nav.tabs button{position:relative}
   <button class="primary" id="vchOk">Tamam</button></div></div>
 
 <!-- Hikâye kelime kaynakları -->
+<div class="sheet" id="stListSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Kayıtlı hikâyelerim</h3><div class="group" id="stList" style="max-height:62vh;overflow:auto"></div></div></div>
 <div class="sheet" id="stSrcSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
   <h3>Hangi kelimeler geçsin?</h3><p class="hint" style="margin-top:-6px">Birden fazlasını seçebilirsin. Hikâyeye bunlardan 6-15 kelime yerleştirilir; Öğren ve görmediğin kelimeler önce gelir.</p>
   <div id="stSrcList"></div><button class="primary" id="stSrcOk">Tamam</button></div></div>
@@ -1486,10 +1489,12 @@ function renderQuota(){
     const {start,reset}=ptClock(),rs=hhmm(reset);
     const g=q.groq.rl;
     if(g&&g.left/g.limit<.15)warn.push('Groq');
-    rows+=q.hasGroq?row('⚡','Groq',g?`Kesin · ${g.reset?grRes(g.reset)+' sonra yenilenir':''}`:'↻ Güncelle\'ye bas',g?`${g.left.toLocaleString(LOC)} / ${g.limit.toLocaleString(LOC)} kaldı`:'—',g?pc(g.left/g.limit*100):null,'https://console.groq.com/settings/limits',g?col(100-g.left/g.limit*100):null):row('⚡','Groq','Anahtar eklenmemiş','—',null,'https://console.groq.com/keys');
-    const gm=(k,ic,t)=>{const x=q[k],full=x.e429>start,p=full?100:pc(x.used/x.limit*100);if(full)warn.push(t);return row(ic,t,`Bugün ${x.used} istek · ${full?`⚠ ${hhmm(x.e429)}'de doldu, ${rs}'de yenilenir`:'✓ Çalışıyor'}`,full?'Doldu':`~%${p}`,p,'https://aistudio.google.com/usage',full?'#D2463A':null)};
+    const qErrL=k=>{const e=q.err&&q.err[k];return e&&Date.now()-e.t<864e5?`<br><span style="color:#D2463A">Son hata ${hhmm(e.t)}: ${esc(e.m)}</span>`:''};
+    rows+=q.hasGroq?row('⚡','Groq',(g?`Kesin · ${g.reset?grRes(g.reset)+' sonra yenilenir':''}`:'↻ Güncelle\'ye bas')+qErrL('groq'),g?`${g.left.toLocaleString(LOC)} / ${g.limit.toLocaleString(LOC)} kaldı`:'—',g?pc(g.left/g.limit*100):null,'https://console.groq.com/settings/limits',g?col(100-g.left/g.limit*100):null):row('⚡','Groq','Anahtar eklenmemiş','—',null,'https://console.groq.com/keys');
+    const gm=(k,ic,t)=>{const x=q[k],full=x.e429>start,p=full?100:pc(x.used/x.limit*100);if(full)warn.push(t);return row(ic,t,`Bugün ${x.used} istek · ${full?`⚠ ${hhmm(x.e429)}'de doldu, ${rs}'de yenilenir`:'✓ Çalışıyor'}`+(k==='gem'?qErrL('gem'):''),full?'Doldu':`~%${p}`,p,'https://aistudio.google.com/usage',full?'#D2463A':null)};
     rows+=gm('gem','✨','Gemini metin')+gm('tts','🔊','Gemini ses');
-    rows+=row('☁️','Workers AI',q.hasAI?`Bugün ${q.wai.used} istek (yedek)`:'Bağlantı eklenmemiş',q.hasAI?String(q.wai.used):'—',null,'https://dash.cloudflare.com/?to=/:account/ai/workers-ai');
+    rows+=q.hasAI?row('🧠','Kimi K2.6',`Bugün ${(q.kimi||{}).used||0} istek (hikâye yedeği)`+qErrL('kimi'),String((q.kimi||{}).used||0),null,'https://dash.cloudflare.com/?to=/:account/ai/workers-ai'):'';
+    rows+=row('☁️','Workers AI',q.hasAI?`Bugün ${q.wai.used} istek (son yedek)`+qErrL('wai'):'Bağlantı eklenmemiş',q.hasAI?String(q.wai.used):'—',null,'https://dash.cloudflare.com/?to=/:account/ai/workers-ai');
     const kp=pc(q.kvw.used/q.kvw.limit*100);if(kp>=85)warn.push('Önbellek');rows+=row('💾','Önbellek yazma',`Bugün ${q.kvw.used} / ${q.kvw.limit.toLocaleString(LOC)}`,`%${kp}`,kp,'https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces');
     const yp=pc(q.yt.used/q.yt.limit*100);rows+=row('▶️','YouTube',`Bugün ~${q.yt.used.toLocaleString(LOC)} / ${q.yt.limit.toLocaleString(LOC)} birim`,`%${yp}`,yp,'https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas');
     rows+=row('🌙','Gece hazırlığı',`Bu gece ${q.night.total} haberin ${q.night.ready}'i hazır`,q.night.ready>=q.night.total&&q.night.total?'✓':`${q.night.ready}/${q.night.total}`,null,'');
@@ -1937,7 +1942,7 @@ function mergeState(loc,rem){
   if(loc.wkTry&&(!r.wkTry||(loc.wkTry.wk===r.wkTry.wk&&loc.wkTry.n>r.wkTry.n)||loc.wkTry.wk>r.wkTry.wk))r.wkTry=loc.wkTry;
   if((loc.weekSeen||'')>(r.weekSeen||''))r.weekSeen=loc.weekSeen;
   const sid=new Set((rem.stories||[]).map(x=>x.id));
-  r.stories=(rem.stories||[]).concat((loc.stories||[]).filter(x=>!sid.has(x.id))).sort((a,b)=>b.t-a.t).slice(0,20);
+  r.stories=(rem.stories||[]).concat((loc.stories||[]).filter(x=>!sid.has(x.id))).sort((a,b)=>b.t-a.t).slice(0,41);
   r.newsDone=Object.assign({},loc.newsDone||{});
   for(const [id,v] of Object.entries(rem.newsDone||{})){const l=r.newsDone[id];if(!l||(v.s??-1)>=(l.s??-1))r.newsDone[id]=v}
   return r;
@@ -2687,18 +2692,18 @@ function trLeaks(en,tr){
 // Hikâyedeki hatalı (yarım çevrilmiş) Türkçe satırları arka planda düzelt; her hikâye bir kez denenir
 async function fixStoryTr(st){return fixStoryTr2(st)}
 // Türkçe satır puanı: çevrilmemiş kelime, alt çizgi (Ayşe_bir_gün), bitişik uzun kelime zinciri
-function trBad(en,tr){tr=String(tr||'');return trLeaks(en,tr).length+(/_/.test(tr)?2:0)+(/[^\s_]{28,}/.test(tr)?1:0)}
+function trBad(en,tr){tr=String(tr||'');return trLeaks(en,tr).length+(/_/.test(tr)?2:0)+(/[^\s_]{28,}/.test(tr)?1:0)+(tr.length>40&&!/[çğıöşüÇĞİÖŞÜ]/.test(tr)?2:0)}
 const unU=t=>String(t||'').replace(/_+/g,' ').replace(/\s{2,}/g,' ').trim();
 // Hikâyenin Türkçe satırlarını denetle: zayıf model yazdıysa ya da çok hata varsa tümünü, yoksa sadece hatalı satırları yeniden çevirt (her hikâye bir kez)
 async function fixStoryTr2(st){
-  if(!st||(st.trv||0)>=2||!S.worker)return;
+  if(!st||(st.trv||0)>=3||!S.worker)return;
   const L=[];let k=0;st.paras.forEach((p,pi)=>p.en.forEach((e,j)=>{L.push({pi,j,i:k++,en:e,tr:p.tr[j]||''})}));
   const paint=x=>{if(SR===st&&$('v-sread').classList.contains('on')){const el=$('srBox').querySelector(`.sn[data-s="${x.i}"] .trl`);if(el)el.textContent=st.paras[x.pi].tr[x.j]}};
   const bad=L.filter(x=>x.tr&&trBad(x.en,x.tr)),under=L.some(x=>/_/.test(x.tr));
   L.forEach(x=>{if(/_/.test(x.tr)){x.tr=unU(x.tr);st.paras[x.pi].tr[x.j]=x.tr;paint(x)}});
-  const full=(!!st.by&&st.by!=='gemini')||under||bad.length>=2;
+  const full=(!!st.by&&!['gemini','kimi'].includes(st.by))||under||bad.length>=2;
   const todo=full?L.filter(x=>x.tr):bad;
-  if(!todo.length){st.trv=2;save();return}
+  if(!todo.length){st.trv=3;save();return}
   let n=0;
   for(let b=0;b<todo.length;b+=15){
     const part=todo.slice(b,b+15);let d;
@@ -2706,7 +2711,7 @@ async function fixStoryTr2(st){
     const a=d&&Array.isArray(d.tr)?d.tr:[];
     part.forEach((x,q)=>{const t=a[q];if(t&&t!==x.tr){st.paras[x.pi].tr[x.j]=t;n++;paint(x)}});
   }
-  st.trv=2;save();if(n)toast(`${n} Türkçe satır düzeltildi`);
+  st.trv=3;save();if(n)toast(`${n} Türkçe satır düzeltildi`);
 }
 const noCJK=t=>String(t||'').replace(/[\u2E80-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF\uFF00-\uFFEF]+/g,'').replace(/\s{2,}/g,' ').trim();
 // Haber testi: soru seviyenin kendi metninden olmalı; kanıt cümlesi metinde geçmeli, şıklar birbirinden farklı olmalı
@@ -2914,18 +2919,18 @@ function renderQuiz(){
 
 /* ---------- Metin: cümle ve kelime parçaları ---------- */
 let SENTS=[];
-function wordSpans(t,kw){
+function wordSpans(t,kw,kw2){
   return t.split(/(\s+)/).map(tok=>{if(/^\s+$/.test(tok)||!tok)return tok;
     const m=tok.match(/^([^A-Za-z]*)([A-Za-z][A-Za-z'’-]*[A-Za-z]|[A-Za-z])?(.*)$/);if(!m||!m[2])return esc(tok);
-    const lw=m[2].toLowerCase(),isK=kw&&[...kw].some(k=>k.split(' ')[0]===lw||stems(lw).includes(k));
-    return esc(m[1])+`<span class="wd${isK?' kw':''}">${esc(m[2])}</span>`+esc(m[3])}).join('');
+    const lw=m[2].toLowerCase(),hit=S2=>S2&&[...S2].some(k=>k.split(' ')[0]===lw||stems(lw).includes(k)),isK2=hit(kw2),isK=!isK2&&hit(kw);
+    return esc(m[1])+`<span class="wd${isK2?' kw2':isK?' kw':''}">${esc(m[2])}</span>`+esc(m[3])}).join('');
 }
-function textHtml(paras,kind,kw){
+function textHtml(paras,kind,kw,kw2){
   SENTS=[];let h='';
   paras.forEach(p=>{
     if(kind==='news'){h+='<p class="txt">'+p.en.map(s=>{const i=SENTS.push({en:s})-1;return `<span class="sn" data-s="${i}">${wordSpans(s,kw)}</span>`}).join(' ')+'</p>';
       if(p.tr.some(Boolean))h+=`<p class="trp">${esc(p.tr.join(' '))}</p>`}
-    else h+=p.en.map((s,j)=>{const i=SENTS.push({en:s})-1;return `<div class="bi sn" data-s="${i}"><p class="en">${wordSpans(s,kw)}</p><p class="trl">${esc(unU(p.tr[j]))}</p></div>`}).join('');
+    else h+=p.en.map((s,j)=>{const i=SENTS.push({en:s})-1;return `<div class="bi sn" data-s="${i}"><p class="en">${wordSpans(s,kw,kw2)}</p><p class="trl">${esc(unU(p.tr[j]))}</p></div>`}).join('');
   });
   glossPrefetch(kind==='news'&&RD&&RD.item?RD.item.link:'');
   return h;
@@ -3018,6 +3023,7 @@ async function showPop(el){
         const n={w:x.w,tr:x.tr,ipa:x.ipa||'',pos:x.pos||'',def:x.def,ex:x.ex,lvl:LEVELS.includes(x.lvl)?x.lvl:'B1',t:TOPICS[x.t]?x.t:'',tl:'',ai:true};
         const add=addWords([n]);AMAP=null;
         if(add.length){toast(`"${n.w}" kartlara eklendi → ${topicName(n)}`);if(!n.t)classifyAi()}else toast('Bu kelime zaten listende');
+        if($('v-sread').classList.contains('on')&&SR)markStoryAdd(n.w);
         draw(findWord(n.w)||n,'have');refreshDw();
       }catch(e){toast('Kart hazırlanamadı: '+e.message);if($('ppAdd')){btn.disabled=false;btn.textContent='＋ Karta ekle'}}
     };
@@ -3170,6 +3176,13 @@ function pickStoryWords(){
   return stPool().filter(w=>!isKnown(w)).map(w=>[sc(w),w]).sort((a,b)=>a[0]-b[0]).slice(0,N).map(x=>x[1]);
 }
 let stBusy=false;
+const stRow=(x,isNew)=>`<button class="grow" data-id="${x.id}"><i class="gi" style="background:#F8D9B9">${esc(x.emoji||'📖')}</i><span class="gt">${esc(x.title)}<small>${esc(x.lvl)} · ${esc(x.topic)} · ${isNew?'':(x.used||[]).length+' kelime · '}${ago(new Date(x.t).toISOString())}${isNew?' · <b style="color:var(--accent)">kaydedilmedi</b>':''}</small></span>${CHEV}</button>`;
+function openSavedStories(){
+  const sv=S.stories.filter(x=>x.sv!==0);
+  $('stList').innerHTML=sv.length?sv.map(x=>stRow(x)).join(''):'<p class="hint" style="padding:14px">Henüz kayıtlı hikâye yok</p>';
+  $('stList').querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{closeSheets();openStory(b.dataset.id)});
+  openSheet('stListSheet');
+}
 function renderStories(){
   if(!S.stSrc.every(x=>x==='_rand'||x==='learn'||x==='_week'||x==='favs'||x==='custom'||TOPICS[x]))S.stSrc=S.stSrc.filter(x=>TOPICS[x]||['_rand','learn','_week','favs','custom'].includes(x));
   const custom=!ST_TOPICS.includes(S.stTopic);
@@ -3183,7 +3196,10 @@ function renderStories(){
     <button class="so ${S.stSeen?'on':''}" id="stSeen"><span class="tl">Sadece çalıştığım kelimeler<small>${(()=>{const t=stPool(true),sn=new Set(S.seenAll||[]),n=t.filter(w=>sn.has(k(w))).length;return S.stSeen?`Kartlarda gördüğün ${n} kelimeden seçer`:`Kartlarda gördüğün ${n} kelimeyle sınırla`})()}</small></span><i class="chk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i></button>
     <label class="lb">Uzunluk</label><div class="seg" id="stLen"><button class="${S.stLen!=='long'?'on':''}" data-v="short">Kısa · ~1 dk</button><button class="${S.stLen==='long'?'on':''}" data-v="long">Orta · ~3 dk</button></div>
     <button class="primary" id="stGo" ${stBusy?'disabled':''}>${stBusy?'<span class="spin"></span>Hikâye yazılıyor…':'Hikâyeyi yaz'}</button></div>
-    ${S.stories.length?`<div class="glabel">Hikâyelerim</div><div class="group">${S.stories.map(x=>`<button class="grow" data-id="${x.id}"><i class="gi" style="background:#F8D9B9">${esc(x.emoji||'📖')}</i><span class="gt">${esc(x.title)}<small>${esc(x.lvl)} · ${esc(x.topic)} · ${(x.used||[]).length} kelime · ${ago(new Date(x.t).toISOString())}</small></span>${CHEV}</button>`).join('')}</div>`:''}`;
+    ${(()=>{const last=S.stories.find(x=>x.sv===0),sv=S.stories.filter(x=>x.sv!==0);
+      return (last?`<div class="glabel">Son hikâye</div><div class="group">${stRow(last,true)}</div>`:'')
+        +(sv.length?`<div class="glabel">Hikâyelerim</div><div class="group"><button class="grow" id="stSavedB"><i class="gi" style="background:#FDE8C8">🔖</i><span class="gt">Kayıtlı hikâyelerim<small>${sv.length} hikâye · en yenisi ${ago(new Date(sv[0].t).toISOString())}</small></span>${CHEV}</button></div>`:'')})()}`;
+  if($('stSavedB'))$('stSavedB').onclick=openSavedStories;
   $('stTop').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{S.stTopic=b.dataset.t;save();renderStories()});
   $('stOwn').oninput=()=>{const v=$('stOwn').value.trim();if(v){S.stTopic=v;$('stTop').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'))}else{S.stTopic='Macera';}save()};
   $('stLv').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.stLv=b.dataset.l;save();renderStories()});
@@ -3212,27 +3228,47 @@ async function makeStory(){
     let d;if(/^\s*\{/.test(t))d=JSON.parse(t);else{const x=parseLines(t);d={title:x.title,emoji:x.emoji,paras:x.paras,used:x.used}}
     if(!d.paras||!d.paras.length)throw new Error('Hikâye yazılamadı, tekrar dene');
     const st={id:Date.now().toString(36),title:d.title||((d.paras[0]&&d.paras[0].en[0]||'').split(/\s+/).slice(0,5).join(' ').replace(/[,.;:!?]+$/,'')+'…'),emoji:d.emoji||'📖',lvl:lv,topic,paras:d.paras,by:LAST_LLM,used:(d.used&&d.used.length?d.used:words.map(w=>w.w)),t:Date.now()};
-    S.stories.unshift(st);S.stories=S.stories.slice(0,20);save();
+    st.sv=0;S.stories=[st,...S.stories.filter(x=>x.sv!==0)].slice(0,41);save();
     stBusy=false;await liveFinish();
     if($('v-sread').classList.contains('on')){SR=st;renderSRead()}else toast(`"${st.title}" hazır · Hikâyelerim'de`);fixStoryTr(st);
   }catch(e){stBusy=false;toast('Hikâye yazılamadı: '+e.message);if($('v-sread').classList.contains('on'))showTab('stories')}
 }
 let SR=null;
 function openStory(id){const st=S.stories.find(x=>x.id===id);if(!st)return;stopPlayer();SR=st;showTab('sread');renderSRead();fixStoryTr(st)}
+const LLM_NAME={gemini:'Gemini',kimi:'Kimi K2.6',groq:'Groq (Llama)',wai:'Workers AI (Llama)'};
+// Hikâyenin pratik kelimeleri: hikâyedeki liste kelimelerin + bu hikâyeyi okurken karta eklediklerin
+function stWords(st){const m=new Map();[...(st.used||[]),...(st.added||[])].forEach(x=>{const w=findWord(String(x));if(w)m.set(k(w),w)});return [...m.values()]}
+function drawSrEnd(){
+  const st=SR;if(!st||!$('srSave'))return;
+  $('srSave').innerHTML=st.sv===0?'🔖 Hikâyelerime kaydet':'✓ Hikâyelerimde kayıtlı · çıkar';$('srSave').classList.toggle('on',st.sv!==0);
+  $('srQn').textContent=stWords(st).length;$('srLeg').style.display=(st.added||[]).length?'':'none';
+}
+// Hikâye okurken karta eklenen kelime: mavi alt çizgi + hikâyenin pratik listesine girer
+function markStoryAdd(w){
+  const st=SR;if(!st||!w)return;const lw=String(w).toLowerCase();st.added=[...new Set([...(st.added||[]),lw])];save();
+  $('srBox').querySelectorAll('#srText .wd').forEach(e=>{const t=e.textContent.toLowerCase();if(t===lw||stems(t).includes(lw)){e.classList.remove('kw');e.classList.add('kw2')}});
+  drawSrEnd();
+}
 function renderSRead(){
   const st=SR,kw=new Set((st.used||[]).map(x=>String(x).toLowerCase()));
   const mine=(st.used||[]).map(x=>findWord(String(x))).filter(Boolean);
   $('srBox').innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>${esc(st.title)}</b><button class="bk" id="srDel" aria-label="Sil">🗑</button></div>
   <div class="sec rd"><div class="sbanner"><span>${esc(st.emoji||'📖')}</span><div><b>${esc(st.lvl)} · ${esc(st.topic)}</b><small>Bu hikâyede ${mine.length} kelimen geçiyor · altı çizili</small></div></div>
   <div id="plBox"></div>
-  <div id="srText" class="${S.stTr?'':'notr'}" style="margin-top:8px">${textHtml(st.paras,'story',kw)}</div>
+  <div id="srText" class="${S.stTr?'':'notr'}" style="margin-top:8px">${textHtml(st.paras,'story',kw,new Set(st.added||[]))}</div>
   <button class="tgl ${S.stTr?'on':''}" id="srTr"><span>Türkçe satırlar</span><i></i></button>
-  <button class="primary" id="srQuiz" style="margin-top:12px">📝 Hikâyedeki kelimelerle pratik yap</button>
-  <button class="ghost" id="srDone">✓ Okudum, hedefime say</button></div>`;
+  <div class="stcard" style="margin-top:16px"><h3>🎉 Hikâye bitti</h3>
+  <p class="hint" id="srLeg" style="margin:4px 0 0;${(st.added||[]).length?'':'display:none'}"><span class="kw">turuncu</span> = listendeki kelimeler · <span class="kw2">mavi</span> = bu hikâyede karta eklediklerin</p>
+  <button class="ghost svb" id="srSave"></button>
+  <button class="primary" id="srQuiz">📝 Kelimelerle pratik yap · <span id="srQn">0</span></button>
+  <button class="ghost" id="srDone">✓ Okudum, hedefime say</button>
+  ${st.by?`<p class="hint" style="text-align:center;margin:10px 0 0;font-size:11.5px">Yazan: ${esc(LLM_NAME[st.by]||st.by)}</p>`:''}</div></div>`;
+  drawSrEnd();
   $('srDone').onclick=()=>{if(!markRead('s',st.id))toast('Bu hikâye bugün zaten sayıldı')};
   mountPlayer($('srBox').querySelector('#plBox'),$('srText'),'s'+st.id);
   $('srTr').onclick=()=>{S.stTr=!S.stTr;save();$('srTr').classList.toggle('on',S.stTr);$('srText').classList.toggle('notr',!S.stTr)};
-  $('srQuiz').onclick=()=>{if(!mine.length)return toast('Hikâyede listendeki kelime bulunamadı');stopPlayer();pView='setup';showTab('quiz');startPractice('list',mine.length,mine,st.title)};
+  $('srQuiz').onclick=()=>{const W=stWords(st);if(!W.length)return toast('Hikâyede listendeki kelime bulunamadı');stopPlayer();pView='setup';showTab('quiz');startPractice('list',W.length,W,st.title)};
+  $('srSave').onclick=()=>{st.sv=st.sv===0?1:0;if(st.sv===0){const o=S.stories.filter(x=>x.sv===0&&x.id!==st.id);if(o.length)S.stories=S.stories.filter(x=>!(x.sv===0&&x.id!==st.id))}save();drawSrEnd();toast(st.sv?'Hikâyelerine kaydedildi 🔖':'Kayıtlı hikâyelerden çıkarıldı')};
   $('srDel').onclick=()=>{if(!confirm('Bu hikâye silinsin mi?'))return;S.stories=S.stories.filter(x=>x.id!==st.id);save();stopPlayer();showTab('stories')};
 }
 
