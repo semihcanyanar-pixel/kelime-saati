@@ -477,9 +477,10 @@ a.ghost{display:block;text-align:center;text-decoration:none}
 .vbx,.vrot{display:none}
 body.vfull .vframe{position:fixed;inset:0;z-index:200;width:100vw;height:100dvh;aspect-ratio:auto;margin:0;display:flex;align-items:center;justify-content:center}
 /* Oynatıcı her zaman tam 16:9 kalır: altyazı videonun üstünde, doğru yerinde durur */
-body.vfull .vframe #vpPl,body.vfull .vframe iframe{position:relative;inset:auto;width:min(100vw - env(safe-area-inset-left) - env(safe-area-inset-right),(100dvh - var(--st) - var(--sb)) * 16 / 9);height:auto;aspect-ratio:16/9}
-body.vfull .vbx{display:grid;place-items:center;position:absolute;z-index:3;top:calc(var(--st) + 10px);right:calc(env(safe-area-inset-right) + 12px);width:40px;height:40px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;font-size:18px;font-weight:800}
-body.vfull .vrot{display:block;position:absolute;z-index:3;left:0;right:0;bottom:calc(var(--sb) + 28px);text-align:center;color:rgba(255,255,255,.75);font-size:13px;font-weight:600}
+body.vfull .vframe #vpPl,body.vfull .vframe iframe{position:relative;inset:auto;width:min(100vw - env(safe-area-inset-left) - env(safe-area-inset-right),(100dvh - var(--st) - var(--sb)) * var(--arw,16) / var(--arh,9));height:auto;aspect-ratio:var(--arw,16) / var(--arh,9)}
+body.vfull .vbx{display:grid;place-items:center;position:absolute;z-index:5;top:calc(var(--st) + 14px);right:calc(env(safe-area-inset-right) + 14px);width:46px;height:46px;border-radius:50%;border:none;background:rgba(0,0,0,.55);color:#fff;font-size:18px;font-weight:800}
+body.vfull .vrot{display:flex;flex-direction:column;align-items:center;gap:12px;position:absolute;z-index:5;left:0;right:0;bottom:calc(var(--sb) + 22px);text-align:center;color:rgba(255,255,255,.75);font-size:13px;font-weight:600}
+.vrot button{border:none;border-radius:20px;padding:10px 20px;background:rgba(255,255,255,.16);color:#fff;font-weight:700;font-size:15px}
 @media (orientation:landscape){body.vfull .vrot{display:none}}
 body.vfull nav.tabs,body.vfull header{display:none}
 .vframe iframe,.vframe #vpPl{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -1071,9 +1072,9 @@ Object.assign(EN,{
 'Kanal linkini ya da @adını yapıştır':'Paste the channel link or @handle','Bu kanal zaten listende':'This channel is already in your list','Kelime':'Words','🎬 Video':'🎬 Video','Cevaplanan soru':'Answered questions','Haber':'News','Hikâye':'Story','Testi çözülen ya da sonuna kadar dinlenen':'Test solved or listened to the end','Okunan ya da dinlenen':'Read or listened to',
 '📰 Haber bugünkü hedefine sayıldı':'📰 Counted toward today\'s news goal','📚 Hikâye bugünkü hedefine sayıldı':'📚 Counted toward today\'s story goal','Bu hikâye bugün zaten sayıldı':'This story was already counted today','Bu haber bugün zaten sayıldı':'This article was already counted today',
 '✓ Okudum, hedefime say':'✓ I read it, count it','Silinen kelimeleri geri getir':'Restore deleted words','Silinen kelimeleri geri getir ({n})':'Restore deleted words ({n})','Sildiğin hazır kelimeler geri getirilsin mi?':'Restore the built-in words you deleted?','Kelimeler geri geldi':'Words restored',
-'Habere dön':'Back to the article','Hikâyeye dön':'Back to the story','✓ Çözdüklerim':'✓ Tested','Henüz testini çözdüğün haber yok.':'You haven\'t tested any articles yet.',
-'Bir haberin sonundaki 3 soruyu çözünce burada birikir; sonra bir üst seviyede tekrar okuyabilirsin.':'Articles collect here after you solve their 3 questions; you can then reread them a level higher.',
-'Daha önce çalıştığın haberler. Açıp bir üst seviyede tekrar okuyabilirsin.':'Articles you studied before. Open one to reread it a level higher.',
+'Habere dön':'Back to the article','Hikâyeye dön':'Back to the story','✓ Okuduklarım':'✓ Read','Henüz okuduğun haber yok.':'You haven\'t read any articles yet.',
+'Bir haberin sonundaki testi çözünce burada birikir; sonra bir üst seviyede tekrar okuyabilirsin.':'Articles collect here after you solve their quiz; you can then reread them a level higher.',
+'Daha önce çalıştığın haberler. Açıp bir üst seviyede tekrar okuyabilirsin. 3. seviyesini tamamladığın haberler listeden çıkar.':'Articles you studied before. Open one to reread it a level higher. Articles finished at level 3 leave the list.',
 '✓ Test: {n}/{n} doğru · Seviye {n}':'✓ Test: {n}/{n} correct · Level {n}','hedef {n}':'goal {n}','Günlük hedef: {n} · koyu çubuk = hedef tamam':'Daily goal: {n} · solid bar = goal met','🏆 Bugünün tüm hedefleri tamam':'🏆 All of today\'s goals done',
 'Bu hafta: pratikte %{n} doğru · {n} gün tüm hedefler tamam':'This week: {n}% correct in practice · all goals done on {n} days','O hafta: pratikte %{n} doğru · {n} gün tüm hedefler tamam':'That week: {n}% correct in practice · all goals done on {n} days',
 '📇 Yeni kelime':'📇 New words','📇 Kelime':'📇 Words','🎯 Pratik':'🎯 Practice','📰 Haber':'📰 News','📚 Hikâye':'📚 Stories','Sesi önceden hazırla':'Prepare audio in advance','Metin açılınca ses de hazırlanır, ▶ beklemeden çalar':'Audio is prepared when the text opens, ▶ plays without waiting','Açık':'On','Günün haberi':'Story of the day','＋ Karta ekle':'＋ Add to cards','✓ Listende · kartı aç':'✓ In your list · open card',
@@ -1944,7 +1945,7 @@ function mergeState(loc,rem){
   const sid=new Set((rem.stories||[]).map(x=>x.id));
   r.stories=(rem.stories||[]).concat((loc.stories||[]).filter(x=>!sid.has(x.id))).sort((a,b)=>b.t-a.t).slice(0,41);
   r.newsDone=Object.assign({},loc.newsDone||{});
-  for(const [id,v] of Object.entries(rem.newsDone||{})){const l=r.newsDone[id];if(!l||(v.s??-1)>=(l.s??-1))r.newsDone[id]=v}
+  for(const [id,v] of Object.entries(rem.newsDone||{})){const l=r.newsDone[id];if(!l||(v.s??-1)>=(l.s??-1))r.newsDone[id]=Object.assign({},v);if(l){const m=Math.max(l.mx||l.lv||0,v.mx||v.lv||0);if(m)r.newsDone[id].mx=m}}
   return r;
 }
 /* Widget için yayın: AI kelimeleri + kategori ayarları (gizli anahtarlı, sadece okunabilir kayıt) */
@@ -2472,7 +2473,7 @@ const GD=[
   '<b>Kelimeye dokun:</b> Anlamı hemen çıkar; 🔊 ile dinler, "＋ Karta ekle" ile kartlarına eklersin.',
   '<b>Dinle:</b> Haberi doğal sesle dinle; okunan cümle vurgulanır. Türkçe çeviriyi açıp kapatabilirsin.',
   '<b>Zor kelimeler ve test:</b> Haberin altında zor kelimeler listesi ve 3 soruluk anlama testi var.',
-  '<b>✓ Çözdüklerim:</b> Testini çözdüğün haberler. Tekrar açınca bir üst seviyeden gelir.'],tip:'Hangi kategorilerin görüneceğini ⚙️ Ayarlar → Haber konuları\'ndan seçebilirsin.',go:['Haberlere git',()=>showTab('news')]},
+  '<b>✓ Okuduklarım:</b> Testini çözdüğün haberler. Tekrar açınca bir üst seviyeden gelir; 3. seviyesini tamamlayınca listeden çıkar.'],tip:'Hangi kategorilerin görüneceğini ⚙️ Ayarlar → Haber konuları\'ndan seçebilirsin.',go:['Haberlere git',()=>showTab('news')]},
  {id:'hikaye',e:'📚',t:'Hikâyeler',p:['Senin kelimelerinle yazılmış, iki dilli ve sesli kısa hikâyeler.'],li:[
   '<b>Konu:</b> Hazır konulardan birini seç ya da kendi konunu yaz.',
   '<b>Kelime kaynağı:</b> Hikâyede geçecek kelimeler Öğren Listem, Haftanın kelimeleri ya da bir kategoriden seçilir.',
@@ -2562,7 +2563,8 @@ function wkErr(r,d,body){
   return e;
 }
 let ME=lsGet('ks:me'+SFX,null);
-async function refreshMe(){if(!S.worker)return ME;try{ME=await workerCall({me:1},15000);lsSet('ks:me'+SFX,ME)}catch(e){}if($('setSheet').classList.contains('on'))renderAiSet();return ME}
+function sendPfCats(){if(!ME||!ME.admin||!S.worker)return;const v=JSON.stringify(S.newsCats||[]);if(S.pfSent===v)return;workerCall({pfcats:S.newsCats},15000).then(()=>{S.pfSent=v;save()}).catch(()=>{})}
+async function refreshMe(){if(!S.worker)return ME;try{ME=await workerCall({me:1},15000);lsSet('ks:me'+SFX,ME);sendPfCats()}catch(e){}if($('setSheet').classList.contains('on'))renderAiSet();return ME}
 function needsKey(){return ME&&!ME.family&&!S.gkey}
 async function workerCall(body,ms){
   if(!S.worker)throw new Error('Önce Ayarlar\'dan Worker adresini gir');
@@ -2617,9 +2619,9 @@ async function loadNews(cat,force){
 async function loadAllNews(force){return Promise.allSettled(S.newsCats.map(c=>loadNews(c,force)))}
 function newsStatus(x){const d=S.newsDone[x.id];return d&&d.s>=0?`<span class="nst ok">✓ Test: ${d.s}/3 doğru${d.lv?` · Seviye ${d.lv}`:''}</span>`:''}
 function renderNews(){
-  const doneN=Object.values(S.newsDone).filter(x=>x&&x.s>=0&&x.it).length;
+  const doneN=Object.values(S.newsDone).filter(doneVis).length;
   const rdyN=newsAll().filter(isReady).length;
-  $('nCats').innerHTML=[['_ready','⚡ Hazır'],['all','Hepsi'],...S.newsCats.map(c=>[c,NCATS[c]]),['_done','✓ Çözdüklerim']].map(([k,n])=>`<button class="chip ${nCat===k?'on':''} ${k==='_ready'?'rdy':''}" data-c="${k}">${n}${k==='_done'&&doneN?`<small>${doneN}</small>`:''}${k==='_ready'&&rdyN?`<small>${rdyN}</small>`:''}</button>`).join('');
+  $('nCats').innerHTML=[['_ready','⚡ Hazır'],['all','Hepsi'],...S.newsCats.map(c=>[c,NCATS[c]]),['_done','✓ Okuduklarım']].map(([k,n])=>`<button class="chip ${nCat===k?'on':''} ${k==='_ready'?'rdy':''}" data-c="${k}">${n}${k==='_done'&&doneN?`<small>${doneN}</small>`:''}${k==='_ready'&&rdyN?`<small>${rdyN}</small>`:''}</button>`).join('');
   $('nCats').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{nCat=b.dataset.c;renderNews();if(!['all','_done','_ready'].includes(nCat)&&!NEWS[nCat])fetchNewsUI()});
   if(nCat==='_done')return renderDoneNews();
   const items=nCat==='all'?newsAll():nCat==='_ready'?newsAll().filter(isReady):((NEWS[nCat]&&NEWS[nCat].items)||[]);
@@ -2634,10 +2636,12 @@ function renderNews(){
   // En üstteki haberi sessizce hazırla, açınca beklemeden gelsin
   getLevel(f,[1,2,3].includes(S.newsLv)?S.newsLv:2).catch(()=>{});
 }
+// Okuduklarım: testi çözülmüş, 3. seviyesi henüz tamamlanmamış haberler
+const doneVis=x=>x&&x.s>=0&&x.it&&(x.mx||x.lv||0)<3;
 function renderDoneNews(){
-  const ds=Object.values(S.newsDone).filter(x=>x&&x.s>=0&&x.it).sort((a,b)=>b.t-a.t),box=$('nList');
-  if(!ds.length){box.innerHTML='<div class="loadbox">Henüz testini çözdüğün haber yok.<br><small>Bir haberin sonundaki 3 soruyu çözünce burada birikir; sonra bir üst seviyede tekrar okuyabilirsin.</small></div>';return}
-  box.innerHTML='<p class="hint" style="margin:10px 4px 2px">Daha önce çalıştığın haberler. Açıp bir üst seviyede tekrar okuyabilirsin.</p>'+ds.map(x=>{const it=x.it;return `<button class="nrow" data-id="${esc(it.id)}"><div class="nth" style="background-image:url('${esc(it.img||'')}')"></div><div class="nx"><span class="tag">${NCATS[it.cat]||''} · ${ago(it.date)}</span><b>${esc(it.title)}</b><span class="nst ok">✓ Test: ${x.s}/3 doğru${x.lv?` · Seviye ${x.lv}`:''}</span></div></button>`}).join('');
+  const ds=Object.values(S.newsDone).filter(doneVis).sort((a,b)=>b.t-a.t),box=$('nList');
+  if(!ds.length){box.innerHTML='<div class="loadbox">Henüz okuduğun haber yok.<br><small>Bir haberin sonundaki testi çözünce burada birikir; sonra bir üst seviyede tekrar okuyabilirsin.</small></div>';return}
+  box.innerHTML='<p class="hint" style="margin:10px 4px 2px">Daha önce çalıştığın haberler. Açıp bir üst seviyede tekrar okuyabilirsin. 3. seviyesini tamamladığın haberler listeden çıkar.</p>'+ds.map(x=>{const it=x.it;return `<button class="nrow" data-id="${esc(it.id)}"><div class="nth" style="background-image:url('${esc(it.img||'')}')"></div><div class="nx"><span class="tag">${NCATS[it.cat]||''} · ${ago(it.date)}</span><b>${esc(it.title)}</b><span class="nst ok">✓ Test: ${x.s}/3 doğru${x.lv?` · Seviye ${x.lv}`:''}</span></div></button>`}).join('');
   box.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{const x=S.newsDone[b.dataset.id];if(x&&x.it){readFrom='news';const nx=[1,2,3].includes(x.lv)?Math.min(3,x.lv+1):S.newsLv;S.newsLv=nx;openNews(x.it)}});
 }
 let newsBusy=false,newsErr='';
@@ -2907,7 +2911,7 @@ function renderQuiz(){
     return}
   const q=RD.q;
   if(!q){const d=S.newsDone[RD.item.id];box.innerHTML=`<button class="primary" id="qzGo" style="margin-top:14px">📝 ${d&&d.s>=0?`Testi tekrar çöz (önceki: ${d.s}/3)`:qs.length+' soruyla test et'}</button>`;$('qzGo').onclick=()=>{RD.q={i:0,ok:0,done:false};renderQuiz()};return}
-  if(q.i>=qs.length){const prev=S.newsDone[RD.item.id]||{};const it=RD.item;S.newsDone[it.id]={s:Math.max(q.ok,prev.s??-1),lv:RD.lv,t:Date.now(),it:{id:it.id,title:it.title,desc:it.desc,link:it.link,date:it.date,cat:it.cat,img:it.img}};pruneNews();save();markRead('h',it.id);
+  if(q.i>=qs.length){const prev=S.newsDone[RD.item.id]||{};const it=RD.item;S.newsDone[it.id]={s:Math.max(q.ok,prev.s??-1),lv:RD.lv,mx:Math.max(prev.mx||prev.lv||0,RD.lv),t:Date.now(),it:{id:it.id,title:it.title,desc:it.desc,link:it.link,date:it.date,cat:it.cat,img:it.img}};pruneNews();save();markRead('h',it.id);
     box.innerHTML=`<div class="qz" style="text-align:center"><h4>SONUÇ</h4><div class="res-big" style="font-size:52px">${q.ok} / ${qs.length}</div><p class="hint">${q.ok===qs.length?'Kusursuz! 🎉':q.ok?'Güzel, devam!':'Bir daha oku, sonra tekrar dene'}</p><button class="ghost" id="qzAgain">Tekrar çöz</button></div>`;
     $('qzAgain').onclick=()=>{RD.q={i:0,ok:0};renderQuiz()};return}
   const x=qs[q.i];
@@ -3296,7 +3300,7 @@ $('wgRow').onclick=()=>{closeSheets();showTab('widget')};
 $('nCatRow').onclick=()=>{closeSheets();const draw=()=>{$('nCatChips').innerHTML=Object.keys(NCATS).map(c=>`<button class="chip ${S.newsCats.includes(c)?'on':''}" data-c="${c}">${NCATS[c]}</button>`).join('');
   $('nCatChips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const c=b.dataset.c,i=S.newsCats.indexOf(c);if(i>=0){if(S.newsCats.length===1)return toast('En az bir konu seç');S.newsCats.splice(i,1)}else S.newsCats.push(c);save();draw();$('nCatVal').textContent=nCatText()})};
   draw();openSheet('nCatSheet')};
-$('nCatOk').onclick=()=>{closeSheets();$('setBtn').onclick();if(nCat!=='all'&&!S.newsCats.includes(nCat))nCat='all'};
+$('nCatOk').onclick=()=>{closeSheets();sendPfCats();$('setBtn').onclick();if(nCat!=='all'&&!S.newsCats.includes(nCat))nCat='all'};
 
 /* ================= VİDEOLAR ================= */
 const VLV={k:'Kolay',o:'Orta',i:'İleri'},VTY={ders:'Ders',talk:'Talk show',dizi:'Dizi',belgesel:'Belgesel',konusma:'Konuşma',diger:'Diğer'};
@@ -3404,19 +3408,28 @@ async function fetchVidsUI(force){vBusy=true;vErr='';renderVideos();try{await lo
 let VP=null,vFrom='videos',ytApi=null;
 function loadYTApi(){if(ytApi)return ytApi;return ytApi=new Promise(ok=>{if(window.YT&&YT.Player)return ok();window.onYouTubeIframeAPIReady=()=>ok();const sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';document.head.appendChild(sc);setTimeout(ok,8000)})}
 function markWatched(v){S.vWatched=S.vWatched||{};const first=!S.vWatched[v.id];S.vWatched[v.id]=Date.now();if(first){vCount(v.ref);vRefill(v.ref)}const ks=Object.keys(S.vWatched);if(ks.length>400){ks.sort((a,b)=>S.vWatched[a]-S.vWatched[b]).slice(0,ks.length-400).forEach(k=>delete S.vWatched[k])}save();markRead('v',v.id);return first}
+// iOS: telefonu yan çevirip geri düzeltince sayfa yukarı kayık kalabiliyor; üst kısım durum çubuğunun altına giriyor ve
+// geri oku gibi düğmeler basılmıyor. Sayfanın kendisi hiç kaydırılmamalı (kaydırma içerik alanında olur): sıfırla.
+function fixScroll(){const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA)$/.test(a.tagName))return;if(window.scrollY||document.documentElement.scrollTop||document.body.scrollTop){window.scrollTo(0,0);document.body.scrollTop=0}}
+addEventListener('scroll',fixScroll,{passive:true});
+addEventListener('orientationchange',()=>{setTimeout(fixScroll,250);setTimeout(fixScroll,800)});
+addEventListener('resize',()=>setTimeout(fixScroll,250));
 function stopVideo(){document.body.classList.remove('vfull');if(VP){clearInterval(VP.tm);try{VP.pl&&VP.pl.destroy()}catch(e){}VP=null}}
 function openVideo(v){
   stopVideo();showTab('video');
   const c=vChOf(v),ws=weekVideos(),i=ws.findIndex(x=>x.id===v.id),nx=ws.slice(i+1).concat(ws.slice(0,Math.max(i,0))).find(x=>!(S.vWatched||{})[x.id]&&x.id!==v.id);
   $('vpBox').innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>${esc(c.n||'Video')}</b><span class="sp40"></span></div>
-    <div class="vframe" id="vFrame"><div id="vpPl"></div><button class="vbx" id="vpX" aria-label="Küçült">✕</button><div class="vrot">↻ Telefonu yan çevir, video tüm ekranı kaplasın</div><div class="vpfb" id="vpFb" style="display:none"><div>Bu video uygulama içinde oynatılamıyor.</div><a class="primary" id="vpOut2" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">▶ YouTube'da aç</a></div></div>
+    <div class="vframe" id="vFrame"><div id="vpPl"></div><button class="vbx" id="vpX" aria-label="Küçült">✕</button><div class="vrot"><button id="vpX2">✕ Küçült</button><span>↻ Telefonu yan çevir, video tüm ekranı kaplasın</span></div><div class="vpfb" id="vpFb" style="display:none"><div>Bu video uygulama içinde oynatılamıyor.</div><a class="primary" id="vpOut2" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">▶ YouTube'da aç</a></div></div>
     <div class="sec"><div class="vtl"><span class="tag">${esc(vTag(v))} · ${fmtDur(v.dur)}</span><button class="vbig" id="vpBig">⛶ Büyük ekran</button></div><h2 class="vtitle">${esc(v.title)}</h2>
     <p class="hint" id="vpSt">İngilizce altyazı açık gelir. Videonun büyük kısmını izleyince günlük hedefine sayılır.</p>
     <div class="lnks"><a class="ghost" id="vpOut" href="https://www.youtube.com/watch?v=${esc(v.id)}" target="_blank" rel="noopener">YouTube'da aç</a>${nx?'<button class="ghost" id="vpNext">Sonraki video ›</button>':''}</div>
     ${ws.length?`<div class="glabel">Bu haftanın videoları</div>${ws.filter(x=>x.id!==v.id).slice(0,6).map(vRow).join('')}<button class="ghost" id="vpAll">Hepsini gör</button>`:''}</div>`;
   // Büyük ekran: iPhone'un kendi oynatıcısına geçmeden (altyazı kaybolmasın) videoyu ekrana yay
-  $('vpBig').onclick=()=>{document.body.classList.add('vfull');window.scrollTo(0,0)};
-  $('vpX').onclick=()=>document.body.classList.remove('vfull');
+  $('vFrame').querySelector('.vrot span').style.display=v.vert?'none':'';   // dikey videoda yan çevirmek küçültür, ipucu gösterilmez
+  $('vFrame').style.setProperty('--arw',v.vert?9:16);$('vFrame').style.setProperty('--arh',v.vert?16:9);
+  $('vpBig').onclick=()=>{document.body.classList.add('vfull');fixScroll()};
+  const small=e=>{if(e){e.preventDefault();e.stopPropagation()}document.body.classList.remove('vfull');setTimeout(fixScroll,50)};
+  ['vpX','vpX2'].forEach(id=>{$(id).onclick=small;$(id).addEventListener('touchend',small)});
   const out=()=>{if(markWatched(v))$('vpSt').textContent='✓ İzlendi olarak işaretlendi'};
   $('vpOut').onclick=out;$('vpOut2').onclick=out;
   if($('vpNext'))$('vpNext').onclick=()=>openVideo(nx);
