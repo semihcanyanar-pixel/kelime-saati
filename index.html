@@ -2172,7 +2172,7 @@ function renderToday(){
   const allDone=KINDS.every(([k])=>(d[k]||0)>=goalOf(k));
   $('streak').innerHTML=allDone?`🏆 Bugünün tüm hedefleri tamam${st?` · 🔥 ${st} günlük seri`:''}`:st?`🔥 ${st} günlük seri${(d.n||0)+(d.r||0)+(d.h||0)+(d.s||0)+(d.v||0)?'':' · bugün devam ettir'}`:'Bugün ilk kartını aç, serini başlat ✨';
   const tiles=[
-    ['t-peach','📖','Yeni Kelimeler',`${unseen().length} görülmemiş`,()=>{showTab('home');setMode('new')}],
+    ['t-peach','📖','Yeni Kelimeler',`${unseen().length} görülmemiş`,()=>{showTab('home');navBack=null;S.cUnseen=true;save();cSetOn(false)}],
     ['t-sand','🎯','Kelime Testi',`En iyi seri: ${S.best}`,()=>{pView='setup';showTab('quiz')}],
     ['t-news','📰','Haberler',newsFresh()?`Bugün ${newsFresh()} yeni haber`:'Güncel BBC haberleri',()=>showTab('news'),newsFresh()>0],
     ['t-story','📚','Hikâyeler',S.stories.length?`${S.stories.length} hikâyen var`:'Kelimelerinle yazılmış sesli hikâyeler',()=>showTab('stories'),!S.stories.length],
