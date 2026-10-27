@@ -1503,10 +1503,11 @@ function renderQuota(){
     const {start,reset}=ptClock(),rs=hhmm(reset);
     const g=q.groq.rl;
     if(g&&g.left/g.limit<.15)warn.push('Groq');
-    const qErrL=k=>{const e=q.err&&q.err[k];return e&&Date.now()-e.t<864e5?`<br><span style="color:#D2463A">Son hata ${hhmm(e.t)}: ${esc(e.m)}</span>`:''};
+    const qErrL=k=>{const e=q.err&&q.err[k];return e&&e.m&&Date.now()-e.t<864e5?`<br><span style="color:#D2463A">Son hata ${hhmm(e.t)}: ${esc(e.m)}</span>`:''};
     rows+=q.hasGroq?row('⚡','Groq',(g?`Kesin · ${g.reset?grRes(g.reset)+' sonra yenilenir':''}`:'↻ Güncelle\'ye bas')+qErrL('groq'),g?`${g.left.toLocaleString(LOC)} / ${g.limit.toLocaleString(LOC)} kaldı`:'—',g?pc(g.left/g.limit*100):null,'https://console.groq.com/settings/limits',g?col(100-g.left/g.limit*100):null):row('⚡','Groq','Anahtar eklenmemiş','—',null,'https://console.groq.com/keys');
     const gm=(k,ic,t)=>{const x=q[k],full=x.e429>start,p=full?100:pc(x.used/x.limit*100);if(full)warn.push(t);return row(ic,t,`Bugün ${x.used} istek · ${full?`⚠ ${hhmm(x.e429)}'de doldu, ${rs}'de yenilenir`:'✓ Çalışıyor'}`+(k==='gem'?qErrL('gem'):''),full?'Doldu':`~%${p}`,p,'https://aistudio.google.com/usage',full?'#D2463A':null)};
     rows+=gm('gem','✨','Gemini metin')+gm('tts','🔊','Gemini ses');
+    {const kd=(KDAY.items||[]).some(x=>x.day===trToday());rows+=row('💬','Günün kalıbı',(kd?'Bugünkü kalıp hazır ✓':'Bugün yeni kalıp hazırlanamadı, hazır listeden gösteriliyor')+qErrL('idm'),kd?'✓':'—',null,'')}
     rows+=q.hasAI?row('🧠','Kimi K2.6',`Bugün ${(q.kimi||{}).used||0} istek (hikâye yedeği)`+qErrL('kimi'),String((q.kimi||{}).used||0),null,'https://dash.cloudflare.com/?to=/:account/ai/workers-ai'):'';
     rows+=row('☁️','Workers AI',q.hasAI?`Bugün ${q.wai.used} istek (son yedek)`+qErrL('wai'):'Bağlantı eklenmemiş',q.hasAI?String(q.wai.used):'—',null,'https://dash.cloudflare.com/?to=/:account/ai/workers-ai');
     const kp=pc(q.kvw.used/q.kvw.limit*100);if(kp>=85)warn.push('Önbellek');rows+=row('💾','Önbellek yazma',`Bugün ${q.kvw.used} / ${q.kvw.limit.toLocaleString(LOC)}`,`%${kp}`,kp,'https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces');
@@ -3418,7 +3419,7 @@ function renderKalDay(){
   if(!KST){kalStarter().then(()=>{renderKalDay();loadKal()});return}
   const k=kalToday();if(!k){el.style.display='none';return}
   el.style.display='flex';
-  el.innerHTML=`<div class="dth" style="background:url('${kalPhoto(dayNo(trToday()))}') center/cover,linear-gradient(135deg,#F29A55,#E8793F)"></div><div class="dtx"><div class="t1">💬 Günün kalıbı · ${k.t==='phrase'?'Günlük kalıp':'Deyim'}</div><div class="t2">${esc(k.p)}</div><small>${esc(k.tr)}</small></div>${CHEV}`;
+  el.innerHTML=`<div class="dth" style="background:url('${kalPhoto(dayNo(trToday()))}') center/cover,linear-gradient(135deg,#F29A55,#E8793F)"></div><div class="dtx"><div class="t1">💬 Günün kalıbı · ${k.t==='phrase'?'Sohbet':'Deyim'}</div><div class="t2">${esc(k.p)}</div><small>${esc(k.tr)}</small></div>${CHEV}`;
   el.onclick=()=>showTab('kal');
 }
 const kMark=t=>esc(t).replace(/\*([^*]+)\*/g,'<em>$1</em>');
@@ -3438,11 +3439,11 @@ function renderKal(){
   box.innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>Kalıplar</b><span class="sp40"></span></div><div class="sec">
     <button class="ipr" id="kpGo"><span class="ic">🎯</span><span class="tx"><b>Pratiğe Başla</b><small>${all.length} kalıptan ${Math.min(10,all.length)} soru · günlük Pratik hedefine sayılır</small></span>${CHEV}</button>
     <div class="glabel">${isToday?'Günün kalıbı · '+esc(dt):'Kalıp'}</div>
-    <div class="ihero"><span class="tg">💬 ${k.t==='phrase'?'Günlük kalıp':'Deyim'}</span><h2>${esc(k.p)}</h2><p>${esc(k.tr)}</p><p class="en">${esc(k.en)}</p></div>
+    <div class="ihero"><span class="tg">💬 ${k.t==='phrase'?'Sohbet':'Deyim'}</span><h2>${esc(k.p)}</h2><p>${esc(k.tr)}</p><p class="en">${esc(k.en)}</p></div>
     <div id="kalChat" class="${S.kalTr===false?'notr':''}" style="margin-top:6px">${kBubbles(k,k.d||[])}</div>
     <button class="tgl ${S.kalTr===false?'':'on'}" id="kalTr"><span>Türkçe satırlar</span><i></i></button>
     ${isToday?'':'<button class="ghost" id="kalBackT">‹ Günün kalıbına dön</button>'}
-    <div class="glabel">Önceki kalıplar</div><div class="group"><button class="grow" id="kalAllB"><i class="gi" style="background:#FDE8C8">📚</i><span class="gt">Kalıplarım<small>${all.length} kalıp · deyimler ve günlük kalıplar</small></span>${CHEV}</button></div></div>`;
+    <div class="glabel">Önceki kalıplar</div><div class="group"><button class="grow" id="kalAllB"><i class="gi" style="background:#FDE8C8">📚</i><span class="gt">Kalıplarım<small>${all.length} kalıp · deyimler ve sohbet kalıpları</small></span>${CHEV}</button></div></div>`;
   $('kalTr').onclick=()=>{S.kalTr=S.kalTr===false;save();$('kalTr').classList.toggle('on',S.kalTr);$('kalChat').classList.toggle('notr',!S.kalTr)};
   $('kpGo').onclick=startKQ;
   if($('kalBackT'))$('kalBackT').onclick=()=>{KSEL=null;renderKal();$('main').scrollTop=0};
