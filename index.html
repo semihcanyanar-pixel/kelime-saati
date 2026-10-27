@@ -320,6 +320,16 @@ nav.tabs button.on{color:var(--accent)}
 .wd{border-radius:4px}.wd.on{background:var(--accent);color:#fff}
 .kw{text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:2px;text-underline-offset:3px}
 .svb{color:var(--ink);border-color:var(--accent);font-weight:700;margin-top:12px}.svb.on{color:var(--muted);border-color:var(--line);font-weight:600}
+.ib{display:flex;gap:9px;align-items:flex-end;margin:10px 0}.ib.r{flex-direction:row-reverse}.ib .av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px;flex:none}
+.ib .bb{max-width:78%;background:var(--card);border-radius:18px;padding:10px 13px;box-shadow:0 2px 8px rgba(120,80,40,.07);font-size:16px;line-height:1.4;color:var(--text)}.ib.r .bb{background:var(--accent-soft)}
+.ib .bb small{display:block;color:var(--muted);font-size:13.5px;margin-top:4px}.ib em{font-style:normal;color:var(--ink);font-weight:700}
+.notr .ib .bb small{display:none}.kblank{color:var(--accent);font-weight:800;letter-spacing:1px}
+.ihero{border-radius:24px;padding:20px 18px;background:linear-gradient(135deg,#F29A55,#E8793F);color:#fff;box-shadow:0 8px 20px rgba(232,121,63,.25)}
+.ihero .tg{display:inline-block;background:rgba(255,255,255,.22);border-radius:10px;padding:3px 9px;font-size:12px;font-weight:700}.ihero h2{font-size:30px;margin:10px 0 6px;letter-spacing:-.5px;line-height:1.15}.ihero p{margin:3px 0;opacity:.95}.ihero .en{font-style:italic;opacity:.85}
+.ipr{display:flex;align-items:center;gap:12px;width:100%;border:none;text-align:left;background:var(--card);border-radius:20px;padding:14px;box-shadow:var(--shadow);color:var(--text);margin-top:4px}.ipr .ic{font-size:30px}.ipr span.tx{flex:1}.ipr b{display:block;font-size:17px}.ipr small{color:var(--muted);font-size:13px}
+.qopt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--card);border-radius:16px;padding:14px;margin-top:9px;font-size:16px;font-weight:600;color:var(--text)}
+.qopt.ok{border-color:#2E9E5E;background:#E3F5EA;color:#1E6B3E}.qopt.bad{border-color:#D2463A;background:#FBE4E1;color:#9A2C22}
+.kmean{margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--soft);font-size:14.5px}
 .kw2{text-decoration:underline;text-decoration-color:#1E9BEA;text-decoration-thickness:2px;text-underline-offset:3px}
 .tgl{display:flex;justify-content:space-between;align-items:center;width:100%;border:none;background:var(--card);border-radius:14px;padding:12px 14px;margin-top:16px;font-weight:600;font-size:15px;color:var(--text)}
 .tgl i{width:44px;height:26px;border-radius:13px;background:var(--toggle);position:relative;flex:none;transition:background .2s}.tgl i::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#FFF;transition:left .2s}
@@ -599,6 +609,7 @@ nav.tabs button{position:relative}
         <div class="tiles" id="tiles"></div>
         <button class="wcard drow" id="newsDay" style="display:none"></button>
         <div id="vidDay" style="display:none"></div>
+        <button class="wcard drow" id="kalDay" style="display:none"></button>
       </div>
     </section>
 
@@ -636,6 +647,7 @@ nav.tabs button{position:relative}
       <div class="sec" id="stBox"></div>
     </section>
     <section class="view sub" id="v-sread"><div id="srBox"></div></section>
+    <section class="view sub" id="v-kal"><div id="kalBox"></div></section>
 
     <!-- İLERLEME -->
     <section class="view sub" id="v-guide">
@@ -766,6 +778,7 @@ nav.tabs button{position:relative}
   <button class="primary" id="vchOk">Tamam</button></div></div>
 
 <!-- Hikâye kelime kaynakları -->
+<div class="sheet" id="kalSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Kalıplarım</h3><div class="group" id="kalList" style="max-height:62vh;overflow:auto"></div></div></div>
 <div class="sheet" id="stListSheet"><div class="bd"></div><div class="panel"><div class="grab"></div><h3>Kayıtlı hikâyelerim</h3><div class="group" id="stList" style="max-height:62vh;overflow:auto"></div></div></div>
 <div class="sheet" id="stSrcSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
   <h3>Hangi kelimeler geçsin?</h3><p class="hint" style="margin-top:-6px">Birden fazlasını seçebilirsin. Hikâyeye bunlardan 6-15 kelime yerleştirilir; Öğren ve görmediğin kelimeler önce gelir.</p>
@@ -2190,6 +2203,7 @@ function renderToday(){
   $('tiles').querySelectorAll('.tile').forEach(b=>b.onclick=tiles[+b.dataset.i][4]);
   updateBadge();
   renderVidDay();
+  renderKalDay();
   renderPair();
 }
 /* Kelimelerim üstü: saatin kelimesi + haftanın kelimeleri (yan yana) */
@@ -2474,6 +2488,12 @@ const GD=[
   '<b>Dinle:</b> Haberi doğal sesle dinle; okunan cümle vurgulanır. Türkçe çeviriyi açıp kapatabilirsin.',
   '<b>Zor kelimeler ve test:</b> Haberin altında zor kelimeler listesi ve 3 soruluk anlama testi var.',
   '<b>✓ Okuduklarım:</b> Testini çözdüğün haberler. Tekrar açınca bir üst seviyeden gelir; 3. seviyesini tamamlayınca listeden çıkar.'],tip:'Hangi kategorilerin görüneceğini ⚙️ Ayarlar → Haber konuları\'ndan seçebilirsin.',go:['Haberlere git',()=>showTab('news')]},
+ {id:'kalip',e:'💬',t:'Kalıplar',p:['Her gün bir deyim ya da günlük konuşma kalıbı, iki kişinin sohbeti içinde. Başlangıç için 20 kalıp hazır gelir, sonra her gün bir yenisi eklenir.'],li:[
+  '<b>Günün kalıbı:</b> Bugün sayfasında, günün haberi ve videosunun yanında durur; dokununca Kalıplar sayfası açılır.',
+  '<b>Türkçe satırlar:</b> Sohbetin çevirisini açıp kapatabilirsin; kalıp ve Türkçe karşılığı vurgulu görünür.',
+  '<b>Pratiğe Başla:</b> Kısa bir sohbette boşluğa uyan kalıbı seçersin. Yanlış yaptığın kalıplar sonraki pratiklerde daha sık gelir.',
+  '<b>Hedefe sayılır:</b> Kalıplar için ayrı hedef yok; çözdüğün her soru günlük Pratik hedefine sayılır.',
+  '<b>Kartlardan ayrı:</b> Kalıplar kelime kartlarına ve kelime pratiğine karışmaz.'],go:['Kalıplara git',()=>showTab('kal')]},
  {id:'hikaye',e:'📚',t:'Hikâyeler',p:['Senin kelimelerinle yazılmış, iki dilli ve sesli kısa hikâyeler.'],li:[
   '<b>Konu:</b> Hazır konulardan birini seç ya da kendi konunu yaz.',
   '<b>Kelime kaynağı:</b> Hikâyede geçecek kelimeler Öğren Listem, Haftanın kelimeleri ya da bir kategoriden seçilir.',
@@ -2579,11 +2599,12 @@ async function workerCall(body,ms){
 }
 
 /* ---------- gezinme ---------- */
-const SUBS=['news','read','stories','sread','widget','videos','video','stats','guide'];
+const SUBS=['news','read','stories','sread','widget','videos','video','stats','guide','kal'];
 let lastMain='today',readFrom='news',pView='hub';
 function goBack(){const cur=[...document.querySelectorAll('.view.on')].map(v=>v.id.slice(2))[0];
   if(cur==='read')return showTab(readFrom);
   if(cur==='sread')return showTab('stories');
+  if(cur==='kal'&&(KQ||KSEL)){KQ=null;KSEL=null;return renderKal()}
   if(cur==='video')return showTab(vFrom==='today'?'today':'videos');
   showTab(lastMain);}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-back]');if(b)goBack()});
@@ -3374,6 +3395,89 @@ function vRow(v){const c=vChOf(v),w=(S.vWatched||{})[v.id];
 
 /* ---------- Ders: günün videosu kartı ---------- */
 let vTodayBusy=false;
+/* ---------- KALIPLAR: günün kalıbı + kalıp pratiği (kelime kartlarından tamamen ayrı) ---------- */
+let KST=null,KDAY=lsGet('ks:kal',{n:0,items:[]}),KQ=null,KSEL=null,kalBusy=false,kalT=0;
+const KPH=['1760623681430-9224e69d9683','1769153662792-5510efba2d5d','1758519289174-72721d274e4a','1772471586699-a770c551f442','1758525226586-c9b75017de26','1758274252296-a63b1d7d4bb8','1759593047536-5258c3c6a527','1507537362848-9c7e70b7b5c1'];
+const kalPhoto=n=>`https://images.unsplash.com/photo-${KPH[n%KPH.length]}?w=240&h=240&fit=crop&q=70&auto=format`;
+const trToday=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Istanbul'}).format(new Date());
+const dayNo=d=>Math.floor(Date.parse(d+'T12:00:00Z')/864e5);
+async function kalStarter(){if(KST)return KST;try{KST=await (await fetch('kaliplar.json')).json()}catch(e){KST=[]}return KST}
+function kalAll(){const d=(KDAY.items||[]).slice().sort((a,b)=>b.day<a.day?-1:1);return d.concat(KST||[])}
+function kalToday(){const t=trToday(),d=(KDAY.items||[]).find(x=>x.day===t);if(d)return d;const st=KST||[];return st.length?st[dayNo(t)%st.length]:null}
+async function loadKal(force){
+  await kalStarter();
+  if(!S.worker||kalBusy||(!force&&Date.now()-kalT<10*60000&&(KDAY.items||[]).some(x=>x.day===trToday())))return;
+  kalBusy=true;kalT=Date.now();
+  try{const r=await workerCall({idioms:{have:KDAY.n||0}},60000);if(r&&Array.isArray(r.items)){if(r.n<(KDAY.n||0))KDAY={n:0,items:[]};KDAY.items=(KDAY.items||[]).concat(r.items.filter(x=>!(KDAY.items||[]).some(y=>y.id===x.id)));KDAY.n=r.n;lsSet('ks:kal',KDAY)}}catch(e){}
+  finally{kalBusy=false}
+  if($('v-today').classList.contains('on'))renderKalDay();
+  if($('v-kal').classList.contains('on')&&!KQ)renderKal();
+}
+function renderKalDay(){
+  const el=$('kalDay');if(!el)return;
+  if(!KST){kalStarter().then(()=>{renderKalDay();loadKal()});return}
+  const k=kalToday();if(!k){el.style.display='none';return}
+  el.style.display='flex';
+  el.innerHTML=`<div class="dth" style="background:url('${kalPhoto(dayNo(trToday()))}') center/cover,linear-gradient(135deg,#F29A55,#E8793F)"></div><div class="dtx"><div class="t1">💬 Günün kalıbı · ${k.t==='phrase'?'Günlük kalıp':'Deyim'}</div><div class="t2">${esc(k.p)}</div><small>${esc(k.tr)}</small></div>${CHEV}`;
+  el.onclick=()=>showTab('kal');
+}
+const kMark=t=>esc(t).replace(/\*([^*]+)\*/g,'<em>$1</em>');
+const KCOL=['#C2544F','#3E7FA8'];
+function kBubbles(k,lines,blank){
+  return lines.map(([s,en,tr])=>{const nm=(k.n&&k.n[s])||(s?'B':'A');
+    const e=blank?kMark(en).replace('___','<b class="kblank">_____</b>'):kMark(en);
+    return `<div class="ib ${s?'r':''}"><div class="av" style="background:${KCOL[s]}">${esc(nm.charAt(0))}</div><div class="bb">${e}${tr?`<small>${kMark(tr)}</small>`:''}</div></div>`}).join('');
+}
+function renderKal(){
+  const box=$('kalBox');if(!box)return;
+  if(!KST){box.innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>Kalıplar</b><span class="sp40"></span></div><div class="loadbox">Yükleniyor…</div>`;kalStarter().then(renderKal);return}
+  if(KQ)return renderKQ();
+  const all=kalAll(),today=kalToday(),k=KSEL||today;
+  if(!k){box.innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>Kalıplar</b><span class="sp40"></span></div><div class="loadbox">Kalıplar yüklenemedi, internetini kontrol et.</div>`;return}
+  const isToday=k===today,dt=new Date().toLocaleDateString(LOC,{day:'numeric',month:'long'});
+  box.innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>Kalıplar</b><span class="sp40"></span></div><div class="sec">
+    <button class="ipr" id="kpGo"><span class="ic">🎯</span><span class="tx"><b>Pratiğe Başla</b><small>${all.length} kalıptan ${Math.min(10,all.length)} soru · günlük Pratik hedefine sayılır</small></span>${CHEV}</button>
+    <div class="glabel">${isToday?'Günün kalıbı · '+esc(dt):'Kalıp'}</div>
+    <div class="ihero"><span class="tg">💬 ${k.t==='phrase'?'Günlük kalıp':'Deyim'}</span><h2>${esc(k.p)}</h2><p>${esc(k.tr)}</p><p class="en">${esc(k.en)}</p></div>
+    <div id="kalChat" class="${S.kalTr===false?'notr':''}" style="margin-top:6px">${kBubbles(k,k.d||[])}</div>
+    <button class="tgl ${S.kalTr===false?'':'on'}" id="kalTr"><span>Türkçe satırlar</span><i></i></button>
+    ${isToday?'':'<button class="ghost" id="kalBackT">‹ Günün kalıbına dön</button>'}
+    <div class="glabel">Önceki kalıplar</div><div class="group"><button class="grow" id="kalAllB"><i class="gi" style="background:#FDE8C8">📚</i><span class="gt">Kalıplarım<small>${all.length} kalıp · deyimler ve günlük kalıplar</small></span>${CHEV}</button></div></div>`;
+  $('kalTr').onclick=()=>{S.kalTr=S.kalTr===false;save();$('kalTr').classList.toggle('on',S.kalTr);$('kalChat').classList.toggle('notr',!S.kalTr)};
+  $('kpGo').onclick=startKQ;
+  if($('kalBackT'))$('kalBackT').onclick=()=>{KSEL=null;renderKal();$('main').scrollTop=0};
+  $('kalAllB').onclick=()=>{
+    const today2=kalToday();
+    $('kalList').innerHTML=kalAll().map((x,i)=>`<button class="grow" data-i="${i}"><i class="gi" style="background:${x.t==='phrase'?'#DDEBF7':'#FDE8C8'}">${x.t==='phrase'?'🗣️':'💬'}</i><span class="gt">${esc(x.p)}<small>${esc(x.tr)}${x===today2?' · bugün':''}</small></span>${CHEV}</button>`).join('');
+    $('kalList').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const x=kalAll()[+b.dataset.i];closeSheets();KSEL=x===kalToday()?null:x;renderKal();$('main').scrollTop=0});
+    openSheet('kalSheet')};
+}
+// Kalıp pratiği: sohbette boşluğa uyan kalıbı seç. Yanlış yapılanlar daha sık gelir. Her cevap günlük Pratik hedefine sayılır.
+function startKQ(){
+  const all=kalAll().filter(x=>x.q&&x.q.length);if(all.length<4)return toast('Pratik için en az 4 kalıp gerekiyor');
+  const st=S.kalSt||{},w=x=>{const v=st[x.id]||{};return 1+Math.max(0,(v.b||0)*2-(v.o||0))};
+  const pick=all.map(x=>[Math.random()/w(x),x]).sort((a,b)=>a[0]-b[0]).slice(0,Math.min(10,all.length)).map(z=>z[1]);
+  KQ={qs:pick.map(x=>{const o=shuffle(all.filter(y=>y.p!==x.p)).slice(0,3).map(y=>y.p);return {k:x,o:shuffle([x.p,...o])}}),i:0,ok:0,ans:null};
+  renderKQ();$('main').scrollTop=0;
+}
+function renderKQ(){
+  const box=$('kalBox'),q=KQ.qs[KQ.i];
+  if(!q){const n=KQ.qs.length;box.innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>Kalıp pratiği</b><span class="sp40"></span></div><div class="sec">
+    <div class="stcard" style="text-align:center;margin-top:10px"><div style="font-size:46px">${KQ.ok>=n*.8?'🏆':KQ.ok>=n/2?'👏':'💪'}</div><h3 style="margin:6px 0">${KQ.ok}/${n} doğru</h3><p class="hint">Çözdüğün ${n} soru günlük Pratik hedefine sayıldı.</p>
+    <button class="primary" id="kqAgain">Tekrar pratik yap</button><button class="ghost" id="kqBack">Kalıplara dön</button></div></div>`;
+    $('kqAgain').onclick=startKQ;$('kqBack').onclick=()=>{KQ=null;renderKal();$('main').scrollTop=0};return}
+  const done=KQ.ans!=null;
+  box.innerHTML=`<div class="shdr"><button class="bk" data-back>✕</button><b>Kalıp pratiği · ${KQ.i+1}/${KQ.qs.length}</b><span class="sp40"></span></div><div class="sec">
+    <p class="hint" style="margin:6px 2px 8px">Sohbete uyan kalıbı seç</p>
+    <div class="${done&&S.kalTr!==false?'':'notr'}">${kBubbles(q.k,q.k.q,true)}</div>
+    ${q.o.map((o,i)=>`<button class="qopt ${done?(o===q.k.p?'ok':i===KQ.ans?'bad':''):''}" data-i="${i}">${esc(o)}</button>`).join('')}
+    ${done?`<div class="kmean"><b>${esc(q.k.p)}</b> — ${esc(q.k.tr)}</div><button class="primary" id="kqNext">${KQ.i+1<KQ.qs.length?'Devam':'Sonucu gör'}</button>`:''}</div>`;
+  if(!done)box.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.i,ok=q.o[i]===q.k.p;KQ.ans=i;if(ok)KQ.ok++;
+    S.kalSt=S.kalSt||{};const v=S.kalSt[q.k.id]||(S.kalSt[q.k.id]={o:0,b:0});if(ok)v.o++;else v.b++;
+    markAnswer(ok);renderKQ()});
+  else $('kqNext').onclick=()=>{KQ.i++;KQ.ans=null;renderKQ();$('main').scrollTop=0};
+}
 function renderVidDay(){
   const el=$('vidDay');if(!el)return;
   if(!S.worker){el.style.display='none';return}
@@ -3484,7 +3588,8 @@ function showTab(t){
   $('hTitle').textContent=TITLES[t]||'';$('hTitle').style.display=TITLES[t]?'':'none';
   $('hSub').textContent=new Date().toLocaleDateString(LOC,{weekday:'long',day:'numeric',month:'long'});
   if(t==='today')renderToday();
-  const navT=['news','read','stories','sread','videos','video'].includes(t)?'quiz':t;
+  if(t==='kal'){KQ=null;KSEL=null;renderKal();loadKal()}
+  const navT=['news','read','stories','sread','videos','video'].includes(t)?'quiz':t==='kal'?'today':t;
   if(t!=='video'&&typeof stopVideo==='function')stopVideo();
   document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===navT));
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
