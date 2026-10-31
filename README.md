@@ -30,6 +30,9 @@ Konu anahtarları: `daily, work, travel, emotions, tech, health, society, academ
    - `GEMINI_API_KEY` (Secret) = anahtarın
    - `ALLOWED_ORIGIN` (Text, önerilir) = `https://KULLANICI_ADIN.github.io`
    - `GEMINI_MODEL` (isteğe bağlı, varsayılan `gemini-flash-latest`) — model adı değişirse buradan güncellenir
+   - `ADMIN_EMAIL` (Text, **zorunlu**) = yönetici hesabının e-postası. Kodda varsayılan olarak `admin@example.com` yazılı, tanımlamazsan kimse yönetici olamaz.
+   - İsteğe bağlı: `GROQ_API_KEY` (Secret), `YT_API_KEY` (Secret, YouTube), `KS` (KV namespace bağlantısı: haber, ses ve kalıp önbelleği).
+   - Her istek Firebase giriş jetonu ister. `AUTH_OFF` değişkenini **tanımlama**.
 4. Uygulamada ⚙️ → Worker adresi → yapıştır. Konu + seviye seçip **Kelime üret**.
 
 AI kelimeleri telefonda saklanır, "AI kelimelerim" grubunda ve alıştırmada çıkar; widget yalnızca `words.json` içindeki kelimeleri kullanır.
