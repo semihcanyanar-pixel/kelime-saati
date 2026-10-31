@@ -2504,8 +2504,8 @@ const GD=[
   '<b>Kelimeye dokun:</b> Anlamı hemen çıkar; 🔊 ile dinler, "＋ Karta ekle" ile kartlarına eklersin.',
   '<b>Dinle:</b> Haberi doğal sesle dinle; okunan cümle vurgulanır. Türkçe çeviriyi açıp kapatabilirsin.',
   '<b>Zor kelimeler ve test:</b> Haberin altında zor kelimeler listesi, kelime pratiği ve 3 soruluk anlama testi var. Metinde zor kelimelerin altı turuncu, kartına eklediklerinin altı mavi çizilir.',
-  '<b>Kelime pratiği:</b> Haberin zor kelimeleri ve haberde kartına eklediklerinle kısa bir test. Kartı olmayan kelimeler de sorulur; sonunda tek dokunuşla kartlara ekleyebilirsin. Yanlışların Öğren listene girer, her cevap günlük Pratik hedefine sayılır.',
-  '<b>Haber hedefi:</b> Kelime pratiğini tamamlamadan haber günlük haber hedefine sayılmaz (haberin zor kelimesi yoksa gerekmez).',
+  '<b>Kelime pratiği:</b> Haberin zor kelimeleri ve haberde kartına eklediklerinle kısa bir test. Sadece kartlarında olan kelimeler sorulur; kartı olmayan zor kelimeler için "Hepsini kartlara ekle" düğmesi var. Yanlışların Öğren listene girer, her cevap günlük Pratik hedefine sayılır.',
+  '<b>Haber hedefi:</b> Haberin zor kelimesi varsa, kelime pratiğini tamamlamadan haber günlük haber hedefine sayılmaz.',
   '<b>✓ Okuduklarım:</b> Testini çözdüğün haberler. Tekrar açınca bir üst seviyeden gelir; 3. seviyesini tamamlayınca hiçbir listede görünmez.'],tip:'Hangi kategorilerin görüneceğini ⚙️ Ayarlar → Haber konuları\'ndan seçebilirsin.',go:['Haberlere git',()=>showTab('news')]},
  {id:'kalip',e:'💬',t:'Kalıplar',p:['Her gün bir deyim ya da günlük konuşma kalıbı, iki kişinin sohbeti içinde. Başlangıç için 20 kalıp hazır gelir, sonra her gün bir yenisi eklenir.'],li:[
   '<b>Günün kalıbı:</b> Bugün sayfasında, günün haberi ve videosunun yanında durur; dokununca Kalıplar sayfası açılır.',
@@ -2951,11 +2951,13 @@ function prWords(L,id){
   const m=new Map();
   ((L&&L.words)||[]).forEach(x=>{const w=String(x&&x.w||'').trim();if(w&&!m.has(w.toLowerCase()))m.set(w.toLowerCase(),{w,tr:String(x.tr||'').trim()})});
   (nAdd()[id]||[]).forEach(a=>{const c=findWord(String(a));if(c)m.set(k(c),{w:c.w,tr:c.tr})});
-  return [...m.values()].map(x=>{const c=findWord(x.w);return {w:c?c.w:x.w,tr:(c&&c.tr)||x.tr,card:c||null,ctx:findCtx(L.paras||[],x.w)||(c&&c.ex)||''}}).filter(x=>x.tr);
+  // Sadece kartı olan kelimeler sorulur (kartı olmayan zor kelimeler pratikte yer almaz)
+  return [...m.values()].map(x=>{const c=findWord(x.w);return c&&c.tr?{w:c.w,tr:c.tr,card:c,ctx:findCtx(L.paras||[],x.w)||c.ex||''}:null}).filter(Boolean);
 }
+// Habere hedef için pratik gerekir: haberin zor kelimesi varsa ve pratik henüz yapılmadıysa
 function newsNeedsPr(id,lv){
   const a=artCache()[id],L=a&&a.levels&&a.levels[lv-1];if(!L)return false;
-  return prWords(Object.assign({},L,{words:cleanWords(L.words,L.paras)}),id).length>0&&!nwp()[id+':'+lv];
+  return cleanWords(L.words,L.paras).length>0&&!nwp()[id+':'+lv];
 }
 function newsCount(id,lv,msg){
   if(newsNeedsPr(id,lv)){if(msg)toast('Haber hedefine sayılması için önce kelime pratiğini tamamla');return false}
@@ -2989,14 +2991,17 @@ function prBuild(ws){
 function renderPr(){
   const box=$('prBox');if(!box||!RD)return;
   const L=RD.art&&RD.art.levels&&RD.art.levels[RD.lv-1];if(!L){box.innerHTML='';return}
-  const id=RD.item.id,ws=prWords(L,id);
-  if(!ws.length){box.innerHTML='';return}
+  const id=RD.item.id,ws=prWords(L,id),miss=cleanWords(L.words,L.paras).filter(w=>!hasWord(w.w));
+  if(!ws.length&&!miss.length){box.innerHTML='';return}
   const done=nwp()[id+':'+RD.lv],p=RD.pr;
   if(!p){
     box.innerHTML=`<div class="qz" style="margin-top:14px"><h4>KELİME PRATİĞİ</h4>
-      <p class="hint" style="margin:0 0 12px;text-align:left">${ws.length} kelime · <span class="kw">zor kelimeler</span> ve <span class="kw2">kartına eklediklerin</span>. Kartı olmasa da çalışır.${done?'':' Haber hedefine sayılması için bu pratiği tamamla.'}</p>
-      <button class="primary" id="prGo">📚 ${done?`Tekrar yap (önceki: ${done.ok}/${done.n})`:'Kelime pratiği yap'}</button></div>`;
-    $('prGo').onclick=()=>{RD.pr={i:0,ok:0,qs:prBuild(ws),wrong:[],ws};renderPr()};return}
+      <p class="hint" style="margin:0 0 12px;text-align:left">Kartlarında olan <span class="kw">zor kelimeler</span> ve haberde <span class="kw2">kartına eklediklerin</span> sorulur${ws.length?` (${ws.length} kelime)`:''}.${newsNeedsPr(id,RD.lv)?' Haber hedefine sayılması için bu pratiği tamamla.':''}</p>
+      ${miss.length?`<p class="hint" style="margin:0 0 10px;text-align:left">📌 ${miss.length} zor kelimenin kartı yok, pratikte sorulmaz.</p><button class="ghost" id="prAddAll" style="margin:0 0 10px" ${RD.prBusy?'disabled':''}>${RD.prBusy?'<span class="spin"></span>':'＋ Hepsini kartlara ekle'}</button>`:''}
+      ${ws.length?`<button class="primary" id="prGo">📚 ${done?`Tekrar yap (önceki: ${done.ok}/${done.n})`:'Kelime pratiği yap'}</button>`:'<p class="hint" style="margin:0;text-align:left">Pratik için en az bir kelimenin kartı olmalı.</p>'}</div>`;
+    if($('prGo'))$('prGo').onclick=()=>{RD.pr={i:0,ok:0,qs:prBuild(ws),wrong:[],ws};renderPr()};
+    if($('prAddAll'))$('prAddAll').onclick=async()=>{const r=RD;r.prBusy=true;renderPr();try{await $('dwAll').onclick()}catch(e){}r.prBusy=false;if(RD===r&&!r.pr)renderPr()};
+    return}
   if(p.i>=p.qs.length)return prResult(p,id);
   const q=p.qs[p.i],x=q.x;
   let sent='';
@@ -3022,22 +3027,13 @@ function prResult(p,id){
     const ks=Object.keys(nwp()).sort((a,b)=>nwp()[a].t-nwp()[b].t);while(ks.length>150)delete nwp()[ks.shift()];
     save();if(S.newsDone[id])newsCount(id,lv);                 // test daha önce çözüldüyse haber şimdi hedefe sayılır
   }
-  const miss=p.ws.filter(x=>!findWord(x.w)),wr=[...new Set(p.wrong)];
+  const wr=[...new Set(p.wrong)];
   box.innerHTML=`<div class="qz" style="text-align:center"><h4>KELİME PRATİĞİ · SONUÇ</h4><div class="res-big" style="font-size:52px">${p.ok} / ${n}</div>
     <p class="hint">${p.ok===n?'Kusursuz! 🎉':p.ok?'Güzel, devam!':'Bir daha oku, sonra tekrar dene'}${S.newsDone[id]?'':' · Şimdi aşağıdaki testi de çöz.'}</p>
     ${wr.length?`<div class="wlist" style="text-align:left"><h4 style="margin:0 0 4px;font-size:12px;letter-spacing:1.6px;color:var(--gold)">YANLIŞ YAPTIKLARIN</h4>${wr.map(w=>{const x=p.ws.find(y=>y.w.toLowerCase()===w);return x?`<div><b>${esc(x.w)}</b><span>${esc(x.tr)}</span></div>`:''}).join('')}</div>`:''}
-    ${miss.length?`<button class="primary" id="prAdd" style="margin-top:12px">＋ Kartı olmayan ${miss.length} kelimeyi kartlara ekle</button><p class="hint" style="margin:8px 0 0">Yanlış yaptıkların Öğren listene de girer.</p>`:''}
+    ${wr.length?'<p class="hint" style="margin:8px 0 0">Yanlış yaptıkların Öğren listene girdi.</p>':''}
     <button class="ghost" id="prAgain">Tekrar yap</button></div>`;
   $('prAgain').onclick=()=>{RD.pr=null;renderPr()};
-  if($('prAdd'))$('prAdd').onclick=async()=>{
-    const b=$('prAdd');b.disabled=true;b.innerHTML='<span class="spin"></span>';let added=0;
-    for(const x of miss){
-      await addFromText(x.w,x.ctx,document.createElement('span'),true,true);
-      const c=findWord(x.w);if(c){added++;if(wr.includes(x.w.toLowerCase()))markLearn(c,false)}
-    }
-    toast(added?`${added} kelime kartlara eklendi`:'Eklenemedi, tekrar dene');refreshDw();
-    if(RD&&RD.pr===p)prResult(p,id);
-  };
 }
 function renderQuiz(){
   const box=$('qzBox');if(!box)return;
