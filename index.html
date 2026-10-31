@@ -1035,7 +1035,7 @@ const EN={
 'Bu haberin metni alınamadı, başka bir haber dene':'Couldn\'t get this article\'s text, try another one','Cevap gecikti, tekrar dene':'The response took too long, try again',
 'Okundu':'Read','Kelime Pratiği ·':'Word Practice ·','Bu hafta':'This week','Geçen hafta':'Last week','O hafta':'That week',
 'Yeni pratik':'New practice','Yanlışları tekrar çalış':'Practice the mistakes','YANLIŞ YAPTIKLARIN':'YOUR MISTAKES','Hiç soru cevaplanmadı':'No questions answered',
-'✕ Bitir':'✕ Finish','Bitir':'Finish','Favorilere ekle':'Add to favorites','★ Favorilere ekle':'★ Add to favorites','Kart çalışması ·':'Card study ·',
+'✕ Bitir':'✕ Finish','Bitir':'Finish','Favorilere ekle':'Add to favorites','★ Favorilere ekle':'★ Add to favorites','✓ Öğrendiklerime ekle':'✓ Add to words I know','Bildiklerine eklendi — karışık listelerde artık çıkmaz':'Added to known words — won\'t appear in mixed lists anymore','Kart çalışması ·':'Card study ·',
 'Kartlarda incele':'Review in cards','Kelimeler':'Words','Kelime kartı':'Word card','Kategorisi':'Category',
 'EN → TR':'EN → TR','TR → EN':'TR → EN','Gelişmiş':'Advanced','Bağlı':'Connected',
 'Yeni kelimeler gelsin':'Get new words','Her hafta':'Every week','Bu kelime':'This word',
@@ -1898,12 +1898,14 @@ function answer(i,btn){
   const last=P.len&&P.i+1>=P.len;
   $('qInfo').innerHTML=`<b style="color:var(--text)">${esc(a.w)}</b> — ${esc(a.tr)}<br><span style="font-size:14px">${highlight(a)}</span>${lmsg}
     <button class="primary" id="qNext">${last?'Sonucu gör':'Sonraki'}</button>
-    ${!isFav(a)?'<button class="ghost" id="qFav">★ Favorilere ekle</button>':''}`;
+    ${!isFav(a)?'<button class="ghost" id="qFav">★ Favorilere ekle</button>':''}
+    ${!isKnown(a)?'<button class="ghost" id="qKnown">✓ Öğrendiklerime ekle</button>':''}`;
   speak(a.w);
   const id=P.id,step=P.i;
   const go=()=>{if(P&&P.id===id&&P.i===step){P.i++;nextQ()}};
   $('qNext').onclick=go;
   if($('qFav'))$('qFav').onclick=()=>{toggle('favs',a);toast('Favorilere eklendi');$('qFav').remove()};
+  if($('qKnown'))$('qKnown').onclick=()=>{if(!isKnown(a))toggle('known',a);toast('Bildiklerine eklendi — karışık listelerde artık çıkmaz');$('qKnown').remove()};
 }
 function finish(){
   const tot=P.ok+P.bad,okN=P.ok,pct=tot?Math.round(okN/tot*100):0,wr=P.wrong.slice(),src=P.src,lbl=P.label||srcName(P.src);
@@ -3411,7 +3413,7 @@ async function loadKal(force){
   kalBusy=true;kalT=Date.now();
   try{const r=await workerCall({idioms:{have:KDAY.n||0}},60000);if(r&&Array.isArray(r.items)){if(r.n<(KDAY.n||0))KDAY={n:0,items:[]};KDAY.items=(KDAY.items||[]).concat(r.items.filter(x=>!(KDAY.items||[]).some(y=>y.id===x.id)));KDAY.n=r.n;lsSet('ks:kal',KDAY)}}catch(e){}
   finally{kalBusy=false}
-  if($('v-today').classList.contains('on'))renderKalDay();
+  renderKalDay();
   if($('v-kal').classList.contains('on')&&!KQ)renderKal();
 }
 function renderKalDay(){
@@ -3420,7 +3422,7 @@ function renderKalDay(){
   const k=kalToday();if(!k){el.style.display='none';return}
   el.style.display='flex';
   el.innerHTML=`<div class="dth" style="background:url('${kalPhoto(dayNo(trToday()))}') center/cover,linear-gradient(135deg,#F29A55,#E8793F)"></div><div class="dtx"><div class="t1">💬 Günün kalıbı · ${k.t==='phrase'?'Sohbet':'Deyim'}</div><div class="t2">${esc(k.p)}</div><small>${esc(k.tr)}</small></div>${CHEV}`;
-  el.onclick=()=>showTab('kal');
+  el.onclick=()=>{showTab('kal');if(k!==kalToday()){KSEL=k;renderKal()}};
 }
 const kMark=t=>esc(t).replace(/\*([^*]+)\*/g,'<em>$1</em>');
 const KCOL=['#C2544F','#3E7FA8'];
