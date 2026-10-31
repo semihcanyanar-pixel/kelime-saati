@@ -1,5 +1,5 @@
 // Kelime Saati — service worker (çevrimdışı çalışma)
-const CACHE = "kelime-saati-v39";
+const CACHE = "kelime-saati-v40";
 const ASSETS = ["./", "./index.html", "./words.json", "./kaliplar.json", "./widget.js", "./manifest.json", "./firebase-config.js", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -30,11 +30,21 @@ self.addEventListener("fetch", e => {
 
   if (url.origin !== location.origin) return;
 
-  // Kendi dosyalarımız: önce ağ (güncel kalsın), olmazsa önbellek
-  e.respondWith(
-    fetch(req, { cache: "no-cache" }).then(res => {   // tarayıcı önbelleğini atla, her açılışta en güncel dosya
-      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
-      return res;
-    }).catch(() => caches.match(req, { ignoreSearch: true }).then(hit => hit || caches.match("./index.html")))
-  );
+  // Kendi dosyalarımız: önce ağ (güncel kalsın); 4 sn'de cevap gelmezse ya da ağ yoksa önbellek
+  // Önbellek anahtarı sorgusuz adres (?w=kelime gibi her bağlantı ayrı kayıt oluşturmasın)
+  const key = url.search ? new Request(url.origin + url.pathname) : req;
+  const cached = () => caches.match(key, { ignoreSearch: true });
+  const net = fetch(req, { cache: "no-cache" }).then(res => {   // tarayıcı önbelleğini atla, her açılışta en güncel dosya
+    if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put(key, copy)); }
+    return res;
+  });
+  e.waitUntil(net.catch(() => {}));
+  e.respondWith((async () => {
+    try {
+      const slow = new Promise(r => setTimeout(r, 4000)).then(cached);
+      return (await Promise.race([net, slow])) || await net;
+    } catch (err) {
+      return (await cached()) || (await caches.match("./index.html")) || Response.error();
+    }
+  })());
 });

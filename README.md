@@ -53,8 +53,18 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+    // Widget kaydı: jetonu bilen okuyabilir (liste çıkarılamaz), yalnızca sahibi yazar/siler
+    match /widget/{token} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if request.auth != null && request.resource.data.owner == request.auth.uid;
+      allow update: if request.auth != null && resource.data.owner == request.auth.uid
+                    && request.resource.data.owner == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.owner == request.auth.uid;
+    }
   }
 }
 ```
+Gemini anahtarı buluta ve yedeğe yazılmaz; her cihazda ayrıca eklenir.
 5. **Project settings (⚙️) → Your apps → </> (Web)** → takma ad `kelime-saati` → Register. Çıkan `firebaseConfig` değerlerini `firebase-config.js` dosyasına yaz.
 6. Uygulamayı aç → **Hesap oluştur**. Cihazdaki veriler hesaba yüklenir; diğer cihazlarda aynı hesapla giriş yapınca hepsi gelir.

@@ -1154,6 +1154,8 @@ let mode=S.mode||'hour', list=[], idx=0, hOff=0, searchList=[], searchTitle='', 
 
 function freshDef(){return JSON.parse(JSON.stringify(DEF))}
 function load(){try{return Object.assign(freshDef(),JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return freshDef()}}
+// Cihaza özel alan: bulut eşitlemesine ve yedeğe girmez
+const stripLocal=o=>{const c=Object.assign({},o);delete c.gkey;return c};
 function localSave(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function save(){try{if(typeof goalSnap==='function')snapGoals()}catch(e){}localSave();if(C&&C.auth.currentUser)schedulePush()}
 const $=id=>document.getElementById(id);
@@ -1464,7 +1466,7 @@ function renderAiSet(){
   if(fam){$('gkS').textContent='Aile hesabısın, anahtar gerekmez';$('gkV').textContent='Hazır ✓';$('gkV').style.color='#2E9E5E';b.style.display='none'}
   else if(S.gkey){$('gkS').textContent='Yapay zekâ kendi ücretsiz kotandan çalışır';$('gkV').textContent='Ekli ✓';$('gkV').style.color='#2E9E5E'}
   else{$('gkS').textContent=ME?'Yapay zekâ özellikleri için gerekli':'Durum kontrol ediliyor…';$('gkV').textContent=ME?'Ekle':'';$('gkV').style.color='var(--accent)';b.style.display='none'}
-  b.innerHTML=S.gkey?`<input class="field" value="${maskKey(S.gkey)}" readonly style="font-family:monospace;letter-spacing:.5px"><div style="display:flex;gap:8px;margin-top:8px"><button class="ghost" id="gkChg" style="margin:0;flex:1">Değiştir</button><button class="ghost" id="gkDel" style="margin:0;flex:1;color:#C0443A">Kaldır</button></div><p class="hint" style="margin:8px 2px 2px;font-size:12px">Anahtar sadece senin hesabında saklanır, başka kimse göremez.</p>`:'';
+  b.innerHTML=S.gkey?`<input class="field" value="${maskKey(S.gkey)}" readonly style="font-family:monospace;letter-spacing:.5px"><div style="display:flex;gap:8px;margin-top:8px"><button class="ghost" id="gkChg" style="margin:0;flex:1">Değiştir</button><button class="ghost" id="gkDel" style="margin:0;flex:1;color:#C0443A">Kaldır</button></div><p class="hint" style="margin:8px 2px 2px;font-size:12px">Anahtar sadece bu cihazda saklanır; buluta ve yedeğe yazılmaz. Başka cihazda ayrıca eklemelisin.</p>`:'';
   if($('gkChg'))$('gkChg').onclick=()=>openKeySheet();
   if($('gkDel'))$('gkDel').onclick=()=>{if(!confirm('Gemini anahtarın kaldırılsın mı?'))return;S.gkey='';save();renderAiSet();toast('Anahtar kaldırıldı')};
   renderFam();
@@ -1925,10 +1927,10 @@ function finish(){
   $('fNew').onclick=()=>renderSetup();
 }
 
-$('bkOut').onclick=async()=>toast(await copyText(JSON.stringify(S))?'Yedek kopyalandı, Notlar\'a yapıştırıp sakla':'Kopyalanamadı');
+$('bkOut').onclick=async()=>toast(await copyText(JSON.stringify(stripLocal(S)))?'Yedek kopyalandı, Notlar\'a yapıştırıp sakla':'Kopyalanamadı');
 $('bkIn').onclick=()=>{
   const t=prompt('Yedek metnini buraya yapıştır:');if(!t)return;
-  try{const d=JSON.parse(t);if(typeof d!=='object'||!d)throw 0;S=Object.assign(freshDef(),d);rebuildTopics();save();toast('Yedek geri yüklendi');closeSheets();migrateAi();renderLevels();setMode(S.mode||'hour');showTab('today')}
+  try{const d=JSON.parse(t);if(typeof d!=='object'||!d)throw 0;const keep={gkey:S.gkey,worker:S.worker,wToken:S.wToken};S=Object.assign(freshDef(),d,{gkey:keep.gkey||'',worker:keep.worker||'',wToken:keep.wToken||''});ensureWorker();rebuildTopics();save();toast('Yedek geri yüklendi');closeSheets();migrateAi();renderLevels();setMode(S.mode||'hour');showTab('today')}
   catch(e){toast('Yedek okunamadı, metnin tamamını yapıştırdığından emin ol')}
 };
 
@@ -1987,7 +1989,7 @@ function pushNow(){
   if(!C||!C.auth.currentUser)return Promise.resolve();
   clearTimeout(pushT);
   if(!S.wToken)publishWidget();
-  return C.F.setDoc(userRef(),{s:JSON.stringify(S),d:DEVICE,t:C.F.serverTimestamp()})
+  return C.F.setDoc(userRef(),{s:JSON.stringify(stripLocal(S)),d:DEVICE,t:C.F.serverTimestamp()})
     .then(()=>{syncMsg='Eşitlendi ✓';updateAcct();publishWidget()})
     .catch(e=>{syncMsg='Kaydedilemedi: '+(e.code||e.message);updateAcct()});
 }
@@ -2110,9 +2112,9 @@ window.initCloud=function(c){
       if(snap.metadata.hasPendingWrites)return;
       if(!snap.exists()){if(firstSnap){firstSnap=false;pushNow();setTimeout(maybeDaily,1500)}return}
       const data=snap.data();let rem;try{rem=JSON.parse(data.s)}catch(e){return}
-      if(firstSnap){firstSnap=false;S=mergeState(S,rem);localSave();applyState();pushNow();setTimeout(maybeDaily,1500);return}
+      if(firstSnap){firstSnap=false;const g=S.gkey;S=mergeState(S,rem);S.gkey=g||S.gkey||'';localSave();applyState();pushNow();setTimeout(maybeDaily,1500);return}
       if(data.d===DEVICE)return;
-      S=Object.assign(freshDef(),rem);localSave();applyState();syncMsg='Eşitlendi ✓';updateAcct();
+      const g=S.gkey;S=Object.assign(freshDef(),rem);S.gkey=g||S.gkey||'';localSave();applyState();syncMsg='Eşitlendi ✓';updateAcct();
     },e=>{syncMsg='Eşitleme hatası: '+(e.code||e.message);updateAcct()});
   });
 };
@@ -2908,7 +2910,7 @@ function findCtx(paras,w){const lw=w.toLowerCase();for(const p of paras)for(cons
 function renderVid(){
   const box=$('vidBox');if(!box||!RD)return;const it=RD.item,a=RD.art||{};
   box.innerHTML=`${a.video?`<a class="vcard" href="https://www.youtube.com/watch?v=${esc(a.video.id)}" target="_blank" rel="noopener"><div class="vt" style="background-image:url('${esc(a.video.thumb||'')}')">▶</div><div><b>${esc(a.video.title)}</b><small>BBC News · YouTube'da izle</small></div></a>`:''}
-    <div class="lnks"><a class="ghost" href="${esc(it.link)}" target="_blank" rel="noopener">🌐 BBC'de aslını oku</a>${a.video?'':`<a class="ghost" href="https://www.youtube.com/results?search_query=${encodeURIComponent('BBC News '+it.title)}" target="_blank" rel="noopener">▶️ YouTube'da ara</a>`}</div>`;
+    <div class="lnks"><a class="ghost" href="${/^https?:\/\//i.test(it.link)?esc(it.link):'#'}" target="_blank" rel="noopener">🌐 BBC'de aslını oku</a>${a.video?'':`<a class="ghost" href="https://www.youtube.com/results?search_query=${encodeURIComponent('BBC News '+it.title)}" target="_blank" rel="noopener">▶️ YouTube'da ara</a>`}</div>`;
 }
 // Seviyenin sorusu yoksa ya da eksikse, ekrandaki seviye metnini sunucuya gönderip soru iste
 const QZP={};
