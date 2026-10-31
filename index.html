@@ -125,9 +125,10 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 calc(
 .act{width:56px;height:56px;border-radius:18px;border:none;display:grid;place-items:center;transition:transform .15s}
 .act:active{transform:scale(.92)}
 .act svg{width:22px;height:22px}
-#aKnown{background:var(--sage);color:var(--green-ink)}#aFav{background:var(--sand);color:#9A5B12}#aShare{background:var(--sky);color:var(--blue-ink)}#aDel{background:#FBD9D4;color:#9C3B32}
+#aKnown,.act.c-known{background:var(--sage);color:var(--green-ink)}#aFav,.act.c-fav{background:var(--sand);color:#9A5B12}#aShare,.act.c-share{background:var(--sky);color:var(--blue-ink)}#aDel,.act.c-del{background:#FBD9D4;color:#9C3B32}
 .act.on{box-shadow:inset 0 0 0 2.5px currentColor}
-#aFav.on svg{color:#E8A317}
+#aFav.on svg,.act.c-fav.on svg{color:#E8A317}
+.pacts{margin-top:18px}
 .foot{margin-top:14px;font-size:12px;color:var(--muted)}
 .empty{padding:50px 10px;color:var(--muted);font-size:15px;line-height:1.5}
 .endbox{padding:18px 4px 6px}
@@ -1901,14 +1902,35 @@ function answer(i,btn){
   const last=P.len&&P.i+1>=P.len;
   $('qInfo').innerHTML=`<b style="color:var(--text)">${esc(a.w)}</b> — ${esc(a.tr)}<br><span style="font-size:14px">${highlight(a)}</span>${lmsg}
     <button class="primary" id="qNext">${last?'Sonucu gör':'Sonraki'}</button>
-    ${!isFav(a)?'<button class="ghost" id="qFav">★ Favorilere ekle</button>':''}
-    ${!isKnown(a)?'<button class="ghost" id="qKnown">✓ Öğrendiklerime ekle</button>':''}`;
+    ${pracActs(a)}`;
   speak(a.w);
   const id=P.id,step=P.i;
   const go=()=>{if(P&&P.id===id&&P.i===step){P.i++;nextQ()}};
   $('qNext').onclick=go;
-  if($('qFav'))$('qFav').onclick=()=>{toggle('favs',a);toast('Favorilere eklendi');$('qFav').remove()};
-  if($('qKnown'))$('qKnown').onclick=()=>{if(!isKnown(a))toggle('known',a);toast('Bildiklerine eklendi — karışık listelerde artık çıkmaz');$('qKnown').remove()};
+  bindPracActs($('qInfo'),a);
+}
+// Cevaptan sonra kart ekranındakiyle aynı dört düğme: bildiklerim, favori, paylaş, sil (ikisi de geri alınabilir)
+const PACT_ICO={
+  known:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  fav:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></svg>',
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>',
+  del:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'};
+const pracActs=w=>`<div class="actions pacts" id="pActs">
+  <button class="act c-known ${isKnown(w)?'on':''}" data-a="known" aria-label="Biliyorum">${PACT_ICO.known}</button>
+  <button class="act c-fav ${isFav(w)?'on':''}" data-a="fav" aria-label="Favori">${PACT_ICO.fav}</button>
+  <button class="act c-share" data-a="share" aria-label="Paylaş">${PACT_ICO.share}</button>
+  <button class="act c-del" data-a="del" aria-label="Sil">${PACT_ICO.del}</button></div>`;
+function bindPracActs(root,w){
+  const b=a=>root.querySelector(`[data-a="${a}"]`);if(!b('known'))return;
+  b('known').onclick=()=>{toggle('known',w);b('known').classList.toggle('on',isKnown(w));toast(isKnown(w)?'Bildiklerine eklendi — karışık listelerde artık çıkmaz':'Bildiklerinden çıkarıldı')};
+  b('fav').onclick=()=>{toggle('favs',w);b('fav').classList.toggle('on',isFav(w));toast(isFav(w)?'Favorilere eklendi':'Favorilerden çıkarıldı')};
+  b('share').onclick=()=>share(w);
+  b('del').onclick=()=>{
+    deleteWord(w);
+    if(all().some(x=>k(x)===k(w)))return;                       // onay verilmedi, kelime duruyor
+    if(P)P.pool=P.pool.filter(x=>k(x)!==k(w));
+    const bar=$('pActs');if(bar)bar.outerHTML='<p class="hint" style="margin:14px 0 0">🗑 Silindi</p>';
+  };
 }
 function finish(){
   const tot=P.ok+P.bad,okN=P.ok,pct=tot?Math.round(okN/tot*100):0,wr=P.wrong.slice(),src=P.src,lbl=P.label||srcName(P.src);
