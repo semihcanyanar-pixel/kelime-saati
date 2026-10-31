@@ -1,6 +1,6 @@
 // Kelime Saati — service worker (çevrimdışı çalışma)
-const CACHE = "kelime-saati-v40";
-const ASSETS = ["./", "./index.html", "./words.json", "./kaliplar.json", "./widget.js", "./manifest.json", "./firebase-config.js", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
+const CACHE = "kelime-saati-v41";
+const ASSETS = ["./", "./index.html", "./words.json", "./kaliplar.json", "./widget.js", "./manifest.json", "./firebase-config.js", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -18,11 +18,11 @@ self.addEventListener("fetch", e => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
 
-  // Google Fonts: önce önbellek
-  if (url.hostname.includes("fonts.g")) {
+  // Google Fonts, Firebase SDK (sürümlü adres) ve Unsplash görselleri: önce önbellek, çevrimdışı da çalışsın
+  if (url.hostname.includes("fonts.g") || url.hostname === "images.unsplash.com" ||
+      (url.hostname === "www.gstatic.com" && url.pathname.startsWith("/firebasejs/"))) {
     e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(res => {
-      const copy = res.clone();
-      caches.open(CACHE).then(c => c.put(req, copy));
+      if (res.ok || res.type === "opaque") { const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
       return res;
     })));
     return;

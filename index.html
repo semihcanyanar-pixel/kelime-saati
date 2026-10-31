@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -24,6 +24,7 @@
   --st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{touch-action:manipulation}
 html,body{margin:0;height:100%;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;overscroll-behavior:none}
 body{background:var(--bg);-webkit-user-select:none;user-select:none}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:var(--leaf);
@@ -1985,11 +1986,20 @@ function publishWidget(){
     .then(()=>{lastPubSig=p})
     .catch(e=>{console.warn('widget yayını',e);if(/permission/i.test(e.code||'')){syncMsg='Widget kaydı için Firebase kuralı eksik';updateAcct()}});
 }
+// Firestore dokümanı 1 MiB ile sınırlı: şişerse en eski kayıtlar (okuma geçmişi, günlük sayaçlar) kırpılır
+function cloudJson(){
+  let j=JSON.stringify(stripLocal(S));
+  if(j.length<600000)return j;
+  const top=(o,n,f)=>Object.fromEntries(Object.entries(o||{}).sort((a,b)=>f(b[1])-f(a[1])).slice(0,n));
+  S.newsDone=top(S.newsDone,150,v=>v.t||0);S.vWatched=top(S.vWatched,300,v=>+v||0);
+  const d=Object.keys(S.daily||{}).sort();while(d.length>120)delete S.daily[d.shift()];
+  localSave();return JSON.stringify(stripLocal(S));
+}
 function pushNow(){
   if(!C||!C.auth.currentUser)return Promise.resolve();
   clearTimeout(pushT);
   if(!S.wToken)publishWidget();
-  return C.F.setDoc(userRef(),{s:JSON.stringify(stripLocal(S)),d:DEVICE,t:C.F.serverTimestamp()})
+  return C.F.setDoc(userRef(),{s:cloudJson(),d:DEVICE,t:C.F.serverTimestamp()})
     .then(()=>{syncMsg='Eşitlendi ✓';updateAcct();publishWidget()})
     .catch(e=>{syncMsg='Kaydedilemedi: '+(e.code||e.message);updateAcct()});
 }
@@ -2564,6 +2574,7 @@ function renderGuide(){
 function openGuide(){closeSheets();showTab('guide')}
 $('helpBtn').onclick=openGuide;
 $('gdRow').onclick=openGuide;
+if(navigator.standalone)$('gdPdf').style.display='none';   // iOS ana ekran uygulamasında yazdırma çalışmaz
 $('gdPdf').onclick=()=>{toast('Açılan pencerede "PDF olarak kaydet" ya da Paylaş\'ı seç');setTimeout(()=>window.print(),400)};
 function maybeWelcome(){if(S.welSeen)return;setTimeout(()=>{if(S.welSeen||document.querySelector('.sheet.on')||$('login')&&$('login').style.display!=='none'&&$('login').offsetParent)return;openSheet('welSheet')},900)}
 $('welGo').onclick=()=>{S.welSeen=1;save();openGuide()};
