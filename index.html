@@ -129,7 +129,7 @@ main{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 0 calc(
 .act.on{box-shadow:inset 0 0 0 2.5px currentColor}
 #aFav.on svg,.act.c-fav.on svg{color:#E8A317}
 .pacts{margin-top:18px}
-.tot{margin-top:6px;font-size:13px;font-weight:700;color:var(--muted,#8a7f74)}.tot b{color:var(--ok)}
+.wtot{margin-top:6px;font-size:13px;font-weight:600;color:var(--muted);text-align:center}.wtot b{color:inherit;font-weight:800}
 .foot{margin-top:14px;font-size:12px;color:var(--muted)}
 .empty{padding:50px 10px;color:var(--muted);font-size:15px;line-height:1.5}
 .endbox{padding:18px 4px 6px}
@@ -1169,7 +1169,7 @@ const all=()=>{const b=new Set(BASE.map(k)),h=new Set(S.hidden||[]);return BASE.
 const isFav=w=>S.favs.includes(k(w)), isKnown=w=>S.known.includes(k(w));
 const inLearn=w=>Object.prototype.hasOwnProperty.call(S.learn,k(w));
 const learnBadge=w=>inLearn(w)?'<span class="lbadge">Öğren</span>':'';
-const totLine=w=>{const t=(S.ws||{})[k(w)];return t&&t[1]?`<div class="tot">Toplam · <b>${t[0]}</b>/${t[1]} doğru</div>`:''};
+const totLine=w=>{const t=(S.ws||{})[k(w)];return t&&t[1]?`<div class="wtot">Toplam · <b>${t[0]}</b>/${t[1]} doğru</div>`:''};
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 function toast(t){const e=$('toast');e.classList.remove('undo');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
 /* Telefon sesi (iOS için güvenli): cancel'dan hemen sonra speak bazen sessiz kalır, bu yüzden kısa bekler;
