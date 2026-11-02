@@ -2857,6 +2857,13 @@ async function streamCall(body,onText,ms){
 }
 // Bir seviyeyi getir (aynı anda iki kez istenmez); yazıldıkça dinleyenlere aktarır
 const PEND={},FORCE={},LV_MINW={1:35,2:50,3:70};
+const enWc=paras=>(paras||[]).reduce((s,p)=>s+(p.en||[]).join(' ').split(/\s+/).filter(Boolean).length,0);
+// Daha önce kaydedilmiş yarım seviyeleri sil: haber açılınca yeniden yazdırılır
+function healArts(){
+  const c=artCache();let ch=false;
+  Object.values(c).forEach(a=>(a.levels||[]).forEach((L,i)=>{if(L&&L.paras&&enWc(L.paras)<LV_MINW[i+1]){a.levels[i]=null;ch=true}}));
+  if(ch)lsSet('ks:arts',c);
+}
 function getLevel(item,n,onText){
   const c0=artCache()[item.id];if(c0&&c0.levels&&c0.levels[n-1])return Promise.resolve(c0);
   const key=item.id+':'+n;
@@ -2869,7 +2876,7 @@ function getLevel(item,n,onText){
     else{x=parseLines(t);L={paras:x.paras,words:cleanWords(x.words,x.paras).slice(0,8),quiz:validQuiz(x.quiz,x.paras)}}
     if(!L||!L.paras||!L.paras.length)throw new Error('Haber hazırlanamadı, tekrar dene');
     // Yapay zekâ metni yarıda bırakmış olabilir (çok kısa ya da kelime listesi hiç gelmemiş): kaydetme, yeniden iste
-    const nw=L.paras.reduce((s,p)=>s+p.en.join(' ').split(/\s+/).filter(Boolean).length,0);
+    const nw=enWc(L.paras);
     if(x&&(nw<LV_MINW[n]||(!FORCE[key]&&!x.words.length))){FORCE[key]=true;throw new Error('Haber eksik geldi, tekrar dene')}
     delete FORCE[key];
     return artSave(item,a=>{a.levels[n-1]=L});
@@ -2883,7 +2890,7 @@ function getMeta(item){
   return MPEND[item.id]=workerCall({artmeta:{url:item.link,title:item.title,date:item.date}},60000).then(d=>artSave(item,a=>{a.video=d.video||null;a.meta=2})).finally(()=>{delete MPEND[item.id]});
 }
 function openNews(item){
-  stopPlayer();
+  stopPlayer();healArts();
   RD={item,art:artCache()[item.id]||null,lv:[1,2,3].includes(S.newsLv)?S.newsLv:2,q:null,err:''};
   showTab('read');renderRead();loadLevel();
   const me=RD;getMeta(item).then(()=>{if(RD===me&&$('qzBox')){renderQuiz();renderVid()}}).catch(()=>{});
