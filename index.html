@@ -2951,12 +2951,14 @@ function renderRead(){
   body.innerHTML=`<div id="plBox"></div>
     <div id="rdText" class="${S.newsTr?'':'notr'}">${textHtml(L.paras,'news',new Set(L.words.map(w=>w.w.toLowerCase())),new Set((nAdd()[it.id]||[]).map(String)))}</div>
     <button class="tgl ${S.newsTr?'on':''}" id="trT"><span>Türkçesini göster</span><i></i></button>
+    <button class="ghost" id="rdRegen" style="margin-top:8px">🔄 Bu seviyeyi yeniden yaz</button>
     <div class="acc"><button id="dwT"><span>Zor kelimeler (${L.words.length})</span><span id="dwA">▾</span></button><div class="ab" id="dwB" style="display:none">${L.words.map((w,i)=>`<div class="dw"><b>${esc(w.w)}</b><span>${esc(w.tr)}</span><button data-i="${i}">${hasWord(w.w)?'✓':'＋ Kart'}</button></div>`).join('')}<button class="ghost" id="dwAll" style="margin-top:8px">Hepsini kartlara ekle</button></div></div>
     <div id="prBox"></div><div id="qzBox"></div><div id="vidBox"></div>
     <button class="ghost" id="rdDone">✓ Okudum, hedefime say</button>`;
   $('rdDone').onclick=()=>{if(newsNeedsPr(it.id,RD.lv))return toast('Haber hedefine sayılması için önce kelime pratiğini tamamla');if(!markRead('h',it.id))toast('Bu haber bugün zaten sayıldı')};
   renderVid();
   mountPlayer(body.querySelector('#plBox'),$('rdText'),'n'+it.id+'-'+RD.lv);
+  $('rdRegen').onclick=regenLevel;
   $('trT').onclick=()=>{S.newsTr=!S.newsTr;save();$('trT').classList.toggle('on',S.newsTr);$('rdText').classList.toggle('notr',!S.newsTr)};
   $('dwT').onclick=()=>{const o=$('dwB').style.display==='none';$('dwB').style.display=o?'':'none';$('dwA').textContent=o?'▴':'▾'};
   $('dwB').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>addFromText(L.words[+b.dataset.i].w,findCtx(L.paras,L.words[+b.dataset.i].w),b));
@@ -2971,6 +2973,17 @@ function renderVid(){
     <div class="lnks"><a class="ghost" href="${/^https?:\/\//i.test(it.link)?esc(it.link):'#'}" target="_blank" rel="noopener">🌐 BBC'de aslını oku</a>${a.video?'':`<a class="ghost" href="https://www.youtube.com/results?search_query=${encodeURIComponent('BBC News '+it.title)}" target="_blank" rel="noopener">▶️ YouTube'da ara</a>`}</div>`;
 }
 // Seviyenin sorusu yoksa ya da eksikse, ekrandaki seviye metnini sunucuya gönderip soru iste
+// Açık haberin bu seviyesini silip sunucudan baştan yazdır (metin eksik ya da kötü geldiyse)
+function regenLevel(){
+  const me=RD;if(!me)return;
+  if(!confirm('Bu seviyenin metni silinip baştan yazılsın mı?'))return;
+  const n=me.lv,it=me.item,key=it.id+':'+n;
+  stopPlayer();
+  artSave(it,a=>{a.levels[n-1]=null});
+  FORCE[key]=true;delete QZP[key];delete nwp()[key];save();
+  me.q=null;me.pr=null;me.qzErr=null;me.qzLoad=false;me.err='';
+  renderRead();loadLevel();
+}
 const QZP={};
 function ensureQuiz(rd,force){
   const it=rd.item,n=rd.lv,key=it.id+':'+n;if(QZP[key]&&!force)return;
