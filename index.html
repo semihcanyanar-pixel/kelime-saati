@@ -1851,7 +1851,7 @@ function renderSetup(){
   $('pStart').onclick=()=>{const pl=srcPool(S.qSrc).length;if(S.qSeen&&uOk&&pl<4)return toast('Önce kartlardan birkaç kelime çalış');if(!pl)return toast('Bu grupta kelime yok');flipTo($('pSetCard'),()=>{startPractice(S.qSrc,S.qLen);flipIn($('pr').querySelector('.card'))})};
   $('pLearn').onclick=()=>startPractice('learn',Object.keys(S.learn).length);
 }
-function startPractice(src,len,words,label,news){
+function startPractice(src,len,words,label,news,host){
   if(all().length<4)return toast('Yeterli kelime yok');
   const pool=(words||srcPool(src)).filter(w=>!badTr(w));   // anlamı bozuk (düzeltilmeyi bekleyen) kelimeler sorulmaz
   if(!pool.length)return toast(src==='learn'?'Öğren grubu boş':src==='favs'?'Önce birkaç kelimeyi favorilere ekle':'Bu grupta kelime yok');
@@ -1870,7 +1870,7 @@ function startPractice(src,len,words,label,news){
     queue=shuffle(pick.slice(0,n));
     if(n<len&&src!=='learn')toast(`Bu grupta ${n} kelime var, ${n} soru soruluyor`);
   }
-  P={src,label,words:!!words,len:queue?queue.length:0,pool,queue,i:0,ok:0,bad:0,wrong:[],recent:[],q:null,streak:0,id:++pSeq,news:news||null};
+  P={src,label,words:!!words,len:queue?queue.length:0,pool,queue,i:0,ok:0,bad:0,wrong:[],recent:[],q:null,streak:0,id:++pSeq,news:news||null,host:host||null};
   nextQ();
 }
 function pickInfinite(){
@@ -1897,7 +1897,7 @@ function nextQ(){
   renderQ();
 }
 function renderQ(){
-  const pr=$('pr'),q=P.q,ans=q.ans,n=P.i+(q.done?1:0);
+  const pr=P.host||$('pr'),q=P.q,ans=q.ans,n=P.i+(q.done?1:0);   // host: haberin içine gömülü pratik
   const prog=P.len?`${Math.min(P.i+1,P.len)} / ${P.len}`:`${P.i+1}. soru`;
   pr.innerHTML=`
     <div class="ptop"><button class="xbtn" id="pEnd">✕ Bitir</button><span class="pprog">${prog}</span>
@@ -1911,32 +1911,33 @@ function renderQ(){
       <div class="qinfo" id="qInfo"></div>
     </article></div>
     <p class="qstat" style="margin-top:14px">Seri: <b>${P.streak}</b> · En iyi: <b>${S.best}</b></p>`;
-  if($('qSay'))$('qSay').onclick=()=>speak(ans.w);
-  $('pEnd').onclick=()=>{(P.ok+P.bad)?finish():(P=null,renderSetup())};
+  const sy=pr.querySelector('#qSay');if(sy)sy.onclick=()=>speak(ans.w);
+  pr.querySelector('#pEnd').onclick=()=>{if(P.ok+P.bad)return finish();const inl=!!P.host;P=null;inl?renderPr():renderSetup()};
   pr.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i,b));
 }
 function answer(i,btn){
   const q=P.q;if(q.done)return;q.done=true;setTimeout(sessSave,0);
-  const a=q.ans,ok=k(q.opts[i])===k(a);
-  $('pr').querySelectorAll('.opt').forEach((b,j)=>{if(k(q.opts[j])===k(a))b.classList.add('ok')});
+  const a=q.ans,ok=k(q.opts[i])===k(a),pr=P.host||$('pr');
+  pr.querySelectorAll('.opt').forEach((b,j)=>{if(k(q.opts[j])===k(a))b.classList.add('ok')});
   if(ok){P.ok++;P.streak++;if(P.streak>S.best){S.best=P.streak;save()}}
   else{btn.classList.add('bad');P.bad++;P.streak=0;if(!P.wrong.some(w=>k(w)===k(a)))P.wrong.push(a)}
   const lr=markLearn(a,ok);
   markAnswer(ok);
   const lmsg=lr==='added'?'<div class="lmsg bad">Öğren grubuna eklendi · 0/3</div>':lr==='reset'?'<div class="lmsg bad">Öğren sayacı sıfırlandı · 0/3</div>':lr==='step'?`<div class="lmsg">Öğren · ${S.learn[k(a)]}/3</div>`:lr==='done'?'<div class="lmsg">🎉 Öğrenildi! Öğren grubundan çıktı</div>':'';
-  const pt=$('pr').querySelector('.pscore');if(pt)pt.innerHTML=`<span class="ok">✓ ${P.ok}</span><span class="bad">✗ ${P.bad}</span>`;
-  const st=$('pr').querySelectorAll('.qstat');if(st.length)st[st.length-1].innerHTML=`Seri: <b>${P.streak}</b> · En iyi: <b>${S.best}</b>`;
-  const bar=$('pr').querySelector('.pbar i');if(bar)bar.style.width=((P.i+1)/P.len*100)+'%';
+  const pt=pr.querySelector('.pscore');if(pt)pt.innerHTML=`<span class="ok">✓ ${P.ok}</span><span class="bad">✗ ${P.bad}</span>`;
+  const st=pr.querySelectorAll('.qstat');if(st.length)st[st.length-1].innerHTML=`Seri: <b>${P.streak}</b> · En iyi: <b>${S.best}</b>`;
+  const bar=pr.querySelector('.pbar i');if(bar)bar.style.width=((P.i+1)/P.len*100)+'%';
   const last=P.len&&P.i+1>=P.len;
-  $('qInfo').innerHTML=`<b style="color:var(--text)">${esc(a.w)}</b> — ${esc(a.tr)}<br><span style="font-size:14px"><span class="ex" id="qEx" style="cursor:pointer">${highlight(a)}</span></span>${lmsg}${totLine(a)}
+  const qi=pr.querySelector('#qInfo');
+  qi.innerHTML=`<b style="color:var(--text)">${esc(a.w)}</b> — ${esc(a.tr)}<br><span style="font-size:14px"><span class="ex" id="qEx" style="cursor:pointer">${highlight(a)}</span></span>${lmsg}${totLine(a)}
     <button class="primary" id="qNext">${last?'Sonucu gör':'Sonraki'}</button>
     ${pracActs(a)}`;
   speak(a.w);
   const id=P.id,step=P.i;
   const go=()=>{if(P&&P.id===id&&P.i===step){P.i++;nextQ()}};
-  $('qNext').onclick=go;
-  if($('qEx'))$('qEx').onclick=()=>speak(a.ex);
-  bindPracActs($('qInfo'),a);
+  qi.querySelector('#qNext').onclick=go;
+  const qe=qi.querySelector('#qEx');if(qe)qe.onclick=()=>speak(a.ex);
+  bindPracActs(qi,a);
 }
 // Cevaptan sonra kart ekranındakiyle aynı dört düğme: bildiklerim, favori, paylaş, sil (ikisi de geri alınabilir)
 const PACT_ICO={
@@ -1958,29 +1959,28 @@ function bindPracActs(root,w){
     deleteWord(w);
     if(all().some(x=>k(x)===k(w)))return;                       // onay verilmedi, kelime duruyor
     if(P)P.pool=P.pool.filter(x=>k(x)!==k(w));
-    const bar=$('pActs');if(bar)bar.outerHTML='<p class="hint" style="margin:14px 0 0">🗑 Silindi</p>';
+    const bar=root.querySelector('#pActs');if(bar)bar.outerHTML='<p class="hint" style="margin:14px 0 0">🗑 Silindi</p>';
   };
 }
 function finish(){
   const tot=P.ok+P.bad,okN=P.ok,pct=tot?Math.round(okN/tot*100):0,wr=P.wrong.slice(),src=P.src,lbl=P.label||srcName(P.src);
   const ln=Object.keys(S.learn).length;
   const msg=pct===100&&tot?'Kusursuz! 🎉':pct>=80?'Çok iyi!':pct>=50?'Fena değil, devam!':'Tekrar zamanı';
-  const nw=P.news,full=P.len>0&&tot>=P.len;
+  const nw=P.news,full=P.len>0&&tot>=P.len,host=P.host,hx=host||$('pr');
   P=null;
   if(nw&&full)nwpDone(nw.id,nw.lv,okN,tot);   // haber pratiği sonuna kadar çözüldü
-  $('pr').innerHTML=`<div class="card-wrap"><article class="card">
+  hx.innerHTML=`<div class="card-wrap"><article class="card">
     <div class="meta"><span>${esc(lbl)}</span></div>
     <div class="res-big">${tot?`${okN} / ${tot}`:'—'}</div>
     <div class="tr" style="font-size:26px">${tot?msg:'Hiç soru cevaplanmadı'}</div>
     <p class="hint" style="margin-top:10px">${tot?`%${pct} doğru · `:''}Öğren grubunda ${ln} kelime var</p>
     ${wr.length?`<div class="wlist"><h4 style="margin:0 0 4px;font-size:12px;letter-spacing:1.6px;color:var(--gold)">YANLIŞ YAPTIKLARIN</h4>${wr.map(w=>`<div><b>${esc(w.w)}</b><span>${esc(w.tr)}</span></div>`).join('')}</div>
-      <button class="${nw?'ghost':'primary'}" id="fRetry">Yanlışları tekrar çalış</button>`:''}
-    ${nw?'<button class="primary" id="fBack" style="margin-top:14px">Habere dön</button>':''}
-    <button class="${wr.length||nw?'ghost':'primary'}" id="fNew">Yeni pratik</button>
+      <button class="${host?'ghost':'primary'}" id="fRetry">Yanlışları tekrar çalış</button>`:''}
+    ${host?'<button class="primary" id="fOk" style="margin-top:14px">Tamam</button>':`<button class="${wr.length?'ghost':'primary'}" id="fNew">Yeni pratik</button>`}
   </article></div>`;
-  if($('fRetry'))$('fRetry').onclick=()=>startPractice('retry',wr.length,wr);
-  if($('fBack'))$('fBack').onclick=()=>{showTab('read');if(RD&&RD.item.id===nw.id)renderRead()};
-  $('fNew').onclick=()=>renderSetup();
+  const fr=hx.querySelector('#fRetry');if(fr)fr.onclick=()=>startPractice('retry',wr.length,wr,null,null,host);
+  const fo=hx.querySelector('#fOk');if(fo)fo.onclick=()=>renderPr();
+  const fn=hx.querySelector('#fNew');if(fn)fn.onclick=()=>renderSetup();
 }
 
 $('bkOut').onclick=async()=>toast(await copyText(JSON.stringify(stripLocal(S)))?'Yedek kopyalandı, Notlar\'a yapıştırıp sakla':'Kopyalanamadı');
@@ -2959,6 +2959,7 @@ function liveDraw(t,typing){
 }
 function pruneNews(){const ks=Object.keys(S.newsDone).sort((a,b)=>(S.newsDone[a].t||0)-(S.newsDone[b].t||0));while(ks.length>150)delete S.newsDone[ks.shift()]}
 function renderRead(){
+  if(P&&P.host)P=null;   // sayfa yeniden çiziliyor: gömülü pratiğin kutusu gidiyor
   const it=RD.item,a=RD.art;
   const date=new Date(it.date).toLocaleDateString(LOC,{day:'numeric',month:'short'});
   $('rdBox').innerHTML=`<div class="hero" style="background-image:url('${esc(it.img)}')"><button class="bk" data-back>${BACKSVG}</button></div>
@@ -3054,6 +3055,7 @@ function markNewsAdd(w){
 // Haberin kelime pratiği: uygulamanın kendi Pratik ekranı kullanılır (aynı soru biçimi); bitince haber hedefine sayılır
 function renderPr(){
   const box=$('prBox');if(!box||!RD)return;
+  if(P&&P.host===box)return;   // pratik bu kutuda sürüyor, üzerine yazma
   const L=RD.art&&RD.art.levels&&RD.art.levels[RD.lv-1];if(!L){box.innerHTML='';return}
   const id=RD.item.id,ws=prWords(L,id),miss=cleanWords(L.words,L.paras).filter(w=>!hasWord(w.w));
   if(!ws.length&&!miss.length){box.innerHTML='';return}
@@ -3068,9 +3070,10 @@ function renderPr(){
   if($('prAddAll'))$('prAddAll').onclick=async()=>{const r=RD;r.prBusy=true;renderPr();try{await $('dwAll').onclick()}catch(e){}r.prBusy=false;if(RD===r)renderPr()};
 }
 function startNewsPractice(ws){
-  const it=RD.item,lv=RD.lv,W=shuffle(ws.map(x=>x.card)).slice(0,10);
-  stopPlayer();pView='setup';showTab('quiz');
-  startPractice('list',W.length,W,'Haber kelimeleri',{id:it.id,lv});
+  const it=RD.item,lv=RD.lv,W=shuffle(ws.map(x=>x.card)).slice(0,10),host=$('prBox');
+  stopPlayer();
+  startPractice('list',W.length,W,'Haber kelimeleri',{id:it.id,lv},host);   // aynı pratik motoru, haberin içindeki kutuda
+  if(P&&P.host===host)host.scrollIntoView({block:'start',behavior:'smooth'});
 }
 // Pratik sonuna kadar çözüldüyse kaydet; test daha önce çözüldüyse haber şimdi hedefe sayılır
 function nwpDone(id,lv,ok,n){
@@ -3767,6 +3770,7 @@ $('vRefresh').onclick=async()=>{const b=$('vRefresh');b.classList.add('spinning'
 /* sekmeler */
 const TITLES={today:'',home:'Kelime Kartları',quiz:'Pratik',lists:'Kelimelerim',widget:'Widget'};
 function showTab(t){
+  if(P&&P.host&&t!=='read'){P=null;if(RD)renderPr()}   // haberden çıkınca gömülü pratik bırakılır
   const sub=SUBS.includes(t);
   if(!sub)lastMain=t;
   if(!['read','sread'].includes(t))stopPlayer();
@@ -3818,7 +3822,7 @@ function sessSave(){
     const o={t:Date.now(),tab:curView(),lastMain,pView,readFrom,
       card:{mode,idx,hOff,keys:mode==='hour'?null:K(list),cSet:cSetVis,st:searchTitle,lt:listTitle},
       rd:RD&&RD.item?{item:RD.item,lv:RD.lv}:null,sr:SR?SR.id:null,
-      P:P?{src:P.src,label:P.label,words:!!P.words,len:P.len,pool:P.pool.length<=4000?K(P.pool):null,queue:P.queue?K(P.queue):null,i:P.i,ok:P.ok,bad:P.bad,wrong:K(P.wrong),recent:P.recent,streak:P.streak,
+      P:P&&!P.host?{src:P.src,label:P.label,words:!!P.words,len:P.len,pool:P.pool.length<=4000?K(P.pool):null,queue:P.queue?K(P.queue):null,i:P.i,ok:P.ok,bad:P.bad,wrong:K(P.wrong),recent:P.recent,streak:P.streak,
         q:P.q?{ans:k(P.q.ans),dir:P.q.dir,field:P.q.field,opts:K(P.q.opts),done:P.q.done}:null}:null};
     localStorage.setItem(SESS,JSON.stringify(o));
   }catch(e){}
