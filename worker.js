@@ -632,6 +632,11 @@ async function articleMeta(q, env, ctx) {
   return M;
 }
 
+// Hedef kelimeler: yalnızca doğal ve doğru kullanılabiliyorsa kullanılır, uymayan atlanır (anlamı çarpıtılmaz)
+const storyWordsRule = words => words.length
+  ? `Use as many of these target words or phrases as fit (inflected forms are fine): ${words.join(", ")}.
+Use a target word ONLY if it fits the story naturally, with its standard, correct meaning and in a collocation a native speaker would really use (for example "wage" is only for "wage a war / a campaign", never for time or money; "attrition" means gradual loss or wearing down, never a shortage). If a word does not fit, SKIP it: never twist its meaning and never bend the story just to include it. Words you skip must NOT appear in the list of used words.`
+  : "";
 async function storyStream(q, env, cors) {
   const level = LEVELS.includes(q.level) ? q.level : "B1";
   const topic = String(q.topic || "an everyday adventure").slice(0, 120);
@@ -640,7 +645,7 @@ async function storyStream(q, env, cors) {
   const prompt = `Write an original short story for a native Turkish speaker learning English.
 Topic / idea: "${topic}" (may be written in Turkish: understand what it means and write about that in English; never put the Turkish topic word itself into the English text, e.g. topic "Doğa" means nature and is NOT a place name).
 CEFR level: ${level}. Length: about ${len} words, 3-6 paragraphs. Use vivid but level-appropriate language and natural dialogue where it fits.
-${words.length ? `Naturally use ALL of these target words or phrases (inflected forms are fine): ${words.join(", ")}.` : ""}
+${storyWordsRule(words)}
 Write ONLY in this exact plain-text format (no JSON, no markdown, no extra text):
 TITLE: English title
 EMOJI: one emoji
@@ -847,7 +852,7 @@ async function story(q, env) {
   const prompt = `Write an original short story for a native Turkish speaker learning English.
 Topic / idea: "${topic}" (may be written in Turkish: understand what it means and write about that in English; never put the Turkish topic word itself into the English text, e.g. topic "Doğa" means nature and is NOT a place name).
 CEFR level: ${level}. Length: about ${len} words. Use vivid but level-appropriate language and natural dialogue where it fits.
-${words.length ? `Naturally use ALL of these target words or phrases (inflected forms are fine): ${words.join(", ")}.` : ""}
+${storyWordsRule(words)}
 Split the story into 3-6 paragraphs. Each paragraph is a list of sentences, with a natural Turkish translation for every sentence (same count, same order).
 Return ONLY JSON:
 {"title":"English title","emoji":"one emoji","paras":[{"en":["sentence",...],"tr":["cümle",...]}],"used":["target words that you actually used"]}`;
