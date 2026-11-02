@@ -1851,7 +1851,7 @@ function renderSetup(){
   $('pStart').onclick=()=>{const pl=srcPool(S.qSrc).length;if(S.qSeen&&uOk&&pl<4)return toast('Önce kartlardan birkaç kelime çalış');if(!pl)return toast('Bu grupta kelime yok');flipTo($('pSetCard'),()=>{startPractice(S.qSrc,S.qLen);flipIn($('pr').querySelector('.card'))})};
   $('pLearn').onclick=()=>startPractice('learn',Object.keys(S.learn).length);
 }
-function startPractice(src,len,words,label){
+function startPractice(src,len,words,label,news){
   if(all().length<4)return toast('Yeterli kelime yok');
   const pool=(words||srcPool(src)).filter(w=>!badTr(w));   // anlamı bozuk (düzeltilmeyi bekleyen) kelimeler sorulmaz
   if(!pool.length)return toast(src==='learn'?'Öğren grubu boş':src==='favs'?'Önce birkaç kelimeyi favorilere ekle':'Bu grupta kelime yok');
@@ -1870,7 +1870,7 @@ function startPractice(src,len,words,label){
     queue=shuffle(pick.slice(0,n));
     if(n<len&&src!=='learn')toast(`Bu grupta ${n} kelime var, ${n} soru soruluyor`);
   }
-  P={src,label,words:!!words,len:queue?queue.length:0,pool,queue,i:0,ok:0,bad:0,wrong:[],recent:[],q:null,streak:0,id:++pSeq};
+  P={src,label,words:!!words,len:queue?queue.length:0,pool,queue,i:0,ok:0,bad:0,wrong:[],recent:[],q:null,streak:0,id:++pSeq,news:news||null};
   nextQ();
 }
 function pickInfinite(){
@@ -1965,17 +1965,21 @@ function finish(){
   const tot=P.ok+P.bad,okN=P.ok,pct=tot?Math.round(okN/tot*100):0,wr=P.wrong.slice(),src=P.src,lbl=P.label||srcName(P.src);
   const ln=Object.keys(S.learn).length;
   const msg=pct===100&&tot?'Kusursuz! 🎉':pct>=80?'Çok iyi!':pct>=50?'Fena değil, devam!':'Tekrar zamanı';
+  const nw=P.news,full=P.len>0&&tot>=P.len;
   P=null;
+  if(nw&&full)nwpDone(nw.id,nw.lv,okN,tot);   // haber pratiği sonuna kadar çözüldü
   $('pr').innerHTML=`<div class="card-wrap"><article class="card">
     <div class="meta"><span>${esc(lbl)}</span></div>
     <div class="res-big">${tot?`${okN} / ${tot}`:'—'}</div>
     <div class="tr" style="font-size:26px">${tot?msg:'Hiç soru cevaplanmadı'}</div>
     <p class="hint" style="margin-top:10px">${tot?`%${pct} doğru · `:''}Öğren grubunda ${ln} kelime var</p>
     ${wr.length?`<div class="wlist"><h4 style="margin:0 0 4px;font-size:12px;letter-spacing:1.6px;color:var(--gold)">YANLIŞ YAPTIKLARIN</h4>${wr.map(w=>`<div><b>${esc(w.w)}</b><span>${esc(w.tr)}</span></div>`).join('')}</div>
-      <button class="primary" id="fRetry">Yanlışları tekrar çalış</button>`:''}
-    <button class="${wr.length?'ghost':'primary'}" id="fNew">Yeni pratik</button>
+      <button class="${nw?'ghost':'primary'}" id="fRetry">Yanlışları tekrar çalış</button>`:''}
+    ${nw?'<button class="primary" id="fBack" style="margin-top:14px">Habere dön</button>':''}
+    <button class="${wr.length||nw?'ghost':'primary'}" id="fNew">Yeni pratik</button>
   </article></div>`;
   if($('fRetry'))$('fRetry').onclick=()=>startPractice('retry',wr.length,wr);
+  if($('fBack'))$('fBack').onclick=()=>{showTab('read');if(RD&&RD.item.id===nw.id)renderRead()};
   $('fNew').onclick=()=>renderSetup();
 }
 
@@ -2961,7 +2965,7 @@ function renderRead(){
   <div class="sec rd"><div class="rt"><b>${esc(it.title)}</b><small>BBC · ${date} · ${NCATS[it.cat]||''}</small></div>
   <div class="seg" id="lvSeg" style="margin:14px 0 12px">${[1,2,3].map(n=>`<button class="${RD.lv===n?'on':''}" data-n="${n}">Seviye ${n}</button>`).join('')}</div>
   <div id="rdBody"></div></div>`;
-  $('lvSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{RD.lv=+b.dataset.n;S.newsLv=RD.lv;RD.err='';RD.q=null;RD.pr=null;RD.qzErr=null;RD.qzLoad=false;save();stopPlayer();renderRead();loadLevel()});
+  $('lvSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{RD.lv=+b.dataset.n;S.newsLv=RD.lv;RD.err='';RD.q=null;RD.qzErr=null;RD.qzLoad=false;save();stopPlayer();renderRead();loadLevel()});
   const body=$('rdBody');
   const L=a&&a.levels&&a.levels[RD.lv-1];
   if(!L){
@@ -3004,7 +3008,7 @@ function regenLevel(){
   stopPlayer();
   artSave(it,a=>{a.levels[n-1]=null});
   FORCE[key]=true;delete QZP[key];delete nwp()[key];save();
-  me.q=null;me.pr=null;me.qzErr=null;me.qzLoad=false;me.err='';
+  me.q=null;me.qzErr=null;me.qzLoad=false;me.err='';
   renderRead();loadLevel();
 }
 $('rgNo').onclick=closeSheets;
@@ -3045,75 +3049,34 @@ function markNewsAdd(w){
   if(!RD||!w)return;const id=RD.item.id,lw=String(w).toLowerCase(),a=nAdd();
   a[id]=[...new Set([...(a[id]||[]),lw])];const ks=Object.keys(a);if(ks.length>150)delete a[ks[0]];save();
   document.querySelectorAll('#rdText .wd').forEach(e=>{const t=e.textContent.toLowerCase();if(t===lw||stems(t).includes(lw)){e.classList.remove('kw');e.classList.add('kw2')}});
-  if(!RD.pr)renderPr();
+  renderPr();
 }
-// Cümlede kelimenin (çekimli hâliyle) geçtiği yeri bul
-function prTok(s,w){
-  const first=String(w).toLowerCase().split(' ')[0],re=/[A-Za-z][A-Za-z'’-]*/g;let m;
-  while((m=re.exec(s))){const lw=m[0].toLowerCase();if(lw===first||stems(lw).includes(first))return [m.index,m.index+m[0].length]}
-  return null;
-}
-function prDistract(field,correct,ws){
-  const seen=new Set([String(correct).toLowerCase()]),out=[],add=v=>{const t=String(v||'').trim(),l=t.toLowerCase();if(t&&out.length<3&&!seen.has(l)){seen.add(l);out.push(t)}};
-  shuffle(ws.map(x=>x[field])).forEach(add);
-  if(out.length<3)shuffle(all().filter(w=>!badTr(w))).slice(0,50).forEach(w=>add(w[field]));
-  return out;
-}
-function prBuild(ws){
-  return shuffle(ws.slice()).slice(0,10).map((x,i)=>{
-    const t=x.ctx&&!/\s/.test(x.w)?prTok(x.ctx,x.w):null,cloze=i%2===1&&!!t,field=cloze?'w':'tr',correct=x[field];
-    const opts=shuffle([correct,...prDistract(field,correct,ws)]);
-    return {x,cloze,t,opts,a:opts.indexOf(correct)};
-  });
-}
+// Haberin kelime pratiği: uygulamanın kendi Pratik ekranı kullanılır (aynı soru biçimi); bitince haber hedefine sayılır
 function renderPr(){
   const box=$('prBox');if(!box||!RD)return;
   const L=RD.art&&RD.art.levels&&RD.art.levels[RD.lv-1];if(!L){box.innerHTML='';return}
   const id=RD.item.id,ws=prWords(L,id),miss=cleanWords(L.words,L.paras).filter(w=>!hasWord(w.w));
   if(!ws.length&&!miss.length){box.innerHTML='';return}
-  const done=nwp()[id+':'+RD.lv],p=RD.pr;
-  if(!p){
-    const addBtn=(cls,txt)=>`<button class="${cls}" id="prAddAll" ${RD.prBusy?'disabled':''}>${RD.prBusy?'<span class="spin"></span>':txt}</button>`;
-    box.innerHTML=`<div class="qz prc"><div class="prh"><h4>KELİME PRATİĞİ</h4>${ws.length?`<span class="prn">${ws.length} kelime</span>`:''}</div>
-      <p class="prl"><span class="kw">zor kelime</span><span class="kw2">kartına eklediğin</span></p>
-      ${ws.length&&miss.length?`<div class="prm"><span>${miss.length} zor kelimenin kartı yok</span>${addBtn('prb','＋ Hepsini ekle')}</div>`:''}
-      ${ws.length?`<button class="primary" id="prGo">📚 ${done?`Tekrar yap (önceki: ${done.ok}/${done.n})`:'Kelime pratiği yap'}</button>${newsNeedsPr(id,RD.lv)?'<p class="prf">Haber hedefine sayılması için tamamla</p>':''}`
-        :`${addBtn('primary','＋ Hepsini kartlara ekle')}<p class="prf">Pratik için en az bir kelimenin kartı olmalı</p>`}</div>`;
-    if($('prGo'))$('prGo').onclick=()=>{RD.pr={i:0,ok:0,qs:prBuild(ws),wrong:[],ws};renderPr()};
-    if($('prAddAll'))$('prAddAll').onclick=async()=>{const r=RD;r.prBusy=true;renderPr();try{await $('dwAll').onclick()}catch(e){}r.prBusy=false;if(RD===r&&!r.pr)renderPr()};
-    return}
-  if(p.i>=p.qs.length)return prResult(p,id);
-  const q=p.qs[p.i],x=q.x;
-  let sent='';
-  if(x.ctx){const t=q.t||prTok(x.ctx,x.w);
-    sent=t?esc(x.ctx.slice(0,t[0]))+(q.cloze?'<b class="kblank">_____</b>':'<b>'+esc(x.ctx.slice(t[0],t[1]))+'</b>')+esc(x.ctx.slice(t[1])):esc(x.ctx)}
-  box.innerHTML=`<div class="qz"><h4>KELİME PRATİĞİ · ${p.i+1} / ${p.qs.length}</h4>
-    <div class="qq">${q.cloze?'Boşluğa hangisi uyar?':esc(x.w)}${q.cloze?'':' <button class="mini" id="prSay" aria-label="Dinle" style="vertical-align:middle">🔊</button>'}</div>
-    ${sent?`<p style="text-align:left;margin:6px 0 12px;font-size:15px;line-height:1.5">${sent}</p>`:''}
-    ${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o)}</button>`).join('')}<div id="prN"></div></div>`;
-  if($('prSay'))$('prSay').onclick=()=>speak(x.w);
-  box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
-    if(q.ans!=null)return;q.ans=+b.dataset.i;const ok=q.ans===q.a;
-    if(ok)p.ok++;else p.wrong.push(x.w.toLowerCase());
-    markAnswer(ok);if(x.card)markLearn(x.card,ok);
-    box.querySelectorAll('.opt').forEach((o,i)=>{if(i===q.a)o.classList.add('ok');else if(i===q.ans)o.classList.add('bad')});
-    $('prN').innerHTML=`<p class="hint" style="margin:12px 0 0"><b style="color:var(--text)">${esc(x.w)}</b> — ${esc(x.tr)}</p><button class="primary" id="prNext" style="margin-top:12px">${p.i+1<p.qs.length?'Sonraki':'Sonucu gör'}</button>`;
-    $('prNext').onclick=()=>{p.i++;renderPr()}});
+  const done=nwp()[id+':'+RD.lv];
+  const addBtn=(cls,txt)=>`<button class="${cls}" id="prAddAll" ${RD.prBusy?'disabled':''}>${RD.prBusy?'<span class="spin"></span>':txt}</button>`;
+  box.innerHTML=`<div class="qz prc"><div class="prh"><h4>KELİME PRATİĞİ</h4>${ws.length?`<span class="prn">${ws.length} kelime</span>`:''}</div>
+    <p class="prl"><span class="kw">zor kelime</span><span class="kw2">kartına eklediğin</span></p>
+    ${ws.length&&miss.length?`<div class="prm"><span>${miss.length} zor kelimenin kartı yok</span>${addBtn('prb','＋ Hepsini ekle')}</div>`:''}
+    ${ws.length?`<button class="primary" id="prGo">📚 ${done?`Tekrar yap (önceki: ${done.ok}/${done.n})`:'Kelime pratiği yap'}</button>${newsNeedsPr(id,RD.lv)?'<p class="prf">Haber hedefine sayılması için tamamla</p>':''}`
+      :`${addBtn('primary','＋ Hepsini kartlara ekle')}<p class="prf">Pratik için en az bir kelimenin kartı olmalı</p>`}</div>`;
+  if($('prGo'))$('prGo').onclick=()=>startNewsPractice(ws);
+  if($('prAddAll'))$('prAddAll').onclick=async()=>{const r=RD;r.prBusy=true;renderPr();try{await $('dwAll').onclick()}catch(e){}r.prBusy=false;if(RD===r)renderPr()};
 }
-function prResult(p,id){
-  const box=$('prBox'),lv=RD.lv,n=p.qs.length,key=id+':'+lv;
-  if(!p.saved){
-    p.saved=true;const prev=nwp()[key];nwp()[key]={ok:Math.max(p.ok,prev?prev.ok:0),n,t:Date.now()};
-    const ks=Object.keys(nwp()).sort((a,b)=>nwp()[a].t-nwp()[b].t);while(ks.length>150)delete nwp()[ks.shift()];
-    save();if(S.newsDone[id])newsCount(id,lv);                 // test daha önce çözüldüyse haber şimdi hedefe sayılır
-  }
-  const wr=[...new Set(p.wrong)];
-  box.innerHTML=`<div class="qz" style="text-align:center"><h4>KELİME PRATİĞİ · SONUÇ</h4><div class="res-big" style="font-size:52px">${p.ok} / ${n}</div>
-    <p class="hint">${p.ok===n?'Kusursuz! 🎉':p.ok?'Güzel, devam!':'Bir daha oku, sonra tekrar dene'}${S.newsDone[id]?'':' · Şimdi aşağıdaki testi de çöz.'}</p>
-    ${wr.length?`<div class="wlist" style="text-align:left"><h4 style="margin:0 0 4px;font-size:12px;letter-spacing:1.6px;color:var(--gold)">YANLIŞ YAPTIKLARIN</h4>${wr.map(w=>{const x=p.ws.find(y=>y.w.toLowerCase()===w);return x?`<div><b>${esc(x.w)}</b><span>${esc(x.tr)}</span></div>`:''}).join('')}</div>`:''}
-    ${wr.length?'<p class="hint" style="margin:8px 0 0">Yanlış yaptıkların Öğren listene girdi.</p>':''}
-    <button class="ghost" id="prAgain">Tekrar yap</button></div>`;
-  $('prAgain').onclick=()=>{RD.pr=null;renderPr()};
+function startNewsPractice(ws){
+  const it=RD.item,lv=RD.lv,W=shuffle(ws.map(x=>x.card)).slice(0,10);
+  stopPlayer();pView='setup';showTab('quiz');
+  startPractice('list',W.length,W,'Haber kelimeleri',{id:it.id,lv});
+}
+// Pratik sonuna kadar çözüldüyse kaydet; test daha önce çözüldüyse haber şimdi hedefe sayılır
+function nwpDone(id,lv,ok,n){
+  const key=id+':'+lv,prev=nwp()[key];nwp()[key]={ok:Math.max(ok,prev?prev.ok:0),n,t:Date.now()};
+  const ks=Object.keys(nwp()).sort((a,b)=>nwp()[a].t-nwp()[b].t);while(ks.length>150)delete nwp()[ks.shift()];
+  save();if(S.newsDone[id])newsCount(id,lv);
 }
 function renderQuiz(){
   const box=$('qzBox');if(!box)return;
@@ -3163,6 +3126,8 @@ const IRR=new Map();
  .split(';').forEach(s=>{const [b,fs]=s.split(':');(fs||'').split(',').forEach(f=>f&&IRR.set(f,b))});
 /* Çekim değil, kendi anlamı olan kelimeler: temel kelimeye bağlanmaz, ayrı kelime sayılır (interested ≠ interest) */
 const LEX=new Set('interested,interesting,tired,tiring,bored,boring,excited,exciting,surprised,surprising,shocked,shocking,worried,worrying,pleased,pleasing,satisfied,satisfying,disappointed,disappointing,confused,confusing,embarrassed,embarrassing,annoyed,annoying,amazed,amazing,frightened,frightening,terrified,terrifying,depressed,depressing,exhausted,exhausting,married,divorced,retired,experienced,educated,skilled,limited,advanced,developed,united,related,meeting,building,feeling,feelings,meaning,painting,wedding,ceiling,clothing,training,marketing,advertising,engineering,housing,funding,missing,willing,following,existing,increasing,growing,leading,outstanding,upcoming,ongoing,starving'.split(','));
+/* Düzensiz çekim olup başka bir kelime de olabilenler (left, saw, found…): bunlarda "ayrı kelime olarak ekle" seçeneği kalır */
+const AMB=new Set('left,saw,found,lay,wound,ground,bound,rose,felt,fell,lit,bit,sunk,lost,broken,drunk,beaten,stuck,worn,torn'.split(','));
 // Her aday [biçim, tür]: tür boşsa düz çekim; 'cmp' (-er/-est) ve 'ly' yalnızca sıfat/zarf kartlarına bağlanır (teacher ≠ teach)
 function stemsX(w){
   w=w.toLowerCase().replace(/[’']s$/,'');const o=[[w,'']];
@@ -3246,7 +3211,9 @@ async function showPop(el){
     const tr=state==='load'?spin+'anlamı getiriliyor…':state==='err'?'Anlamı alınamadı':esc(w?w.tr:g.tr);
     const alts=state==='new'&&g&&g.alts&&g.alts.length?`<div class="pd">${esc(g.alts.join(' · '))}</div>`:'';
     // Çekimli hâle basıldıysa temel kartı aç ve nedenini söyle; ayrı kelimeyse kullanıcı kendi ekleyebilir
-    const note=state==='have'&&via&&w&&via.toLowerCase()!==w.w.toLowerCase()?`<div class="pd">${esc(via)} → ${esc(w.w)} · <button class="psep" id="ppSep">Ayrı kelime olarak ekle</button></div>`:'';
+    // Düz düzensiz çekimde (went → go) "ayrı kelime" seçeneği anlamsız; yalnızca başka anlamı olabilen ya da düzenli çekimlerde gösterilir
+    const sep=via&&!(IRR.has(via.toLowerCase())&&!AMB.has(via.toLowerCase()));
+    const note=state==='have'&&via&&w&&via.toLowerCase()!==w.w.toLowerCase()?`<div class="pd">${esc(via)} → ${esc(w.w)}${sep?' · <button class="psep" id="ppSep">Ayrı kelime olarak ekle</button>':''}</div>`:'';
     pop.innerHTML=`<div><span class="pw">${esc(w?w.w:raw)}</span>${w&&w.ipa?`<span class="pi">/${esc(w.ipa)}/</span>`:''}${w&&w.lvl?`<span class="badge">${esc(w.lvl)}</span>`:''}</div>
       <div class="pt">${tr}</div>${alts}${note}
       <div class="pb"><button id="ppSay" aria-label="Dinle">🔊</button><button id="ppSn">▶ Cümle</button>${state==='have'?'<button class="done" id="ppOpen">✓ Listende · kartı aç</button>':state==='new'?'<button class="add" id="ppAdd">＋ Karta ekle</button>':state==='err'?'<button class="add" id="ppRe">Tekrar dene</button>':''}</div>`;
