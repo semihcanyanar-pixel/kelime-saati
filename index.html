@@ -351,6 +351,7 @@ nav.tabs button.on{color:var(--accent)}
 .prb{flex:none;border:none;border-radius:999px;background:var(--card);color:var(--ink);font-weight:700;font-size:13px;padding:7px 13px;box-shadow:0 1px 0 var(--line)}
 .prf{margin:10px 0 0;font-size:12px;color:var(--muted);text-align:center}
 .rgrow{display:flex;gap:8px}.rgrow button{flex:1;margin:0}
+.psep{background:none;border:none;padding:0;color:inherit;font:inherit;text-decoration:underline;cursor:pointer}
 /* Haber sonundaki üç satır (yeniden yaz, Türkçesini göster, zor kelimeler) aynı yazı kalınlığı ve yükseklikte */
 #trT{font-weight:700}#rdRegen,#dwT{min-height:50px}
 /* Küçük, ortalanmış onay kutusu */
@@ -3155,17 +3156,34 @@ function textHtml(paras,kind,kw,kw2){
   glossPrefetch(kind==='news'&&RD&&RD.item?RD.item.link:'');
   return h;
 }
-function stems(w){w=w.toLowerCase().replace(/[’']s$/,'');const o=[w];
-  if(w.endsWith('ies'))o.push(w.slice(0,-3)+'y');if(w.endsWith('ied'))o.push(w.slice(0,-3)+'y');
-  if(w.endsWith('es'))o.push(w.slice(0,-2));if(w.endsWith('s'))o.push(w.slice(0,-1));
-  if(w.endsWith('ed')){o.push(w.slice(0,-2),w.slice(0,-1));if(/(.)\1ed$/.test(w))o.push(w.slice(0,-3))}
-  if(w.endsWith('ing')){o.push(w.slice(0,-3),w.slice(0,-3)+'e');if(/(.)\1ing$/.test(w))o.push(w.slice(0,-4))}
-  if(w.endsWith('er'))o.push(w.slice(0,-2));if(w.endsWith('ly'))o.push(w.slice(0,-2));
-  return [...new Set(o)].filter(x=>x.length>1);
+/* Düzensiz çekimler: çekimli hâl → temel hâl (went → go, children → child, better → good) */
+const IRR=new Map();
+('be:was,were,been,am,is,are,being;have:had,has,having;do:did,does,done,doing;go:went,gone,goes;say:said;make:made;get:got,gotten;know:knew,known;think:thought;take:took,taken;see:saw,seen;come:came;give:gave,given;find:found;tell:told;become:became;leave:left;feel:felt;bring:brought;begin:began,begun;keep:kept;hold:held;write:wrote,written;stand:stood;hear:heard;mean:meant;meet:met;run:ran;pay:paid;sit:sat;speak:spoke,spoken;lie:lay,lain;lead:led;grow:grew,grown;lose:lost;fall:fell,fallen;send:sent;build:built;understand:understood;draw:drew,drawn;break:broke,broken;spend:spent;rise:rose,risen;drive:drove,driven;buy:bought;wear:wore,worn;choose:chose,chosen;seek:sought;throw:threw,thrown;catch:caught;deal:dealt;win:won;forget:forgot,forgotten;lay:laid;sell:sold;fight:fought;teach:taught;eat:ate,eaten;sleep:slept;swim:swam,swum;sing:sang,sung;ride:rode,ridden;fly:flew,flown;hide:hid,hidden;shake:shook,shaken;steal:stole,stolen;wake:woke,woken;bite:bit,bitten;blow:blew,blown;burn:burnt;feed:fed;forgive:forgave,forgiven;freeze:froze,frozen;hang:hung;lend:lent;light:lit;shoot:shot;sink:sank,sunk;slide:slid;stick:stuck;strike:struck;swear:swore,sworn;tear:tore,torn;wind:wound;bear:bore,borne;beat:beaten;bend:bent;bind:bound;bleed:bled;breed:bred;creep:crept;dig:dug;dream:dreamt;drink:drank,drunk;dwell:dwelt;flee:fled;forbid:forbade,forbidden;grind:ground;kneel:knelt;leap:leapt;overcome:overcame;shine:shone;show:shown;shrink:shrank,shrunk;spit:spat;sweep:swept;swing:swung;undergo:underwent,undergone;weep:wept;withdraw:withdrew,withdrawn;'
+ +'child:children;man:men;woman:women;person:people;foot:feet;tooth:teeth;mouse:mice;goose:geese;ox:oxen;life:lives;wife:wives;knife:knives;leaf:leaves;wolf:wolves;half:halves;shelf:shelves;thief:thieves;self:selves;analysis:analyses;crisis:crises;criterion:criteria;phenomenon:phenomena;good:better,best;bad:worse,worst;far:further,furthest,farther,farthest;little:less,least')
+ .split(';').forEach(s=>{const [b,fs]=s.split(':');(fs||'').split(',').forEach(f=>f&&IRR.set(f,b))});
+/* Çekim değil, kendi anlamı olan kelimeler: temel kelimeye bağlanmaz, ayrı kelime sayılır (interested ≠ interest) */
+const LEX=new Set('interested,interesting,tired,tiring,bored,boring,excited,exciting,surprised,surprising,shocked,shocking,worried,worrying,pleased,pleasing,satisfied,satisfying,disappointed,disappointing,confused,confusing,embarrassed,embarrassing,annoyed,annoying,amazed,amazing,frightened,frightening,terrified,terrifying,depressed,depressing,exhausted,exhausting,married,divorced,retired,experienced,educated,skilled,limited,advanced,developed,united,related,meeting,building,feeling,feelings,meaning,painting,wedding,ceiling,clothing,training,marketing,advertising,engineering,housing,funding,missing,willing,following,existing,increasing,growing,leading,outstanding,upcoming,ongoing,starving'.split(','));
+// Her aday [biçim, tür]: tür boşsa düz çekim; 'cmp' (-er/-est) ve 'ly' yalnızca sıfat/zarf kartlarına bağlanır (teacher ≠ teach)
+function stemsX(w){
+  w=w.toLowerCase().replace(/[’']s$/,'');const o=[[w,'']];
+  if(LEX.has(w))return o;
+  const add=(s,t)=>{if(s&&s.length>1&&!o.some(x=>x[0]===s))o.push([s,t||''])};
+  if(IRR.has(w))add(IRR.get(w));
+  if(w.endsWith('ies'))add(w.slice(0,-3)+'y');if(w.endsWith('ied'))add(w.slice(0,-3)+'y');
+  if(w.endsWith('es'))add(w.slice(0,-2));if(w.endsWith('s'))add(w.slice(0,-1));
+  if(w.endsWith('ed')){add(w.slice(0,-2));add(w.slice(0,-1));if(/(.)\1ed$/.test(w))add(w.slice(0,-3))}
+  if(w.endsWith('ing')){add(w.slice(0,-3));add(w.slice(0,-3)+'e');if(/(.)\1ing$/.test(w))add(w.slice(0,-4))}
+  if(w.endsWith('ier')||w.endsWith('iest'))add(w.replace(/ie(r|st)$/,'y'),'cmp');
+  if(w.endsWith('er')){add(w.slice(0,-2),'cmp');add(w.slice(0,-1),'cmp');if(/(.)\1er$/.test(w))add(w.slice(0,-3),'cmp')}
+  if(w.endsWith('est')){add(w.slice(0,-3),'cmp');add(w.slice(0,-2),'cmp');if(/(.)\1est$/.test(w))add(w.slice(0,-4),'cmp')}
+  if(w.endsWith('ily'))add(w.slice(0,-3)+'y','ly');
+  if(w.endsWith('ly'))add(w.slice(0,-2),'ly');
+  return o;
 }
+function stems(w){return stemsX(w).map(x=>x[0])}
 let AMAP=null;
 function amap(){if(!AMAP||AMAP.n!==all().length){AMAP=new Map(all().map(w=>[k(w),w]));AMAP.n=all().length}return AMAP}
-function findWord(w){const m=amap();for(const s of stems(w)){if(m.has(s))return m.get(s)}return null}
+function findWord(w){const m=amap();for(const [s,t] of stemsX(w)){const c=m.get(s);if(c&&(!t||!c.pos||/adj|adv/.test(c.pos)))return c}return null}
 const hasWord=w=>!!(amap().get(w.toLowerCase())||findWord(w));
 
 /* ---------- Kelimeye dokununca ---------- */
@@ -3223,12 +3241,14 @@ async function showPop(el){
   pop.style.top=below?(r.bottom+10)+'px':'auto';pop.style.bottom=below?'auto':(innerHeight-r.top+10)+'px';
   const spin='<span class="spin" style="width:13px;height:13px;border-color:rgba(255,255,255,.3);border-top-color:#fff"></span>';
   // state: have (listede), new (anlamı var, kart yok), load, err
-  const draw=(w,state,g)=>{
+  const draw=(w,state,g,via)=>{
     if(popWord!==tok)return;
     const tr=state==='load'?spin+'anlamı getiriliyor…':state==='err'?'Anlamı alınamadı':esc(w?w.tr:g.tr);
     const alts=state==='new'&&g&&g.alts&&g.alts.length?`<div class="pd">${esc(g.alts.join(' · '))}</div>`:'';
+    // Çekimli hâle basıldıysa temel kartı aç ve nedenini söyle; ayrı kelimeyse kullanıcı kendi ekleyebilir
+    const note=state==='have'&&via&&w&&via.toLowerCase()!==w.w.toLowerCase()?`<div class="pd">${esc(via)} → ${esc(w.w)} · <button class="psep" id="ppSep">Ayrı kelime olarak ekle</button></div>`:'';
     pop.innerHTML=`<div><span class="pw">${esc(w?w.w:raw)}</span>${w&&w.ipa?`<span class="pi">/${esc(w.ipa)}/</span>`:''}${w&&w.lvl?`<span class="badge">${esc(w.lvl)}</span>`:''}</div>
-      <div class="pt">${tr}</div>${alts}
+      <div class="pt">${tr}</div>${alts}${note}
       <div class="pb"><button id="ppSay" aria-label="Dinle">🔊</button><button id="ppSn">▶ Cümle</button>${state==='have'?'<button class="done" id="ppOpen">✓ Listende · kartı aç</button>':state==='new'?'<button class="add" id="ppAdd">＋ Karta ekle</button>':state==='err'?'<button class="add" id="ppRe">Tekrar dene</button>':''}</div>`;
     pop.classList.add('on');
     $('ppSay').onclick=()=>speakWord(w?w.w:raw);
@@ -3236,21 +3256,24 @@ async function showPop(el){
     if($('ppOpen'))$('ppOpen').onclick=()=>{const back=$('v-read').classList.contains('on')?'read':'sread',y=$('main').scrollTop;hidePop();stopPlayer();searchList=[w];searchTitle='Kelime';showTab('home');setMode('search');
       setBack(back==='read'?'Habere dön':'Hikâyeye dön',()=>{showTab(back);if(back==='read'&&RD){renderRead()}else if(SR){renderSRead()}setTimeout(()=>{$('main').scrollTop=y},60)})};
     if($('ppRe'))$('ppRe').onclick=()=>{const e2=el;hidePop();showPop(e2)};
-    if($('ppAdd'))$('ppAdd').onclick=async()=>{
-      const btn=$('ppAdd');btn.disabled=true;btn.innerHTML=spin+'kart hazırlanıyor…';
+    // exact: kelimeyi çekimli hâliyle, ayrı bir kelime olarak ekle (interested gibi)
+    const addIt=async(btn,exact)=>{
+      const ex0=btn.innerHTML;btn.disabled=true;btn.innerHTML=btn.id==='ppSep'?'hazırlanıyor…':spin+'kart hazırlanıyor…';
       try{
-        const d=await workerCall({card:raw,ctx,cats:S.cats},60000);const x=d.word;if(!x)throw new Error('Kart gelmedi');
+        const d=await workerCall({card:raw,ctx,cats:S.cats,exact:exact||undefined},60000);const x=d.word;if(!x)throw new Error('Kart gelmedi');
         const n={w:x.w,tr:x.tr,ipa:x.ipa||'',pos:x.pos||'',def:x.def,ex:x.ex,lvl:LEVELS.includes(x.lvl)?x.lvl:'B1',t:TOPICS[x.t]?x.t:'',tl:'',ai:true};
         const add=addWords([n]);AMAP=null;
         if(add.length){toast(`"${n.w}" kartlara eklendi → ${topicName(n)}`);if(!n.t)classifyAi()}else toast('Bu kelime zaten listende');
         if($('v-sread').classList.contains('on')&&SR)markStoryAdd(n.w);
         else if($('v-read').classList.contains('on')&&RD)markNewsAdd(n.w);
         draw(findWord(n.w)||n,'have');refreshDw();
-      }catch(e){toast('Kart hazırlanamadı: '+e.message);if($('ppAdd')){btn.disabled=false;btn.textContent='＋ Karta ekle'}}
+      }catch(e){toast('Kart hazırlanamadı: '+e.message);btn.disabled=false;btn.innerHTML=ex0}
     };
+    if($('ppAdd'))$('ppAdd').onclick=()=>addIt($('ppAdd'),LEX.has(raw.toLowerCase().replace(/[’']s$/,'')));
+    if($('ppSep'))$('ppSep').onclick=()=>addIt($('ppSep'),true);
   };
   const have=findWord(raw);
-  if(have)return draw(have,'have');
+  if(have)return draw(have,'have',null,raw);
   const key=raw.toLowerCase().replace(/[’']s$/,'');
   // haberin zor kelimeler listesinde varsa anında göster
   const L=RD&&RD.art&&RD.art.levels&&RD.art.levels[RD.lv-1],dw=L&&$('rdText')&&$('rdText').contains(el)&&L.words.find(x=>x.w.toLowerCase()===key||stems(key).includes(x.w.toLowerCase()));
@@ -3267,7 +3290,7 @@ function refreshDw(){const b=$('dwB');if(!b||!RD||!RD.art)return;const L=RD.art.
 async function addFromText(word,ctx,btn,quiet,noMark){
   if(hasWord(word)){btn.textContent='✓';if(!quiet)toast('Zaten listende');return}
   btn.innerHTML='<span class="spin" style="width:12px;height:12px;border-color:rgba(185,83,28,.3);border-top-color:#B9531C;margin:0"></span>';
-  try{const d=await workerCall({card:word,ctx,cats:S.cats},30000);const x=d.word;if(!x)throw 0;
+  try{const d=await workerCall({card:word,ctx,cats:S.cats,exact:LEX.has(String(word).toLowerCase())||undefined},30000);const x=d.word;if(!x)throw 0;
     const w={w:x.w,tr:x.tr,ipa:x.ipa||'',pos:x.pos||'',def:x.def,ex:x.ex,lvl:LEVELS.includes(x.lvl)?x.lvl:'B1',t:TOPICS[x.t]?x.t:'',tl:'',ai:true};
     addWords([w]);AMAP=null;if(!w.t)classifyAi();btn.textContent='✓';if(!quiet)toast(`"${w.w}" kartlara eklendi`);
     if(!noMark&&RD&&$('v-read').classList.contains('on'))markNewsAdd(w.w);

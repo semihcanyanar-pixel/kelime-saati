@@ -114,7 +114,7 @@ async function handle(req, env, ctx) {
     if (body.idioms) return json(await idiomsGet(body.idioms, E, ctx), 200, cors);
     if (body.glossBatch) return json(await glossBatch(body.glossBatch, env, ctx), 200, cors);
     if (Array.isArray(body.classify)) return json(await classify(body.classify, catSet(body), env), 200, cors);
-    if (typeof body.card === "string") return json(await card(body.card, catSet(body), env, body.ctx), 200, cors);
+    if (typeof body.card === "string") return json(await card(body.card, catSet(body), env, body.ctx, !!body.exact), 200, cors);
     if (body.gloss) return json(await gloss(body.gloss, env, ctx), 200, cors);
     if (body.trfix) return json(await trFix(body.trfix, env), 200, cors);
     if (body.ytch) return json(await ytChannel(body.ytch, env, ctx), 200, cors);
@@ -224,12 +224,16 @@ Return ONLY a JSON array of the chosen words, written exactly as given. Return [
 }
 
 // Tek kelime: kullanıcının yazdığı kelimenin kartı
-async function card(input, cs, env, context) {
+async function card(input, cs, env, context, exact) {
   const q = String(input || "").trim().slice(0, 60);
   if (!q) throw new HttpError(400, "Kelime boş");
   const cx = String(context || "").trim().slice(0, 300);
-  const prompt = `A native Turkish speaker learning English wants a vocabulary card for: "${q}".${cx ? `
-The word appears in this sentence: "${cx}". Give the dictionary form of the word and the meaning it has in this sentence.` : ""}
+  // exact: kullanıcı bu çekimli hâli ayrı bir kelime olarak istiyor (interested, boring, meeting gibi): sözlük hâline çevirme
+  const form = exact
+    ? `\nKeep the word EXACTLY in the form given ("${q}"). Do not change it to its base form: it is a separate dictionary word, so write its own meaning.${cx ? `\nIt appears in this sentence: "${cx}".` : ""}`
+    : cx ? `
+The word appears in this sentence: "${cx}". Give the dictionary form of the word and the meaning it has in this sentence. If the form has its own dictionary entry with a different meaning (for example "interested", "boring", "meeting"), keep that form.` : "";
+  const prompt = `A native Turkish speaker learning English wants a vocabulary card for: "${q}".${form}
 If it is misspelled, fix the spelling. If it is written in Turkish, use its most common English equivalent.
 If it is not a real English word or phrase, return {"error":"not a word"}.
 Otherwise return ONLY a JSON object with exactly these keys:
