@@ -350,7 +350,7 @@ nav.tabs button.on{color:var(--accent)}
 .prm{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:var(--soft);font-size:13px;color:var(--muted2)}
 .prb{flex:none;border:none;border-radius:999px;background:var(--card);color:var(--ink);font-weight:700;font-size:13px;padding:7px 13px;box-shadow:0 1px 0 var(--line)}
 .prf{margin:10px 0 0;font-size:12px;color:var(--muted);text-align:center}
-.rgn{display:block;margin:10px auto 0;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;padding:10px 14px}
+.rgrow{display:flex;gap:8px}.rgrow button{flex:1;margin:0}
 .vcard{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:18px;padding:10px;margin-top:12px;text-decoration:none;color:var(--text)}
 .vcard .vt{width:120px;height:68px;border-radius:12px;background:#222 center/cover no-repeat;flex:none;display:grid;place-items:center;color:#fff;font-size:22px}
 .vcard b{font-size:14px;line-height:1.3;display:block}.vcard small{color:var(--muted);font-size:12px}
@@ -2959,15 +2959,19 @@ function renderRead(){
   L.words=cleanWords(L.words,L.paras);
   body.innerHTML=`<div id="plBox"></div>
     <div id="rdText" class="${S.newsTr?'':'notr'}">${textHtml(L.paras,'news',new Set(L.words.map(w=>w.w.toLowerCase())),new Set((nAdd()[it.id]||[]).map(String)))}</div>
-    <button class="tgl ${S.newsTr?'on':''}" id="trT"><span>Türkçesini göster</span><i></i></button>
+    <div class="acc" style="margin-top:16px"><button id="rdRegen"><span>Bu seviyeyi yeniden yaz</span><span id="rgA">▾</span></button>
+      <div class="ab" id="rgB" style="display:none"><p class="hint" style="margin:0 0 10px;text-align:left">Bu seviyenin metni silinip baştan yazılır. Kelime pratiği kaydı da sıfırlanır.</p>
+        <div class="rgrow"><button class="ghost" id="rgNo">Vazgeç</button><button class="primary" id="rgYes">Evet, yeniden yaz</button></div></div></div>
+    <button class="tgl ${S.newsTr?'on':''}" id="trT" style="margin-top:8px"><span>Türkçesini göster</span><i></i></button>
     <div class="acc"><button id="dwT"><span>Zor kelimeler (${L.words.length})</span><span id="dwA">▾</span></button><div class="ab" id="dwB" style="display:none">${L.words.map((w,i)=>`<div class="dw"><b>${esc(w.w)}</b><span>${esc(w.tr)}</span><button data-i="${i}">${hasWord(w.w)?'✓':'＋ Kart'}</button></div>`).join('')}<button class="ghost" id="dwAll" style="margin-top:8px">Hepsini kartlara ekle</button></div></div>
     <div id="prBox"></div><div id="qzBox"></div><div id="vidBox"></div>
-    <button class="ghost" id="rdDone">✓ Okudum, hedefime say</button>
-    <button class="rgn" id="rdRegen">🔄 Bu seviyeyi yeniden yaz</button>`;
+    <button class="ghost" id="rdDone">✓ Okudum, hedefime say</button>`;
   $('rdDone').onclick=()=>{if(newsNeedsPr(it.id,RD.lv))return toast('Haber hedefine sayılması için önce kelime pratiğini tamamla');if(!markRead('h',it.id))toast('Bu haber bugün zaten sayıldı')};
   renderVid();
   mountPlayer(body.querySelector('#plBox'),$('rdText'),'n'+it.id+'-'+RD.lv);
-  $('rdRegen').onclick=regenLevel;
+  $('rdRegen').onclick=()=>{const o=$('rgB').style.display==='none';$('rgB').style.display=o?'':'none';$('rgA').textContent=o?'▴':'▾'};
+  $('rgNo').onclick=()=>{$('rgB').style.display='none';$('rgA').textContent='▾'};
+  $('rgYes').onclick=regenLevel;
   $('trT').onclick=()=>{S.newsTr=!S.newsTr;save();$('trT').classList.toggle('on',S.newsTr);$('rdText').classList.toggle('notr',!S.newsTr)};
   $('dwT').onclick=()=>{const o=$('dwB').style.display==='none';$('dwB').style.display=o?'':'none';$('dwA').textContent=o?'▴':'▾'};
   $('dwB').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>addFromText(L.words[+b.dataset.i].w,findCtx(L.paras,L.words[+b.dataset.i].w),b));
@@ -2985,7 +2989,6 @@ function renderVid(){
 // Açık haberin bu seviyesini silip sunucudan baştan yazdır (metin eksik ya da kötü geldiyse)
 function regenLevel(){
   const me=RD;if(!me)return;
-  if(!confirm('Bu seviyenin metni silinip baştan yazılsın mı?'))return;
   const n=me.lv,it=me.item,key=it.id+':'+n;
   stopPlayer();
   artSave(it,a=>{a.levels[n-1]=null});
