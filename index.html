@@ -818,6 +818,12 @@ nav.tabs button{position:relative}
   <p class="hint" style="text-align:center;font-size:12px;margin:10px 0 0">Rehbere her zaman sağ üstteki 📘 simgesinden ulaşabilirsin.</p>
 </div></div>
 
+<div class="sheet" id="rgSheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
+  <h3>Bu seviye yeniden yazılsın mı?</h3>
+  <p class="hint" style="margin:0 0 16px;line-height:1.5;text-align:left">Mevcut metin silinip baştan yazılır. Bu seviyenin kelime pratiği kaydı sıfırlanır; kartların, eklediğin kelimeler ve test sonuçların korunur.</p>
+  <div class="rgrow"><button class="ghost" id="rgNo">Vazgeç</button><button class="primary" id="rgYes">Yeniden yaz</button></div>
+</div></div>
+
 <div class="sheet" id="keySheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
   <div style="text-align:center;font-size:44px;margin-top:4px">🔑</div>
   <h3 style="text-align:center;margin:4px 0 2px">Yapay zekâ özelliklerini aç</h3>
@@ -2959,9 +2965,7 @@ function renderRead(){
   L.words=cleanWords(L.words,L.paras);
   body.innerHTML=`<div id="plBox"></div>
     <div id="rdText" class="${S.newsTr?'':'notr'}">${textHtml(L.paras,'news',new Set(L.words.map(w=>w.w.toLowerCase())),new Set((nAdd()[it.id]||[]).map(String)))}</div>
-    <div class="acc" style="margin-top:16px"><button id="rdRegen"><span>Bu seviyeyi yeniden yaz</span><span id="rgA">▾</span></button>
-      <div class="ab" id="rgB" style="display:none"><p class="hint" style="margin:0 0 10px;text-align:left">Bu seviyenin metni silinip baştan yazılır. Kelime pratiği kaydı da sıfırlanır.</p>
-        <div class="rgrow"><button class="ghost" id="rgNo">Vazgeç</button><button class="primary" id="rgYes">Evet, yeniden yaz</button></div></div></div>
+    <div class="acc" style="margin-top:16px"><button id="rdRegen"><span>Bu seviyeyi yeniden yaz</span><span style="color:var(--muted)">↻</span></button></div>
     <button class="tgl ${S.newsTr?'on':''}" id="trT" style="margin-top:8px"><span>Türkçesini göster</span><i></i></button>
     <div class="acc"><button id="dwT"><span>Zor kelimeler (${L.words.length})</span><span id="dwA">▾</span></button><div class="ab" id="dwB" style="display:none">${L.words.map((w,i)=>`<div class="dw"><b>${esc(w.w)}</b><span>${esc(w.tr)}</span><button data-i="${i}">${hasWord(w.w)?'✓':'＋ Kart'}</button></div>`).join('')}<button class="ghost" id="dwAll" style="margin-top:8px">Hepsini kartlara ekle</button></div></div>
     <div id="prBox"></div><div id="qzBox"></div><div id="vidBox"></div>
@@ -2969,9 +2973,7 @@ function renderRead(){
   $('rdDone').onclick=()=>{if(newsNeedsPr(it.id,RD.lv))return toast('Haber hedefine sayılması için önce kelime pratiğini tamamla');if(!markRead('h',it.id))toast('Bu haber bugün zaten sayıldı')};
   renderVid();
   mountPlayer(body.querySelector('#plBox'),$('rdText'),'n'+it.id+'-'+RD.lv);
-  $('rdRegen').onclick=()=>{const o=$('rgB').style.display==='none';$('rgB').style.display=o?'':'none';$('rgA').textContent=o?'▴':'▾'};
-  $('rgNo').onclick=()=>{$('rgB').style.display='none';$('rgA').textContent='▾'};
-  $('rgYes').onclick=regenLevel;
+  $('rdRegen').onclick=()=>openSheet('rgSheet');
   $('trT').onclick=()=>{S.newsTr=!S.newsTr;save();$('trT').classList.toggle('on',S.newsTr);$('rdText').classList.toggle('notr',!S.newsTr)};
   $('dwT').onclick=()=>{const o=$('dwB').style.display==='none';$('dwB').style.display=o?'':'none';$('dwA').textContent=o?'▴':'▾'};
   $('dwB').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>addFromText(L.words[+b.dataset.i].w,findCtx(L.paras,L.words[+b.dataset.i].w),b));
@@ -2996,6 +2998,8 @@ function regenLevel(){
   me.q=null;me.pr=null;me.qzErr=null;me.qzLoad=false;me.err='';
   renderRead();loadLevel();
 }
+$('rgNo').onclick=closeSheets;
+$('rgYes').onclick=()=>{closeSheets();regenLevel()};
 const QZP={};
 function ensureQuiz(rd,force){
   const it=rd.item,n=rd.lv,key=it.id+':'+n;if(QZP[key]&&!force)return;
