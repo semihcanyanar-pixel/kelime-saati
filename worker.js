@@ -569,13 +569,17 @@ function levelToLines(L) {
 }
 const textHead = cors => ({ "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", ...cors });
 
+// Seviye metni bu kelime sayısının altındaysa yarım kalmış sayılır (uygulamadaki LV_MINW ile aynı)
+const MINW = { 1: 35, 2: 50, 3: 70 };
+const enWords = paras => (paras || []).reduce((s, p) => s + (p.en || []).join(" ").split(/\s+/).filter(Boolean).length, 0);
 async function articleStream(q, env, ctx, cors) {
   const url = String(q.url || "");
   if (!/^https:\/\/www\.bbc\.(co\.uk|com)\/news\//.test(url)) throw new HttpError(400, "Geçersiz haber adresi");
   const n = [1, 2, 3].includes(+q.lv) ? +q.lv : 2;
   const h = await sha(url), kL = "art4:" + h + ":" + n;
-  const hit = await kvGet(env, kL);
-  if (hit) return new Response(levelToLines(JSON.parse(hit)), { headers: textHead(cors) });
+  // Önbellekteki seviye yarımsa (yapay zekâ metni yarıda bırakmışsa) ya da istemci "fresh" istediyse yeniden yaz
+  const hit = q.fresh ? null : await kvGet(env, kL);
+  if (hit) { const c = JSON.parse(hit); if (enWords(c.paras) >= MINW[n]) return new Response(levelToLines(c), { headers: textHead(cors) }); }
   const text = await srcText(url, h, env, ctx);
   if (text.length < 200) throw new HttpError(422, "Bu haberin metni alınamadı, başka bir haber dene");
   const prompt = `You are writing a graded news reader for a native Turkish speaker learning English.
@@ -605,7 +609,8 @@ EVIDENCE: the exact sentence copied from your English text that proves the answe
 (after QUIZ: write a comprehension quiz about YOUR English text in this format: ${LV_QUIZ[n]} ${QUIZ_RULES})`;
   const body = await llmStream(prompt, env, { prefer: "quality", temperature: 0.4, hedge: 8000 }, all => {
     const L = parseLines(all);
-    if (L.paras.length) kvPut(env, ctx, kL, JSON.stringify({ paras: L.paras, words: cleanWordsW(L.words, L.paras).slice(0, 8), quiz: validQuiz(L.quiz, L.paras) }), 30 * 86400);
+    // Yarım kalan metni saklama: yeterince uzun olmalı ve "WORDS" bölümüne ulaşmış olmalı
+    if (L.paras.length && enWords(L.paras) >= MINW[n] && L.words.length) kvPut(env, ctx, kL, JSON.stringify({ paras: L.paras, words: cleanWordsW(L.words, L.paras).slice(0, 8), quiz: validQuiz(L.quiz, L.paras) }), 30 * 86400);
   });
   return new Response(body, { headers: textHead(cors) });
 }
