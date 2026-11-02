@@ -342,6 +342,15 @@ nav.tabs button.on{color:var(--accent)}
 .dw button,.mini2{border:none;border-radius:10px;padding:6px 10px;background:var(--accent-soft);color:var(--ink);font-weight:700;font-size:13px;flex:none}
 .qz{background:var(--card);border-radius:18px;padding:14px;margin-top:12px}.qz h4{margin:0 0 4px;font-size:12px;letter-spacing:1px;color:var(--muted)}.qz .qq{font-size:17px;font-weight:700;margin:4px 0 10px;line-height:1.35}
 .qz .opt{margin-top:8px}
+/* Haber sonu: kelime pratiği kartı ve sessiz "yeniden yaz" bağlantısı */
+.prc{margin-top:12px;padding:16px}
+.prh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.prh h4{margin:0}
+.prn{font-size:12px;font-weight:700;color:var(--muted)}
+.prl{display:flex;flex-wrap:wrap;gap:6px 16px;margin:0 0 14px;font-size:13px;color:var(--muted)}
+.prm{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:10px 12px;border-radius:12px;background:var(--soft);font-size:13px;color:var(--muted2)}
+.prb{flex:none;border:none;border-radius:999px;background:var(--card);color:var(--ink);font-weight:700;font-size:13px;padding:7px 13px;box-shadow:0 1px 0 var(--line)}
+.prf{margin:10px 0 0;font-size:12px;color:var(--muted);text-align:center}
+.rgn{display:block;margin:10px auto 0;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;padding:10px 14px}
 .vcard{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:18px;padding:10px;margin-top:12px;text-decoration:none;color:var(--text)}
 .vcard .vt{width:120px;height:68px;border-radius:12px;background:#222 center/cover no-repeat;flex:none;display:grid;place-items:center;color:#fff;font-size:22px}
 .vcard b{font-size:14px;line-height:1.3;display:block}.vcard small{color:var(--muted);font-size:12px}
@@ -2951,10 +2960,10 @@ function renderRead(){
   body.innerHTML=`<div id="plBox"></div>
     <div id="rdText" class="${S.newsTr?'':'notr'}">${textHtml(L.paras,'news',new Set(L.words.map(w=>w.w.toLowerCase())),new Set((nAdd()[it.id]||[]).map(String)))}</div>
     <button class="tgl ${S.newsTr?'on':''}" id="trT"><span>Türkçesini göster</span><i></i></button>
-    <button class="ghost" id="rdRegen" style="margin-top:8px">🔄 Bu seviyeyi yeniden yaz</button>
     <div class="acc"><button id="dwT"><span>Zor kelimeler (${L.words.length})</span><span id="dwA">▾</span></button><div class="ab" id="dwB" style="display:none">${L.words.map((w,i)=>`<div class="dw"><b>${esc(w.w)}</b><span>${esc(w.tr)}</span><button data-i="${i}">${hasWord(w.w)?'✓':'＋ Kart'}</button></div>`).join('')}<button class="ghost" id="dwAll" style="margin-top:8px">Hepsini kartlara ekle</button></div></div>
     <div id="prBox"></div><div id="qzBox"></div><div id="vidBox"></div>
-    <button class="ghost" id="rdDone">✓ Okudum, hedefime say</button>`;
+    <button class="ghost" id="rdDone">✓ Okudum, hedefime say</button>
+    <button class="rgn" id="rdRegen">🔄 Bu seviyeyi yeniden yaz</button>`;
   $('rdDone').onclick=()=>{if(newsNeedsPr(it.id,RD.lv))return toast('Haber hedefine sayılması için önce kelime pratiğini tamamla');if(!markRead('h',it.id))toast('Bu haber bugün zaten sayıldı')};
   renderVid();
   mountPlayer(body.querySelector('#plBox'),$('rdText'),'n'+it.id+'-'+RD.lv);
@@ -3048,10 +3057,12 @@ function renderPr(){
   if(!ws.length&&!miss.length){box.innerHTML='';return}
   const done=nwp()[id+':'+RD.lv],p=RD.pr;
   if(!p){
-    box.innerHTML=`<div class="qz" style="margin-top:14px"><h4>KELİME PRATİĞİ</h4>
-      <p class="hint" style="margin:0 0 12px;text-align:left">Kartlarında olan <span class="kw">zor kelimeler</span> ve haberde <span class="kw2">kartına eklediklerin</span> sorulur${ws.length?` (${ws.length} kelime)`:''}.${newsNeedsPr(id,RD.lv)?' Haber hedefine sayılması için bu pratiği tamamla.':''}</p>
-      ${miss.length?`<p class="hint" style="margin:0 0 10px;text-align:left">📌 ${miss.length} zor kelimenin kartı yok, pratikte sorulmaz.</p><button class="ghost" id="prAddAll" style="margin:0 0 10px" ${RD.prBusy?'disabled':''}>${RD.prBusy?'<span class="spin"></span>':'＋ Hepsini kartlara ekle'}</button>`:''}
-      ${ws.length?`<button class="primary" id="prGo">📚 ${done?`Tekrar yap (önceki: ${done.ok}/${done.n})`:'Kelime pratiği yap'}</button>`:'<p class="hint" style="margin:0;text-align:left">Pratik için en az bir kelimenin kartı olmalı.</p>'}</div>`;
+    const addBtn=(cls,txt)=>`<button class="${cls}" id="prAddAll" ${RD.prBusy?'disabled':''}>${RD.prBusy?'<span class="spin"></span>':txt}</button>`;
+    box.innerHTML=`<div class="qz prc"><div class="prh"><h4>KELİME PRATİĞİ</h4>${ws.length?`<span class="prn">${ws.length} kelime</span>`:''}</div>
+      <p class="prl"><span class="kw">zor kelime</span><span class="kw2">kartına eklediğin</span></p>
+      ${ws.length&&miss.length?`<div class="prm"><span>${miss.length} zor kelimenin kartı yok</span>${addBtn('prb','＋ Hepsini ekle')}</div>`:''}
+      ${ws.length?`<button class="primary" id="prGo">📚 ${done?`Tekrar yap (önceki: ${done.ok}/${done.n})`:'Kelime pratiği yap'}</button>${newsNeedsPr(id,RD.lv)?'<p class="prf">Haber hedefine sayılması için tamamla</p>':''}`
+        :`${addBtn('primary','＋ Hepsini kartlara ekle')}<p class="prf">Pratik için en az bir kelimenin kartı olmalı</p>`}</div>`;
     if($('prGo'))$('prGo').onclick=()=>{RD.pr={i:0,ok:0,qs:prBuild(ws),wrong:[],ws};renderPr()};
     if($('prAddAll'))$('prAddAll').onclick=async()=>{const r=RD;r.prBusy=true;renderPr();try{await $('dwAll').onclick()}catch(e){}r.prBusy=false;if(RD===r&&!r.pr)renderPr()};
     return}
