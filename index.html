@@ -357,16 +357,19 @@ nav.tabs button.on{color:var(--accent)}
 /* Bekleme ekranı: silik simge, harf harf gelen ad, hareketli yükleme çubuğu */
 #splash{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s ease}
 #splash.out{opacity:0;pointer-events:none}
-#splash .sp-bg{position:absolute;width:min(72vw,72vh,440px);height:auto;opacity:.1;animation:spbg 1.4s ease-out both}
+#splash .sp-bg{position:absolute;width:min(72vw,72vh,440px);height:auto;opacity:.1;animation:spbg 1.4s ease-out both;-webkit-mask-image:radial-gradient(circle,#000 52%,transparent 70%);mask-image:radial-gradient(circle,#000 52%,transparent 70%)}   /* simgenin kare zemini görünmesin */
 @keyframes spbg{from{opacity:0;transform:scale(.93)}to{opacity:.1;transform:none}}
-#splash .sp-title{position:relative;display:flex;font-size:clamp(34px,9vw,54px);font-weight:800;letter-spacing:-.5px;color:var(--text)}
+#splash .sp-title{position:relative;display:flex;flex-direction:column;align-items:center;color:var(--text)}
+#splash .sp-k{display:flex;font-size:clamp(13px,3.6vw,17px);font-weight:700;letter-spacing:.55em;margin-right:-.55em;color:var(--accent)}   /* sondaki harf aralığı ortalamayı kaydırmasın */
+#splash .sp-s{display:flex;margin-top:2px;font-family:ui-serif,"New York","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:clamp(60px,18vw,96px);font-weight:700;letter-spacing:-.02em;line-height:1.05}
+#splash .sp-rule{display:block;width:34px;height:2px;border-radius:1px;margin-top:14px;background:var(--accent);opacity:0;animation:spch .5s ease 1.2s forwards}
 #splash .sp-title span{opacity:0;transform:translateY(12px);animation:spch .5s cubic-bezier(.2,.8,.2,1) forwards}
 @keyframes spch{to{opacity:1;transform:none}}
 #splash .sp-sub{position:relative;margin:10px 0 0;font-size:14px;font-weight:600;color:var(--muted);min-height:20px}
 #splash .sp-bar{position:absolute;bottom:calc(14vh + var(--sb));left:50%;width:min(220px,56vw);height:4px;margin-left:calc(min(220px,56vw)/-2);border-radius:2px;background:var(--line);overflow:hidden}
 #splash .sp-bar i{position:absolute;top:0;bottom:0;width:38%;border-radius:2px;background:var(--accent);animation:spbar 1.15s ease-in-out infinite}
 @keyframes spbar{0%{left:-40%}100%{left:100%}}
-@media (prefers-reduced-motion:reduce){#splash .sp-title span{animation-duration:.01s;animation-delay:0s!important}#splash .sp-bg{animation:none;opacity:.1}}
+@media (prefers-reduced-motion:reduce){#splash .sp-title span,#splash .sp-rule{animation-duration:.01s;animation-delay:0s!important}#splash .sp-bg{animation:none;opacity:.1}}
 /* Küçük, ortalanmış kutular (yeniden yaz onayı, şifre değiştirme) */
 #rgSheet.on,#pwSheet.on{display:flex;align-items:center;justify-content:center}
 #rgSheet .panel,#pwSheet .panel{position:relative;left:auto;right:auto;bottom:auto;width:min(300px,calc(100% - 48px));max-height:none;border-radius:20px;padding:18px 16px 16px;animation:fade .18s;box-shadow:0 14px 40px rgba(60,40,25,.25)}
@@ -629,7 +632,11 @@ nav.tabs button{position:relative}
 <body>
 <div id="splash" role="status" aria-live="polite" aria-label="Yükleniyor">
   <img class="sp-bg" src="icon-512.png" alt="">
-  <div class="sp-title" aria-hidden="true"><span style="animation-delay:.15s">K</span><span style="animation-delay:.21s">e</span><span style="animation-delay:.27s">l</span><span style="animation-delay:.33s">i</span><span style="animation-delay:.39s">m</span><span style="animation-delay:.45s">e</span><span style="animation-delay:.51s">&nbsp;</span><span style="animation-delay:.57s">S</span><span style="animation-delay:.63s">a</span><span style="animation-delay:.69s">a</span><span style="animation-delay:.75s">t</span><span style="animation-delay:.81s">i</span></div>
+  <div class="sp-title" aria-hidden="true">
+    <div class="sp-k"><span style="animation-delay:.12s">K</span><span style="animation-delay:.18s">E</span><span style="animation-delay:.24s">L</span><span style="animation-delay:.30s">İ</span><span style="animation-delay:.36s">M</span><span style="animation-delay:.42s">E</span></div>
+    <div class="sp-s"><span style="animation-delay:.55s">S</span><span style="animation-delay:.65s">a</span><span style="animation-delay:.75s">a</span><span style="animation-delay:.85s">t</span><span style="animation-delay:.95s">i</span></div>
+    <i class="sp-rule"></i>
+  </div>
   <p class="sp-sub" id="spSub"></p>
   <div class="sp-bar"><i></i></div>
 </div>
