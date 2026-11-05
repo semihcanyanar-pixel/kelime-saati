@@ -354,12 +354,14 @@ nav.tabs button.on{color:var(--accent)}
 .psep{background:none;border:none;padding:0;color:inherit;font:inherit;text-decoration:underline;cursor:pointer}
 /* Haber sonundaki üç satır (yeniden yaz, Türkçesini göster, zor kelimeler) aynı yazı kalınlığı ve yükseklikte */
 #trT{font-weight:700}#rdRegen,#dwT{min-height:50px}
-/* Küçük, ortalanmış onay kutusu */
-#rgSheet.on{display:flex;align-items:center;justify-content:center}
-#rgSheet .panel{position:relative;left:auto;right:auto;bottom:auto;width:min(300px,calc(100% - 48px));max-height:none;border-radius:20px;padding:18px 16px 16px;animation:fade .18s;box-shadow:0 14px 40px rgba(60,40,25,.25)}
-#rgSheet h3{font-size:18px;margin:0 0 6px}
+/* Küçük, ortalanmış kutular (yeniden yaz onayı, şifre değiştirme) */
+#rgSheet.on,#pwSheet.on{display:flex;align-items:center;justify-content:center}
+#rgSheet .panel,#pwSheet .panel{position:relative;left:auto;right:auto;bottom:auto;width:min(300px,calc(100% - 48px));max-height:none;border-radius:20px;padding:18px 16px 16px;animation:fade .18s;box-shadow:0 14px 40px rgba(60,40,25,.25)}
+#rgSheet h3,#pwSheet h3{font-size:18px;margin:0 0 6px}
 #rgSheet .hint{margin:0 0 14px;font-size:13.5px;line-height:1.45;text-align:left}
-#rgSheet .rgrow button{padding:11px 8px;font-size:15px;border-radius:12px;box-shadow:none}
+#rgSheet .rgrow button,#pwSheet .rgrow button{padding:11px 8px;font-size:15px;border-radius:12px;box-shadow:none}
+/* şifre kutusu klavyenin altında kalmasın: ekranın üst kısmına yakın açılır */
+#pwSheet.on{align-items:flex-start;padding-top:9vh}#pwSheet .panel{width:min(330px,calc(100% - 48px))}#pwSheet .lerr{min-height:0;margin:0 0 8px}
 .vcard{display:flex;gap:12px;align-items:center;background:var(--card);border-radius:18px;padding:10px;margin-top:12px;text-decoration:none;color:var(--text)}
 .vcard .vt{width:120px;height:68px;border-radius:12px;background:#222 center/cover no-repeat;flex:none;display:grid;place-items:center;color:#fff;font-size:22px}
 .vcard b{font-size:14px;line-height:1.3;display:block}.vcard small{color:var(--muted);font-size:12px}
@@ -833,6 +835,16 @@ nav.tabs button{position:relative}
   <div class="rgrow"><button class="ghost" id="rgNo">Vazgeç</button><button class="primary" id="rgYes">Yeniden yaz</button></div>
 </div></div>
 
+<div class="sheet" id="pwSheet"><div class="bd"></div><div class="panel">
+  <h3>Şifreyi değiştir</h3>
+  <input class="field" id="pwCur" type="password" placeholder="Mevcut şifre" autocomplete="current-password" style="margin-bottom:8px">
+  <input class="field" id="pwNew" type="password" placeholder="Yeni şifre (en az 6 karakter)" autocomplete="new-password" style="margin-bottom:8px">
+  <input class="field" id="pwNew2" type="password" placeholder="Yeni şifre tekrar" autocomplete="new-password" style="margin-bottom:10px">
+  <div class="lerr" id="pwErr"></div>
+  <div class="rgrow"><button class="ghost" id="pwNo">Vazgeç</button><button class="primary" id="pwGo">Değiştir</button></div>
+  <button class="linkbtn" id="pwForgot" style="margin-top:10px;font-weight:600;color:var(--muted)">Mevcut şifremi hatırlamıyorum</button>
+</div></div>
+
 <div class="sheet" id="keySheet"><div class="bd"></div><div class="panel"><div class="grab"></div>
   <div style="text-align:center;font-size:44px;margin-top:4px">🔑</div>
   <h3 style="text-align:center;margin:4px 0 2px">Yapay zekâ özelliklerini aç</h3>
@@ -934,7 +946,7 @@ nav.tabs button{position:relative}
     <button class="grow" id="bkOut"><i class="gi" style="background:#FDE6D6">📤</i><span class="gt">Yedeği kopyala<small>Notlar'a yapıştırıp saklayabilirsin</small></span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
     <button class="grow" id="bkIn"><i class="gi" style="background:#FDE6D6">📥</i><span class="gt">Yedeği geri yükle</span><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
   </div>
-  <div id="acctWrap" style="display:none"><div class="glabel">Hesap</div><div id="acList"></div><button class="pf add" id="acAdd">＋ Profil ekle</button></div>
+  <div id="acctWrap" style="display:none"><div class="glabel">Hesap</div><div id="acList"></div><button class="pf add" id="acAdd">＋ Profil ekle</button><button class="pf add" id="acPw" style="margin-top:8px">Şifreyi değiştir</button></div>
 </div></div>
 
 <div class="login" id="login"><div class="lbox">
@@ -960,6 +972,7 @@ nav.tabs button{position:relative}
   <button class="primary" id="pfGo" style="width:100%">Giriş yap ve ekle</button>
   <div class="lerr" id="pfErr"></div>
   <button class="linkbtn" id="pfMode">Hesabı yok mu? Yeni hesap oluştur</button>
+  <button class="linkbtn" id="pfForgot" style="font-weight:600;color:var(--muted)">Şifremi unuttum</button>
   <p class="pnote">Ad, profilde ve üstteki simgede görünür; Ayarlar › Hesap'tan adına dokunarak değiştirebilirsin.</p></div></div>
 <div class="toast" id="toast"></div>
 <div class="wpop" id="wpop"></div>
@@ -1052,7 +1065,7 @@ const EN={
 'Macera':'Adventure','Gizem':'Mystery','Bilim kurgu':'Science fiction','Romantik':'Romance','Komedi':'Comedy','Spor':'Sport','Tarih':'History','Korku':'Horror','Rastgele':'Random',
 'Mutfak':'Cooking','Futbol':'Football','Ebeveynlik':'Parenting','Finans':'Finance','Film & Dizi':'Film & TV',
 'Görünüm':'Appearance','Tema':'Theme','Dil':'Language','Krem':'Cream','Deniz':'Sea','Taş':'Stone','Gece':'Night','Otomatik':'Automatic',
-'Hesap':'Account','Veriler':'Data','Yedek':'Backup','Widget kaydı için Firebase kuralı eksik':'Firebase rule for the widget record is missing',
+'Hesap':'Account','Şifreyi değiştir':'Change password','Değiştir':'Change','Mevcut şifremi hatırlamıyorum':'I don\'t remember my current password','Şifre değiştirildi ✓':'Password changed ✓','Mevcut şifre yanlış':'Current password is wrong','Yeni şifreler aynı değil':'New passwords don\'t match','Yeni şifre en az 6 karakter olmalı':'New password must be at least 6 characters','Üç alanı da doldur':'Fill in all three fields','Yeni şifre mevcut şifreden farklı olmalı':'New password must differ from the current one','Güvenlik için çıkış yapıp tekrar giriş yap':'For security, sign out and sign in again','Veriler':'Data','Yedek':'Backup','Widget kaydı için Firebase kuralı eksik':'Firebase rule for the widget record is missing',
 'Kelimeler eklendi':'Words added','Hepsi zaten listende':'They\'re all in your list already','Hepsini kartlara ekle':'Add all to cards','Eklenemedi, tekrar dene':'Couldn\'t add, try again',
 'Seviye 1':'Level 1','Seviye 2':'Level 2','Seviye 3':'Level 3','📝 3 soruyla test et':'📝 Test yourself with 3 questions','Sonucu gör':'See result','Kusursuz! 🎉':'Perfect! 🎉','Güzel, devam!':'Nice, keep going!','Bir daha oku, sonra tekrar dene':'Read it again, then retry',
 '🌐 BBC\'de aslını oku':'🌐 Read the original on BBC','▶️ YouTube\'da ara':'▶️ Search on YouTube','BBC News · YouTube\'da izle':'BBC News · Watch on YouTube',
@@ -2128,12 +2141,12 @@ function renderPfSheet(){
 let pfSignUp=false;
 function openPfAdd(){
   closeSheets();pfSignUp=false;drawPfMode();
-  ['pfName','pfEmail','pfPass'].forEach(i=>$(i).value='');$('pfErr').textContent='';
+  ['pfName','pfEmail','pfPass'].forEach(i=>$(i).value='');$('pfErr').textContent='';$('pfErr').classList.remove('ok');
   openSheet('pfAddSheet');setTimeout(()=>$('pfName').focus(),250);
 }
-function drawPfMode(){$('pfGo').textContent=pfSignUp?'Hesap oluştur ve ekle':'Giriş yap ve ekle';$('pfMode').textContent=pfSignUp?'Hesabı var mı? Giriş yap':'Hesabı yok mu? Yeni hesap oluştur';$('pfPass').autocomplete=pfSignUp?'new-password':'current-password'}
+function drawPfMode(){$('pfForgot').style.display=pfSignUp?'none':'';$('pfGo').textContent=pfSignUp?'Hesap oluştur ve ekle':'Giriş yap ve ekle';$('pfMode').textContent=pfSignUp?'Hesabı var mı? Giriş yap':'Hesabı yok mu? Yeni hesap oluştur';$('pfPass').autocomplete=pfSignUp?'new-password':'current-password'}
 async function addProfile(){
-  const name=$('pfName').value.trim().slice(0,30),email=$('pfEmail').value.trim(),pass=$('pfPass').value,err=t=>{$('pfErr').textContent=t};
+  const name=$('pfName').value.trim().slice(0,30),email=$('pfEmail').value.trim(),pass=$('pfPass').value,err=t=>{$('pfErr').classList.remove('ok');$('pfErr').textContent=t};
   if(!name)return err('Profil için bir ad yaz');
   if(!email||!pass)return err('E-posta ve şifreyi gir');
   const FB=window.FB;if(!FB)return err('Bağlantı kurulamadı, internetini kontrol et');
@@ -2169,6 +2182,7 @@ function authMsg(c){return({
   'auth/invalid-credential':'E-posta ya da şifre hatalı','auth/invalid-login-credentials':'E-posta ya da şifre hatalı',
   'auth/email-already-in-use':'Bu e-postayla zaten bir hesap var, giriş yap','auth/weak-password':'Şifre en az 6 karakter olmalı',
   'auth/network-request-failed':'İnternet bağlantısı yok','auth/too-many-requests':'Çok fazla deneme yapıldı, biraz bekle',
+  'auth/requires-recent-login':'Güvenlik için çıkış yapıp tekrar giriş yap',
   'auth/operation-not-allowed':'Firebase\'de E-posta/Şifre girişi açılmamış'})[c]||('Hata: '+c)}
 window.initCloud=function(c){
   C=c;
@@ -2205,9 +2219,39 @@ $('lPass').onkeydown=e=>{if(e.key==='Enter')$('lGo').click()};
 $('lForgot').onclick=async()=>{
   if(!C)return;
   const e=$('lEmail').value.trim();if(!e)return lerr('Önce e-posta adresini yaz');
-  try{await C.A.sendPasswordResetEmail(C.auth,e);lerr('Şifre sıfırlama bağlantısı e-postana gönderildi',true)}catch(x){lerr(authMsg(x.code))}
+  try{await C.A.sendPasswordResetEmail(C.auth,e);lerr('Şifre sıfırlama bağlantısı e-postana gönderildi',true)}catch(x){lerr(rstMsg(x))}
 };
 $('acAdd').onclick=openPfAdd;
+/* Şifre değiştir (Ayarlar › Hesap): Firebase gereği önce mevcut şifreyle doğrulanır */
+const rstMsg=x=>x.code==='auth/user-not-found'?'Bu e-postayla kayıtlı hesap bulunamadı':authMsg(x.code||'');   // şifre sıfırlamada şifre sorulmaz
+const pwErr=(t,ok)=>{const e=$('pwErr');e.textContent=t;e.classList.toggle('ok',!!ok)};
+$('acPw').onclick=()=>{['pwCur','pwNew','pwNew2'].forEach(i=>$(i).value='');pwErr('');closeSheets();openSheet('pwSheet');setTimeout(()=>$('pwCur').focus(),250)};
+$('pwNo').onclick=closeSheets;
+$('pwGo').onclick=async()=>{
+  const u=C&&C.auth.currentUser;if(!u)return pwErr('Önce giriş yapmalısın');
+  const cur=$('pwCur').value,nw=$('pwNew').value,nw2=$('pwNew2').value;
+  if(!cur||!nw||!nw2)return pwErr('Üç alanı da doldur');
+  if(nw.length<6)return pwErr('Yeni şifre en az 6 karakter olmalı');
+  if(nw!==nw2)return pwErr('Yeni şifreler aynı değil');
+  if(nw===cur)return pwErr('Yeni şifre mevcut şifreden farklı olmalı');
+  const b=$('pwGo');b.disabled=true;pwErr('');
+  try{
+    await C.A.reauthenticateWithCredential(u,C.A.EmailAuthProvider.credential(u.email,cur));
+    await C.A.updatePassword(u,nw);
+    closeSheets();toast('Şifre değiştirildi ✓');
+  }catch(x){pwErr(x.code==='auth/wrong-password'||x.code==='auth/invalid-credential'?'Mevcut şifre yanlış':authMsg(x.code||''))}
+  finally{b.disabled=false}
+};
+$('pwForgot').onclick=async()=>{
+  const u=C&&C.auth.currentUser;if(!u)return;
+  try{await C.A.sendPasswordResetEmail(C.auth,u.email);pwErr('Sıfırlama bağlantısı '+u.email+' adresine gönderildi',true)}catch(x){pwErr(authMsg(x.code||''))}
+};
+$('pfForgot').onclick=async()=>{
+  const e=$('pfEmail').value.trim(),m=$('pfErr');m.classList.remove('ok');
+  if(!e){m.textContent='Önce e-posta adresini yaz';return}
+  if(!C){m.textContent='Bağlantı kurulamadı, internetini kontrol et';return}
+  try{await C.A.sendPasswordResetEmail(C.auth,e);m.textContent='Şifre sıfırlama bağlantısı e-postana gönderildi';m.classList.add('ok')}catch(x){m.textContent=rstMsg(x)}
+};
 $('pfBtn').onclick=()=>{renderPfSheet();openSheet('pfSheet')};
 $('pfAdd').onclick=openPfAdd;
 $('pfMode').onclick=()=>{pfSignUp=!pfSignUp;drawPfMode();$('pfErr').textContent=''};
