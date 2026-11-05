@@ -354,6 +354,19 @@ nav.tabs button.on{color:var(--accent)}
 .psep{background:none;border:none;padding:0;color:inherit;font:inherit;text-decoration:underline;cursor:pointer}
 /* Haber sonundaki üç satır (yeniden yaz, Türkçesini göster, zor kelimeler) aynı yazı kalınlığı ve yükseklikte */
 #trT{font-weight:700}#rdRegen,#dwT{min-height:50px}
+/* Bekleme ekranı: silik simge, harf harf gelen ad, hareketli yükleme çubuğu */
+#splash{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .4s ease}
+#splash.out{opacity:0;pointer-events:none}
+#splash .sp-bg{position:absolute;width:min(72vw,72vh,440px);height:auto;opacity:.1;animation:spbg 1.4s ease-out both}
+@keyframes spbg{from{opacity:0;transform:scale(.93)}to{opacity:.1;transform:none}}
+#splash .sp-title{position:relative;display:flex;font-size:clamp(34px,9vw,54px);font-weight:800;letter-spacing:-.5px;color:var(--text)}
+#splash .sp-title span{opacity:0;transform:translateY(12px);animation:spch .5s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes spch{to{opacity:1;transform:none}}
+#splash .sp-sub{position:relative;margin:10px 0 0;font-size:14px;font-weight:600;color:var(--muted);min-height:20px}
+#splash .sp-bar{position:absolute;bottom:calc(14vh + var(--sb));left:50%;width:min(220px,56vw);height:4px;margin-left:calc(min(220px,56vw)/-2);border-radius:2px;background:var(--line);overflow:hidden}
+#splash .sp-bar i{position:absolute;top:0;bottom:0;width:38%;border-radius:2px;background:var(--accent);animation:spbar 1.15s ease-in-out infinite}
+@keyframes spbar{0%{left:-40%}100%{left:100%}}
+@media (prefers-reduced-motion:reduce){#splash .sp-title span{animation-duration:.01s;animation-delay:0s!important}#splash .sp-bg{animation:none;opacity:.1}}
 /* Küçük, ortalanmış kutular (yeniden yaz onayı, şifre değiştirme) */
 #rgSheet.on,#pwSheet.on{display:flex;align-items:center;justify-content:center}
 #rgSheet .panel,#pwSheet .panel{position:relative;left:auto;right:auto;bottom:auto;width:min(300px,calc(100% - 48px));max-height:none;border-radius:20px;padding:18px 16px 16px;animation:fade .18s;box-shadow:0 14px 40px rgba(60,40,25,.25)}
@@ -614,6 +627,12 @@ nav.tabs button{position:relative}
 </style>
 </head>
 <body>
+<div id="splash" role="status" aria-live="polite" aria-label="Yükleniyor">
+  <img class="sp-bg" src="icon-512.png" alt="">
+  <div class="sp-title" aria-hidden="true"><span style="animation-delay:.15s">K</span><span style="animation-delay:.21s">e</span><span style="animation-delay:.27s">l</span><span style="animation-delay:.33s">i</span><span style="animation-delay:.39s">m</span><span style="animation-delay:.45s">e</span><span style="animation-delay:.51s">&nbsp;</span><span style="animation-delay:.57s">S</span><span style="animation-delay:.63s">a</span><span style="animation-delay:.69s">a</span><span style="animation-delay:.75s">t</span><span style="animation-delay:.81s">i</span></div>
+  <p class="sp-sub" id="spSub"></p>
+  <div class="sp-bar"><i></i></div>
+</div>
 <div class="app">
   <header>
     <div class="htext"><div class="hsub" id="hSub"></div><h1 class="htitle" id="hTitle"></h1></div>
@@ -2126,7 +2145,7 @@ function renameProf(){
 async function switchProfile(slot){
   if(slot===PSLOT)return closeSheets();
   if(!profs().some(x=>x.slot===slot))return;
-  toast('Profil değiştiriliyor…');
+  Splash.show('Profil değiştiriliyor');
   try{if(typeof sessSave==='function')sessSave()}catch(e){}
   localSave();
   try{await Promise.race([pushNow(),new Promise(r=>setTimeout(r,3000))])}catch(e){}
@@ -2187,6 +2206,7 @@ function authMsg(c){return({
 window.initCloud=function(c){
   C=c;
   C.A.onAuthStateChanged(C.auth,user=>{
+    authSettle();   // oturum durumu belli oldu (açık ya da kapalı)
     if(unsub){unsub();unsub=null}
     if(!user){showLogin(true);updateAcct();return}
     showLogin(false);firstSnap=true;syncMsg='Eşitleniyor…';updateAcct();setTimeout(()=>{ensureWorker();refreshMe();maybeWelcome();setTimeout(repairBad,4000)},1600);
@@ -2689,8 +2709,28 @@ $('welSheet').querySelector('.bd').addEventListener('click',()=>{S.welSeen=1;sav
 var DEF_WORKER='https://kelime-saati-ai.semihcanyanar.workers.dev';
 function ensureWorker(){if(!S.worker&&/^https:/.test(DEF_WORKER)){S.worker=DEF_WORKER;localSave()}}
 let TAP=0;document.addEventListener('pointerdown',()=>{TAP=Date.now()},true);
+/* Bekleme ekranı: açılışta otomatik; başka yerde de kullanılabilir.
+   Splash.show('Profil değiştiriliyor') → Splash.hide(600)  ya da  await Splash.during(promise,'Yükleniyor',600) */
+const Splash={
+  el:$('splash'),t:Date.now(),
+  show(sub){
+    const e=this.el,t=e.querySelector('.sp-title');$('spSub').textContent=sub||'';
+    t.innerHTML=t.innerHTML;                       // harf animasyonu baştan oynasın
+    e.classList.remove('out');e.style.display='flex';this.t=Date.now();this.k=(this.k||0)+1;
+  },
+  hide(minMs){                                     // en az minMs ms görünsün, sonra yumuşakça kapansın
+    const wait=Math.max(0,(minMs||0)-(Date.now()-this.t)),e=this.el,k=this.k||0;
+    setTimeout(()=>{if((this.k||0)!==k)return;e.classList.add('out');setTimeout(()=>{if(e.classList.contains('out'))e.style.display='none'},450)},wait);   // arada yeni show() olduysa kapatma
+  },
+  async during(p,sub,minMs){this.show(sub);try{return await p}finally{this.hide(minMs)}}
+};
+let BOOT_OK;const BOOT_DONE=new Promise(r=>BOOT_OK=r);
+// Firebase modülü ve oturum açılışta asenkron yüklenir; Worker çağrısı jetonsuz gitmesin diye ilk durum netleşene kadar beklenir
+let authSettle;const AUTH_READY=new Promise(r=>authSettle=r);window.authSettle=authSettle;
+setTimeout(authSettle,6000);   // Firebase hiç gelmezse (çevrimdışı, yapılandırma yok) en fazla 6 sn bekle
 async function wkFetch(body,signal){
   const h={'Content-Type':'application/json'};
+  await AUTH_READY;
   try{const u=C&&C.auth.currentUser;if(u)h.Authorization='Bearer '+await u.getIdToken()}catch(e){}
   if(S.gkey)h['X-Gemini-Key']=S.gkey;
   return fetch(cleanUrl(S.worker),{method:'POST',headers:h,body:JSON.stringify(body),signal});
@@ -3905,7 +3945,7 @@ setInterval(()=>{if(document.visibilityState==='visible')sessSave()},20000);
 
 /* başlat */
 applyTheme();
-(async function init(){
+async function init0(){
   try{BASE=window.__WORDS__||await (await fetch('words.json',{cache:'no-cache'})).json()}
   catch(e){$('cardBody').innerHTML='<div class="empty">Kelimeler yüklenemedi. İnternet bağlantını kontrol et.</div>';return}
   migrateAi();
@@ -3919,7 +3959,10 @@ applyTheme();
   setTimeout(()=>{if(!window.FIREBASE_CONFIG||!C)maybeDaily()},5000);
   setTimeout(()=>{if(!window.FIREBASE_CONFIG||!C)maybeWelcome()},1500);
   if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js')}catch(e){}}
-})();
+}
+init0().finally(BOOT_OK);
+// Bekleme ekranı: kelimeler çizildi ve oturum durumu belli olunca (en az ~1 sn sonra) kapanır; her durumda 9 sn'de kapanır
+Promise.race([Promise.all([BOOT_DONE,AUTH_READY]),new Promise(r=>setTimeout(r,9000))]).then(()=>Splash.hide(1100));
 </script>
 <script src="firebase-config.js"></script>
 <script type="module">
@@ -3932,8 +3975,8 @@ if(cfg&&cfg.apiKey&&!/BURAYA/.test(cfg.apiKey)){
     const app=slot?initializeApp(cfg,slot):initializeApp(cfg);
     window.FB={initializeApp,A,F,cfg};
     window.initCloud({auth:A.getAuth(app),db:F.getFirestore(app),A,F});
-  }catch(e){console.warn('Firebase yüklenemedi',e)}
-}
+  }catch(e){console.warn('Firebase yüklenemedi',e);window.authSettle()}
+}else window.authSettle();
 </script>
 </body>
 </html>
