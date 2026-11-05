@@ -366,9 +366,6 @@ nav.tabs button.on{color:var(--accent)}
 #splash .sp-title span{opacity:0;transform:translateY(12px);animation:spch .5s cubic-bezier(.2,.8,.2,1) forwards}
 @keyframes spch{to{opacity:1;transform:none}}
 #splash .sp-sub{position:relative;margin:10px 0 0;font-size:14px;font-weight:600;color:var(--muted);min-height:20px}
-#splash .sp-bar{position:absolute;bottom:calc(14vh + var(--sb));left:50%;width:min(220px,56vw);height:4px;margin-left:calc(min(220px,56vw)/-2);border-radius:2px;background:var(--line);overflow:hidden}
-#splash .sp-bar i{position:absolute;top:0;bottom:0;width:38%;border-radius:2px;background:var(--accent);animation:spbar 1.15s ease-in-out infinite}
-@keyframes spbar{0%{left:-40%}100%{left:100%}}
 @media (prefers-reduced-motion:reduce){#splash .sp-title span,#splash .sp-rule{animation-duration:.01s;animation-delay:0s!important}#splash .sp-bg{animation:none;opacity:.1}}
 /* Küçük, ortalanmış kutular (yeniden yaz onayı, şifre değiştirme) */
 #rgSheet.on,#pwSheet.on{display:flex;align-items:center;justify-content:center}
@@ -638,7 +635,6 @@ nav.tabs button{position:relative}
     <i class="sp-rule"></i>
   </div>
   <p class="sp-sub" id="spSub"></p>
-  <div class="sp-bar"><i></i></div>
 </div>
 <div class="app">
   <header>
