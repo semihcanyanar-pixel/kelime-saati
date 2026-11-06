@@ -336,7 +336,11 @@ async function withReady(out, env) {
 // Haber sayfasından paragrafları çıkar (HTMLRewriter: hızlı ve az işlemci harcar)
 async function articleText(url) {
   const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 KelimeSaati" } });
-  if (!r.ok) throw new HttpError(502, "Haber sayfası açılamadı (" + r.status + ")");
+  qAdd(r.ok ? "bbc_ok" : r.status === 403 ? "bbc_403" : "bbc_x", 1);   // yönetici ekranında BBC erişimi izlensin (davranış değişmez)
+  if (!r.ok) {
+    qErr("bbc", r.status + " · " + url.replace(/^https:\/\/www\.bbc\.(co\.uk|com)/, "").slice(0, 60));
+    throw new HttpError(502, "Haber sayfası açılamadı (" + r.status + ")");
+  }
   // Önce BBC'nin metin bloklarını, olmazsa sayfadaki <article> paragraflarını al
   const A = [], B = []; let ca = null, cb = null;
   const rw = new HTMLRewriter()
@@ -1429,6 +1433,7 @@ async function quotaInfo(q, env, ctx) {
     kvw: { used: v("kvw"), limit: 1000 },
     yt: { used: v("yt"), limit: 10000 },
     night: { ready, total },
+    bbc: { ok: v("bbc_ok"), e403: v("bbc_403"), other: v("bbc_x") },
     hasGroq: !!env.GROQ_API_KEY, hasAI: !!env.AI,
   };
 }
