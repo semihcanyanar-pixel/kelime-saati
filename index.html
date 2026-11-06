@@ -390,6 +390,16 @@ a.ghost{display:block;text-align:center;text-decoration:none}
 .wpop .pb{display:flex;gap:8px;margin-top:10px}.wpop .pb button{border:none;border-radius:11px;padding:9px 11px;background:#3A3430;color:#fff;font-weight:700;font-size:13px}.wpop .pb .add{background:var(--accent);flex:1}.wpop .pb .done{background:#2E6B48;flex:1}
 .stcard{background:var(--card);border-radius:24px;padding:16px;box-shadow:var(--shadow)}.stcard h3{margin:0 0 4px;font-size:18px;font-weight:800}
 .stcard .field{margin-top:10px}
+/* Konu kutuları tek satırda, sağa sola kaydırılır */
+.chips.hs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:2px 16px 4px}.chips.hs::-webkit-scrollbar{display:none}.chips.hs .chip{flex:none}
+/* Kendi konunu yaz: sığmayan ipucu yazısı kayar */
+.stcard .phw{position:relative;margin-top:10px}.stcard .phw .field{margin-top:0}
+.phm{position:absolute;left:14px;right:14px;top:0;bottom:0;display:flex;align-items:center;overflow:hidden;pointer-events:none;color:var(--muted);opacity:.7;font-size:16px}
+.phm span{display:inline-block;white-space:nowrap}
+.phm span.go{animation:phm 8s ease-in-out infinite alternate}
+@keyframes phm{0%,16%{transform:translateX(0)}84%,100%{transform:translateX(var(--sh))}}
+.phw input:not(:placeholder-shown)~.phm,.phw input:focus~.phm{display:none}
+@media (prefers-reduced-motion:reduce){.phm span.go{animation:none}}
 .chk{display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 4px;border:none;background:none;border-bottom:1px solid var(--line);font-size:16px;text-align:left;color:var(--text)}
 .chk i{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;font-style:normal;color:#fff;font-size:14px;flex:none;margin-left:10px}
 .chk.on i{background:var(--accent);border-color:var(--accent)}.chk small{color:var(--muted);font-size:13px;margin-left:auto}
@@ -1092,7 +1102,7 @@ const EN={
 'Seviye 1':'Level 1','Seviye 2':'Level 2','Seviye 3':'Level 3','📝 3 soruyla test et':'📝 Test yourself with 3 questions','Sonucu gör':'See result','Kusursuz! 🎉':'Perfect! 🎉','Güzel, devam!':'Nice, keep going!','Bir daha oku, sonra tekrar dene':'Read it again, then retry',
 '🌐 BBC\'de aslını oku':'🌐 Read the original on BBC','▶️ YouTube\'da ara':'▶️ Search on YouTube','BBC News · YouTube\'da izle':'BBC News · Watch on YouTube',
 '📝 Hikâyedeki kelimelerle pratik yap':'📝 Practice the story\'s words','Hikâyeyi yaz':'Write the story','Hikâyelerim':'My stories','Hikâyelerim\'de':'in My stories',
-'ya da kendi konunu yaz… (ör. İstanbul\'da kaybolan kedi)':'or type your own topic… (e.g. a cat lost in Istanbul)','Uzunluk':'Length',
+'Ya da kendi konunu yaz… (örneğin İstanbul\'da kaybolan bir kedi)':'Or type your own topic… (for example a cat lost in Istanbul)','Uzunluk':'Length',
 'Haberler alınamadı':'Couldn\'t get the news','Haber bulunamadı.':'No news found.','Haber 3 seviyeye hazırlanıyor…':'Preparing the article in 3 levels…',
 'Bu haberin metni alınamadı, başka bir haber dene':'Couldn\'t get this article\'s text, try another one','Cevap gecikti, tekrar dene':'The response took too long, try again',
 'Okundu':'Read','Kelime Pratiği ·':'Word Practice ·','Bu hafta':'This week','Geçen hafta':'Last week','O hafta':'That week',
@@ -3468,7 +3478,7 @@ function speakFrom(i){
 }
 
 /* ---------- Hikâyeler ---------- */
-const ST_TOPICS=['Macera','Gizem','Günlük hayat','Bilim kurgu','Seyahat','Romantik','Komedi','İş hayatı','Spor','Tarih','Doğa','Korku'];
+const ST_TOPICS=['Rastgele','Macera','Gizem','Günlük hayat','Bilim kurgu','Seyahat','Romantik','Komedi','İş hayatı','Spor','Tarih','Doğa','Korku'];
 const stSrcName=x=>x==='_rand'?'Rastgele':x==='learn'?'Öğren':x==='_week'?'Haftanın kelimeleri':x==='favs'?'Favoriler':x==='custom'?'Eklediğim kelimeler':TOPICS[x]||x;
 function stSrcPool(x){const A=all();return x==='_rand'?A:x==='learn'?A.filter(inLearn):x==='_week'?weekWords():x==='favs'?A.filter(isFav):x==='custom'?S.custom.slice():A.filter(w=>catOf(w)===x)}
 function stPool(raw){const m=new Map();(S.stSrc.length?S.stSrc:['_rand']).forEach(x=>stSrcPool(x).forEach(w=>m.set(k(w),w)));let a=m.size?[...m.values()]:all();if(!raw&&S.stSeen){const sn=new Set(S.seenAll||[]);a=a.filter(w=>sn.has(k(w)))}return a}
@@ -3485,13 +3495,19 @@ function openSavedStories(){
   $('stList').querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{closeSheets();openStory(b.dataset.id)});
   openSheet('stListSheet');
 }
+// Alan boşken görünen ipucu yazısı sığmıyorsa sağa sola kayar (gerçek placeholder kayamaz)
+function phMarquee(box){
+  if(!box)return;const sp=box.firstElementChild;
+  const upd=()=>{const over=sp.scrollWidth-box.clientWidth;if(box.clientWidth>0&&over>4){sp.style.setProperty('--sh',-(over+8)+'px');sp.classList.add('go')}else sp.classList.remove('go')};
+  if(window.ResizeObserver)new ResizeObserver(upd).observe(box);upd();
+}
 function renderStories(){
   if(!S.stSrc.every(x=>x==='_rand'||x==='learn'||x==='_week'||x==='favs'||x==='custom'||TOPICS[x]))S.stSrc=S.stSrc.filter(x=>TOPICS[x]||['_rand','learn','_week','favs','custom'].includes(x));
   const custom=!ST_TOPICS.includes(S.stTopic);
   $('stBox').innerHTML=`<div class="stcard"><h3>✨ Yeni hikâye yaz</h3>
     <label class="lb" style="margin-top:8px">Konu</label>
-    <div class="chips left" id="stTop">${ST_TOPICS.map(t=>`<button class="chip ${S.stTopic===t?'on':''}" data-t="${t}">${t}</button>`).join('')}</div>
-    <input class="field" id="stOwn" placeholder="ya da kendi konunu yaz… (ör. İstanbul'da kaybolan kedi)" value="${custom?esc(S.stTopic):''}" autocomplete="off">
+    <div class="chips left hs" id="stTop">${ST_TOPICS.map(t=>`<button class="chip ${S.stTopic===t?'on':''}" data-t="${t}">${t}</button>`).join('')}</div>
+    <div class="phw"><input class="field" id="stOwn" placeholder=" " value="${custom?esc(S.stTopic):''}" autocomplete="off" aria-label="Kendi konunu yaz"><div class="phm" aria-hidden="true"><span>Ya da kendi konunu yaz… (örneğin İstanbul'da kaybolan bir kedi)</span></div></div>
     <label class="lb">Seviye</label><div class="seg" id="stLv">${LEVELS.map(l=>`<button class="${S.stLv===l?'on':''}" data-l="${l}">${l}</button>`).join('')}</div>
     <label class="lb">Hangi kelimeler geçsin?</label>
     <button class="selbtn" id="stSrcB"><span><b>${esc(S.stSrc.map(stSrcName).join(', ')||'Rastgele')}</b><small>${stPool().length} kelime arasından seçilecek</small></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -3502,7 +3518,10 @@ function renderStories(){
       return (last?`<div class="glabel">Son hikâye</div><div class="group">${stRow(last,true)}</div>`:'')
         +(sv.length?`<div class="glabel">Hikâyelerim</div><div class="group"><button class="grow" id="stSavedB"><i class="gi" style="background:#FDE8C8">🔖</i><span class="gt">Kayıtlı hikâyelerim<small>${sv.length} hikâye · en yenisi ${ago(new Date(sv[0].t).toISOString())}</small></span>${CHEV}</button></div>`:'')})()}`;
   if($('stSavedB'))$('stSavedB').onclick=openSavedStories;
-  $('stTop').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{S.stTopic=b.dataset.t;save();renderStories()});
+  // Konu kutuları tek satırda kayar; seçimde sayfa yeniden çizilmez (kaydırma konumu bozulmasın)
+  $('stTop').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{S.stTopic=b.dataset.t;save();$('stTop').querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c===b));$('stOwn').value=''});
+  {const t=$('stTop'),on=t.querySelector('.chip.on');if(on)t.scrollLeft=on.offsetLeft-(t.clientWidth-on.offsetWidth)/2}   // seçili kutu görünür olsun
+  phMarquee($('stBox').querySelector('.phm'));
   $('stOwn').oninput=()=>{const v=$('stOwn').value.trim();if(v){S.stTopic=v;$('stTop').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'))}else{S.stTopic='Macera';}save()};
   $('stLv').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.stLv=b.dataset.l;save();renderStories()});
   $('stLen').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.stLen=b.dataset.v;save();renderStories()});
@@ -3520,7 +3539,8 @@ function openStSrc(){
 $('stSrcOk').onclick=()=>{closeSheets();renderStories()};
 async function makeStory(){
   if(stBusy)return;if(!S.worker)return toast('Önce Ayarlar\'dan Worker adresini gir');
-  const words=pickStoryWords(),lv=S.stLv,topic=S.stTopic,len=S.stLen;stBusy=true;
+  const words=pickStoryWords(),lv=S.stLv,len=S.stLen;stBusy=true;
+  const topic=S.stTopic==='Rastgele'?ST_TOPICS[1+Math.floor(Math.random()*(ST_TOPICS.length-1))]:S.stTopic;   // Rastgele: her seferinde listeden bir konu seç
   stopPlayer();showTab('sread');
   $('srBox').innerHTML=`<div class="shdr"><button class="bk" data-back>${BACKSVG}</button><b>Yeni hikâye</b><span class="sp40"></span></div>
     <div class="sec rd"><div class="livehd"><span class="dot"></span>Hikâye yazılıyor ve çevriliyor</div><div id="liveBox" style="margin-top:8px"></div></div>`;
