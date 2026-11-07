@@ -329,8 +329,10 @@ async function news(q, env, ctx) {
         if (!LINK_OK[s].test(link)) continue;
         const th = it.match(/<media:thumbnail[^>]*url="([^"]+)"/) || it.match(/<media:content[^>]*url="([^"]+\.(?:jpe?g|png|webp)[^"]*)"/i) || it.match(/<enclosure[^>]*url="([^"]+\.(?:jpe?g|png|webp)[^"]*)"/i);
         // NPR görseli RSS'te <content:encoded> içindeki <img>'dedir ve çok büyüktür; 800 px genişliğe küçült
-        const ni = th ? null : it.match(/<img[^>]+src=['"]([^'"]+)['"]/i);
+        // izleme pikseli (npr-rss-pixel.png) ve geçersiz adresler fotoğraf sayılmaz
+        const ni = th ? null : [...it.matchAll(/<img[^>]+src=['"]([^'"]+)['"]/gi)].find(m => /^https?:\/\//.test(unx(m[1])) && !/tracking|pixel/i.test(m[1]));
         const nimg = ni ? unx(ni[1]).replace(/\/resize\/(\d+)x(\d+)!/, (_, w, h) => "/resize/800x" + Math.round(800 * h / w) + "!") : "";
+        if (s === "npr" && !nimg) continue;   // fotoğrafsız NPR öğeleri radyo/podcast konuşma dökümü; haber metni gibi değil, atla
         L.push({
           id: s === "bbc" ? link.split("/").pop() : s + "-" + h36(link), src: s, title: g("title").replace(/<[^>]+>/g, ""), desc: g("description").replace(/<[^>]+>/g, "").trim(), link,
           date: new Date(g("pubDate") || Date.now()).toISOString(), cat,
