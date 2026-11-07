@@ -836,6 +836,7 @@ async function ytVideos(q, env, ctx) {
             const dur = isoSec(v.contentDetails && v.contentDetails.duration);
             if (dur < 150 || dur > 1500) continue;                      // 2,5-25 dk arası (Shorts ve çok uzunlar elenir)
             if (v.snippet.liveBroadcastContent && v.snippet.liveBroadcastContent !== "none") continue;
+            if (v.status && v.status.embeddable === false) continue;      // uygulamada oynamayan videolar hiç getirilmesin
             const th = v.snippet.thumbnails || {};
             list.push({ id: v.id, title: unx(v.snippet.title), thumb: (th.medium || th.high || th.default || {}).url || "", dur, date: v.snippet.publishedAt, emb: v.status ? v.status.embeddable !== false : true,
               vert: !!(v.player && +v.player.embedHeight > +v.player.embedWidth) });   // dikey video (büyük ekranda 9:16)

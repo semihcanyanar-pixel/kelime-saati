@@ -3656,10 +3656,10 @@ function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt
 const VTARGET=20,VPERCH=5;
 function vCount(ref){const wk=wkey();if(!S.vCnt||S.vCnt.wk!==wk)S.vCnt={wk,cur:{},last:(S.vCnt&&S.vCnt.cur)||{}};S.vCnt.cur[ref]=(S.vCnt.cur[ref]||0)+1}
 function vCands(){const wk=wkey(),seen=S.vWatched||{},g={};
-  for(const v of (VIDS&&VIDS.videos)||[]){if(seen[v.id])continue;(g[v.ref]=g[v.ref]||[]).push(v)}
+  for(const v of (VIDS&&VIDS.videos)||[]){if(seen[v.id]||v.emb===false)continue;(g[v.ref]=g[v.ref]||[]).push(v)}
   for(const r in g)g[r]=g[r].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,15).sort((a,b)=>hashStr(wk+a.id)-hashStr(wk+b.id));
   return g}
-function vUnw(ids,ref){const seen=S.vWatched||{},m=(S.vWeek&&S.vWeek.meta)||{};return ids.filter(id=>!seen[id]&&(!ref||(m[id]&&m[id].ref===ref))).length}
+function vUnw(ids,ref){const seen=S.vWatched||{},m=(S.vWeek&&S.vWeek.meta)||{};return ids.filter(id=>!seen[id]&&!(m[id]&&m[id].emb===false)&&(!ref||(m[id]&&m[id].ref===ref))).length}
 function vRefill(pref){
   const W=S.vWeek;if(!W||W.wk!==wkey()||!VIDS)return;
   const g=vCands(),inL=new Set(W.ids),wk=wkey();
@@ -3678,7 +3678,7 @@ function weekVideos(){
   const wk=wkey(),all2=(VIDS&&VIDS.videos)||[],byId=new Map(all2.map(v=>[v.id,v]));
   if(S.vWeek&&S.vWeek.wk===wk&&S.vWeek.sig===vSig()&&(S.vWeek.ids.length||!all2.length)){
     if(all2.length&&vUnw(S.vWeek.ids)<VTARGET)vRefill();
-    return S.vWeek.ids.map(id=>byId.get(id)||(S.vWeek.meta||{})[id]).filter(Boolean);
+    return S.vWeek.ids.map(id=>byId.get(id)||(S.vWeek.meta||{})[id]).filter(v=>v&&v.emb!==false);
   }
   // Yeni hafta: geçen hafta çok izlenen kanallara biraz daha fazla yer
   if(!S.vCnt||S.vCnt.wk!==wk)S.vCnt={wk,cur:{},last:(S.vCnt&&S.vCnt.cur)||{}};
@@ -3835,8 +3835,6 @@ function openVideo(v){
   $('vpBig').onclick=()=>{document.body.classList.add('vfull');fixScroll()};
   const small=e=>{if(e){e.preventDefault();e.stopPropagation()}document.body.classList.remove('vfull');setTimeout(fixScroll,50)};
   ['vpX','vpX2'].forEach(id=>{$(id).onclick=small;$(id).addEventListener('touchend',small)});
-  const out=()=>{if(markWatched(v))$('vpSt').textContent='✓ İzlendi olarak işaretlendi'};
-  $('vpOut').onclick=out;$('vpOut2').onclick=out;
   if($('vpNext'))$('vpNext').onclick=()=>openVideo(nx);
   if($('vpAll'))$('vpAll').onclick=()=>showTab('videos');
   $('vpBox').querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const x=ws.find(y=>y.id===b.dataset.v);if(x)openVideo(x)});
