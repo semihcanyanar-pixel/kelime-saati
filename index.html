@@ -1567,6 +1567,7 @@ function grRes(t){const m=String(t).match(/(?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?/
 function ptClock(){const la=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'})),m=new Date(la);m.setHours(0,0,0,0);const nx=new Date(m);nx.setDate(nx.getDate()+1);return {start:Date.now()-(la-m),reset:new Date(Date.now()+(nx-la))}}
 const hhmm=d=>new Date(d).toLocaleTimeString(LOC,{hour:'2-digit',minute:'2-digit'});
 async function loadQuota(now,bbc){if(QBUSY)return;QBUSY=true;renderQuota();try{const d=await workerCall({quota:now?(bbc?{now:1,bbc:1}:{now:1}):{}},30000);if(!d||!d.groq||!d.gem)throw new Error('worker güncel değil');QDAT=d}catch(e){if(now)toast('Kota bilgisi alınamadı: '+e.message)}QBUSY=false;renderQuota()}
+const bbcBtn=h=>h.slice(0,-4)+`<button class="ghost" id="qBbc" ${QBUSY?'disabled':''} style="padding:4px 12px;font-size:13px;align-self:center">Dene</button></a>`;
 function renderQuota(){
   const box=$('quotaBox'),rw=$('qtRow');if(!box)return;
   if(!ME||!ME.admin){rw.style.display='none';box.style.display='none';return}
@@ -1587,10 +1588,9 @@ function renderQuota(){
     rows+=row('☁️','Workers AI',q.hasAI?`Bugün ${q.wai.used} istek (son yedek)`+qErrL('wai'):'Bağlantı eklenmemiş',q.hasAI?String(q.wai.used):'—',null,'https://dash.cloudflare.com/?to=/:account/ai/workers-ai');
     const kp=pc(q.kvw.used/q.kvw.limit*100);if(kp>=85)warn.push('Önbellek');rows+=row('💾','Önbellek yazma',`Bugün ${q.kvw.used} / ${q.kvw.limit.toLocaleString(LOC)}`,`%${kp}`,kp,'https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces');
     const yp=pc(q.yt.used/q.yt.limit*100);rows+=row('▶️','YouTube',`Bugün ~${q.yt.used.toLocaleString(LOC)} / ${q.yt.limit.toLocaleString(LOC)} birim`,`%${yp}`,yp,'https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas');
-    if(q.bbc){const b=q.bbc;if(b.e403)warn.push('BBC');rows+=row('📰','BBC haber sayfası',`Bugün ${b.ok} başarılı · ${b.e403} reddedildi (403)${b.other?` · ${b.other} başka hata`:''}`+qErrL('bbc'),b.e403?'⚠':b.ok?'✓':'—',null,'')}
+    if(q.bbc){const b=q.bbc;if(b.e403)warn.push('BBC');rows+=bbcBtn(row('📰','BBC haber sayfası',`Bugün ${b.ok} başarılı · ${b.e403} reddedildi (403)${b.other?` · ${b.other} başka hata`:''}`+qErrL('bbc'),b.e403?'⚠':b.ok?'✓':'—',null,''))}
     for(const [k,n] of [['npr','NPR haber sayfası'],['abc','ABC haber sayfası']]){const b=q[k];if(!b)continue;if(b.e403)warn.push(n.split(' ')[0]);rows+=row('📰',n,`Bugün ${b.ok} başarılı`+(b.e403?` · ${b.e403} reddedildi (403)`:'')+(b.other?` · ${b.other} başka hata`:'')+qErrL(k),b.e403?'⚠':b.ok?'✓':'—',null,'')}
     rows+=row('🌙','Gece hazırlığı',`Bu gece ${q.night.total} haberin ${q.night.ready}'i hazır`,q.night.ready>=q.night.total&&q.night.total?'✓':`${q.night.ready}/${q.night.total}`,null,'');
-    rows+=`<div class="qrow" style="display:block"><button class="ghost" id="qBbc" ${QBUSY?'disabled':''}>🧪 BBC'yi şimdi dene</button><p class="hint" style="margin:6px 2px 0;font-size:12px">BBC listeden çıkarıldı; sayfaları açılıyor mu günde 4 kez (sabah, öğle, akşam, gece) denenir.</p></div>`;
   }else rows=`<p class="hint" style="margin:6px 2px">${QBUSY?'Yükleniyor…':'Görmek için ↻ Güncelle\'ye bas'}</p>`;
   $('qtV').textContent=!q?'':warn.length?'⚠ '+warn[0]+(warn.length>1?' +'+(warn.length-1):''):'✓ Normal';
   $('qtV').style.color=!q?'':warn.length?'#D2463A':'#2E9E5E';
