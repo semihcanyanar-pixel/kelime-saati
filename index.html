@@ -1597,7 +1597,7 @@ function renderQuota(){
   box.innerHTML=`<div class="qtop"><span>${q?`Son kayıt: ${q.saved?hhmm(q.saved):'—'}`:''}</span><button id="qRef" ${QBUSY?'disabled':''}>${QBUSY?'<span class="spin" style="width:11px;height:11px;margin:0"></span>':'↻'} Güncelle</button></div>${rows}
     <p class="hint" style="margin:8px 2px 2px;font-size:12px;line-height:1.45">Sayılar saatte bir kaydedilir, ↻ ile anında güncellenir. Groq dışındakiler yaklaşıktır; kesin rakam için ↗ ile paneli aç. Bu bölümü sadece sen görürsün.</p>`;
   $('qRef').onclick=()=>loadQuota(true);
-  if($('qBbc'))$('qBbc').onclick=()=>loadQuota(true,true);
+  if($('qBbc'))$('qBbc').onclick=async()=>{const b0=QDAT&&QDAT.bbc?Object.assign({},QDAT.bbc):null;toast('BBC deneniyor…');await loadQuota(true,true);const b=QDAT&&QDAT.bbc;if(!b0||!b)return;toast(b.ok>b0.ok?'BBC sayfası açıldı ✓':b.e403>b0.e403?'BBC yine reddetti (403)':b.other>b0.other?'BBC başka bir hata verdi':'Sayaç değişmedi: Worker güncel olmayabilir (worker.js dosyasını yeniden yapıştır)')};
   if(!q&&!QBUSY&&!QDAT_T){QDAT_T=1;loadQuota(false)}
 }
 $('qtRow').onclick=()=>{const b=$('quotaBox'),o=b.style.display==='none';b.style.display=o?'':'none';$('qtChev').style.transform=o?'rotate(180deg)':''};
