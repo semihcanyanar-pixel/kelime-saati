@@ -1584,7 +1584,6 @@ function renderQuota(){
     const gm=(k,ic,t)=>{const x=q[k],full=x.e429>start,p=full?100:pc(x.used/x.limit*100);if(full)warn.push(t);return row(ic,t,`Bugün ${x.used} istek · ${full?`⚠ ${hhmm(x.e429)}'de doldu, ${rs}'de yenilenir`:'✓ Çalışıyor'}`+(k==='gem'?qErrL('gem'):''),full?'Doldu':`~%${p}`,p,'https://aistudio.google.com/usage',full?'#D2463A':null)};
     rows+=gm('gem','✨','Gemini metin')+gm('tts','🔊','Gemini ses');
     {const kd=(KDAY.items||[]).some(x=>x.day===trToday());rows+=row('💬','Günün kalıbı',(kd?'Bugünkü kalıp hazır ✓':'Bugün yeni kalıp hazırlanamadı, hazır listeden gösteriliyor')+qErrL('idm'),kd?'✓':'—',null,'')}
-    rows+=q.hasAI?row('🧠','Kimi K2.6',`Bugün ${(q.kimi||{}).used||0} istek (hikâye yedeği)`+qErrL('kimi'),String((q.kimi||{}).used||0),null,'https://dash.cloudflare.com/?to=/:account/ai/workers-ai'):'';
     rows+=row('☁️','Workers AI',q.hasAI?`Bugün ${q.wai.used} istek (son yedek)`+qErrL('wai'):'Bağlantı eklenmemiş',q.hasAI?String(q.wai.used):'—',null,'https://dash.cloudflare.com/?to=/:account/ai/workers-ai');
     const kp=pc(q.kvw.used/q.kvw.limit*100);if(kp>=85)warn.push('Önbellek');rows+=row('💾','Önbellek yazma',`Bugün ${q.kvw.used} / ${q.kvw.limit.toLocaleString(LOC)}`,`%${kp}`,kp,'https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces');
     const yp=pc(q.yt.used/q.yt.limit*100);rows+=row('▶️','YouTube',`Bugün ~${q.yt.used.toLocaleString(LOC)} / ${q.yt.limit.toLocaleString(LOC)} birim`,`%${yp}`,yp,'https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas');
@@ -2902,7 +2901,7 @@ async function fixStoryTr2(st){
   const paint=x=>{if(SR===st&&$('v-sread').classList.contains('on')){const el=$('srBox').querySelector(`.sn[data-s="${x.i}"] .trl`);if(el)el.textContent=st.paras[x.pi].tr[x.j]}};
   const bad=L.filter(x=>x.tr&&trBad(x.en,x.tr)),under=L.some(x=>/_/.test(x.tr));
   L.forEach(x=>{if(/_/.test(x.tr)){x.tr=unU(x.tr);st.paras[x.pi].tr[x.j]=x.tr;paint(x)}});
-  const full=(!!st.by&&!['gemini','kimi'].includes(st.by))||under||bad.length>=2;
+  const full=(!!st.by&&!['gemini'].includes(st.by))||under||bad.length>=2;
   const todo=full?L.filter(x=>x.tr):bad;
   if(!todo.length){st.trv=3;save();return}
   let n=0;
@@ -3558,7 +3557,7 @@ async function makeStory(){
 }
 let SR=null;
 function openStory(id){const st=S.stories.find(x=>x.id===id);if(!st)return;stopPlayer();SR=st;showTab('sread');renderSRead();fixStoryTr(st)}
-const LLM_NAME={gemini:'Gemini',kimi:'Kimi K2.6',groq:'Groq (Llama)',wai:'Workers AI (Llama)'};
+const LLM_NAME={gemini:'Gemini',groq:'Groq (Llama)',wai:'Workers AI (Llama)'};
 // Hikâyenin pratik kelimeleri: hikâyedeki liste kelimelerin + bu hikâyeyi okurken karta eklediklerin
 function stWords(st){const m=new Map();[...(st.used||[]),...(st.added||[])].forEach(x=>{const w=findWord(String(x));if(w)m.set(k(w),w)});return [...m.values()]}
 function drawSrEnd(){

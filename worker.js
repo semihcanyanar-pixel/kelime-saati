@@ -660,7 +660,7 @@ TR: its Turkish translation
 ---
 (a line with --- separates paragraphs)
 USED: comma-separated target words you actually used`;
-  const body = await llmStream(prompt, env, { chain: ["gemini", "kimi", "groq"], hedge: 25000, temperature: 1 }, () => {});
+  const body = await llmStream(prompt, env, { chain: ["gemini", "groq"], hedge: 25000, temperature: 1 }, () => {});
   return new Response(body, { headers: { ...textHead(cors), "X-LLM": body.llm || "" } });
 }
 
@@ -675,7 +675,7 @@ Rewrite each Turkish translation so it is a complete, correct, natural Turkish t
 Rules: translate EVERY word into Turkish, no English words may remain; separate words with normal spaces, never underscores (e.g. "nowhere" -> "hiçbir yer", "hitchhike" -> "otostop çekmek", "affectionate" -> "sevecen"); use the Turkish names of places (Ephesus -> Efes, London -> Londra, Athens -> Atina); keep people's names unchanged; Latin letters only.
 Return ONLY JSON: {"tr":["translation 1","translation 2",...]} with exactly ${items.length} strings in the same order.
 ${items.map((x, i) => `${i + 1}. EN: ${x.en}\n   faulty TR: ${x.tr}`).join("\n")}`;
-  for (const chain of [["gemini", "kimi"]]) {
+  for (const chain of [["gemini", "groq"]]) {
     try {
       const d = await llmJSON(prompt, env, { chain, hedge: 25000, temperature: 0.2 });
       const a = d && Array.isArray(d.tr) ? d.tr : null;
@@ -738,7 +738,7 @@ Rules:
 - "d" is a short, natural everyday conversation between the two speakers (0 and 1). The phrase appears exactly once, wrapped in *asterisks* in the English line, and its Turkish equivalent is wrapped in *asterisks* in that line's Turkish translation.
 - "q" is a DIFFERENT 2-line mini conversation for a quiz: in exactly one English line the phrase is replaced by ___ (three underscores). In that line's Turkish translation, wrap the Turkish equivalent in *asterisks*. The blank must clearly fit only this phrase.
 - Modern, natural English. Turkish must be natural Turkish with correct Turkish letters (ç, ğ, ı, ö, ş, ü). Use common English first names.`;
-  for (const chain of [["gemini", "kimi"], ["gemini", "kimi"]]) {
+  for (const chain of [["gemini", "groq"], ["gemini", "groq"]]) {
     try {
       const x = await llmJSON(prompt, env, { chain, hedge: 25000, obj: true, temperature: 0.8 });
       const it = idiomOk(x, avoid);
@@ -860,7 +860,7 @@ ${storyWordsRule(words)}
 Split the story into 3-6 paragraphs. Each paragraph is a list of sentences, with a natural Turkish translation for every sentence (same count, same order).
 Return ONLY JSON:
 {"title":"English title","emoji":"one emoji","paras":[{"en":["sentence",...],"tr":["cümle",...]}],"used":["target words that you actually used"]}`;
-  const res = await llmJSON(prompt, env, { chain: ["gemini", "kimi", "groq"], hedge: 25000, obj: true, temperature: 1 });
+  const res = await llmJSON(prompt, env, { chain: ["gemini", "groq"], hedge: 25000, obj: true, temperature: 1 });
   const paras = (Array.isArray(res && res.paras) ? res.paras : []).map(p => {
     const en = (Array.isArray(p.en) ? p.en : []).map(x => String(x).trim()).filter(Boolean);
     const tr = (Array.isArray(p.tr) ? p.tr : []).map(x => String(x).trim());
@@ -962,7 +962,6 @@ async function GROQ_MODELS(env) {
   MODELS.groq = list || GROQ_PREF.slice(0, 2); MODELS.groqT = Date.now();
   return MODELS.groq;
 }
-const KIMI_MODEL = env => env.KIMI_MODEL || "@cf/moonshotai/kimi-k2.6";
 /* Düşünme ayarı: yeni Gemini modelleri "düşünme kapalı"yı (bütçe 0) reddedebiliyor; o zaman en kısa düşünmeyle dene.
    Her model için çalışan ayar hatırlanır, her istekte 400 yenmez. */
 const THINK = [{ thinkingBudget: 0 }, { thinkingLevel: "minimal" }, { thinkingLevel: "low" }, null];
@@ -972,7 +971,7 @@ const QE = {};
 function qErr(k, m) { QE[k] = { t: Date.now(), m: String(m || "").replace(/\s+/g, " ").slice(0, 600) }; }
 
 function chainFor(o, env) {
-  // Gece hazırlığı sadece Gemini kullanır (Kimi/Groq hakkı gün içindeki hikâyelere kalsın)
+  // Gece hazırlığı sadece Gemini kullanır (Groq hakkı gün içindeki hikâyelere kalsın)
   const all = env.PREFETCH ? ["gemini"] : o.chain ? o.chain : o.prefer === "fast" ? ["groq", "gemini", "wai"] : ["gemini", "groq", "wai"];
   return all.filter(p => p === "gemini" ? !!env.GKEY : env.OWNKEY ? false : p === "groq" ? !!env.GROQ_API_KEY : !!env.AI);
 }
@@ -1050,31 +1049,7 @@ async function waiText(prompt, env, o) {
   } catch (e) { qErr("wai", e.message); throw soft("wai", e.message || "hata"); }
   throw soft("wai", "boş");
 }
-/* Kimi K2.6 (Cloudflare Workers AI): Gemini olmazsa hikâyeyi yazan güçlü yedek. Önce düşünmesiz (hızlı) denenir. */
-const pickAny = d => typeof d.response === "string" ? d.response
-  : (d.choices && d.choices[0] && ((d.choices[0].delta && d.choices[0].delta.content) || (d.choices[0].message && d.choices[0].message.content))) || "";
-const kimiArgs = (prompt, o, stream, think) => Object.assign({ messages: [{ role: "user", content: prompt }], max_tokens: 4096, temperature: Math.min(o.temperature ?? 0.9, 1), stream },
-  think ? {} : { chat_template_kwargs: { thinking: false } });
-async function kimiText(prompt, env, o) {
-  let last = "";
-  for (const think of [false, true]) {
-    try {
-      qAdd("kimi", 1);
-      const d = await env.AI.run(KIMI_MODEL(env), kimiArgs(prompt, o, false, think));
-      const t = pickAny(d || {}); if (t) return t; last = "boş cevap";
-    } catch (e) { last = e.message || "hata"; }
-  }
-  qErr("kimi", last); throw soft("kimi", last);
-}
-async function kimiStream(prompt, env, o) {
-  let last = "";
-  for (const think of [false, true]) {
-    try { qAdd("kimi", 1); const st = await env.AI.run(KIMI_MODEL(env), kimiArgs(prompt, o, true, think)); return sseMap(st, pickAny); }
-    catch (e) { last = e.message || "hata"; }
-  }
-  qErr("kimi", last); throw soft("kimi", last);
-}
-const TEXT = { gemini: gemText, groq: groqText, wai: waiText, kimi: kimiText };
+const TEXT = { gemini: gemText, groq: groqText, wai: waiText };
 
 function hedgeRace(chain, runOne, hedge) {
   return new Promise((resolve, reject) => {
@@ -1159,7 +1134,7 @@ async function waiStream(prompt, env, o) {
     return sseMap(s, d => typeof d.response === "string" ? d.response : "");
   } catch (e) { throw soft("wai", e.message || "hata"); }
 }
-const STREAM = { gemini: gemStream, groq: groqStream, wai: waiStream, kimi: kimiStream };
+const STREAM = { gemini: gemStream, groq: groqStream, wai: waiStream };
 
 // İlk kelime gelene kadar bekler (sigorta burada çalışır), sonra akışın tamamını uygulamaya aktarır
 async function llmStream(prompt, env, o, onDone) {
@@ -1428,7 +1403,6 @@ async function quotaInfo(q, env, ctx) {
     gem: { used: v("gem"), limit: +(env.GEM_RPD || 250), e429: Math.max(st.e429_gem || 0, live.e429_gem || 0) },
     tts: { used: v("tts"), limit: +(env.TTS_RPD || 15), e429: Math.max(st.e429_tts || 0, live.e429_tts || 0) },
     wai: { used: v("wai") },
-    kimi: { used: v("kimi") },
     err: Object.assign({}, st.err || {}, QE),
     kvw: { used: v("kvw"), limit: 1000 },
     yt: { used: v("yt"), limit: 10000 },
