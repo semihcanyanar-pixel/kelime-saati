@@ -1567,7 +1567,7 @@ function grRes(t){const m=String(t).match(/(?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?/
 function ptClock(){const la=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'})),m=new Date(la);m.setHours(0,0,0,0);const nx=new Date(m);nx.setDate(nx.getDate()+1);return {start:Date.now()-(la-m),reset:new Date(Date.now()+(nx-la))}}
 const hhmm=d=>new Date(d).toLocaleTimeString(LOC,{hour:'2-digit',minute:'2-digit'});
 async function loadQuota(now,bbc){if(QBUSY)return;QBUSY=true;renderQuota();try{const d=await workerCall({quota:now?(bbc?{now:1,bbc:1}:{now:1}):{}},30000);if(!d||!d.groq||!d.gem)throw new Error('worker güncel değil');QDAT=d}catch(e){if(now)toast('Kota bilgisi alınamadı: '+e.message)}QBUSY=false;renderQuota()}
-const bbcBtn=h=>h.slice(0,-4)+`<button class="ghost" id="qBbc" ${QBUSY?'disabled':''} style="padding:4px 12px;font-size:13px;align-self:center">Dene</button></a>`;
+const bbcBtn=h=>h.slice(0,-4)+`<button class="ghost" id="qBbc" ${QBUSY?'disabled':''} style="width:auto;flex:none;white-space:nowrap;padding:4px 14px;font-size:13px;align-self:center;margin:0">Dene</button></a>`;
 function renderQuota(){
   const box=$('quotaBox'),rw=$('qtRow');if(!box)return;
   if(!ME||!ME.admin){rw.style.display='none';box.style.display='none';return}
