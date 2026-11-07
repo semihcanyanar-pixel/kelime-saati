@@ -63,7 +63,11 @@ class HttpError extends Error {
 }
 
 export default {
-  async scheduled(ev, env, ctx) { ctx.waitUntil(prefetch(env, ctx).catch(() => {})); },
+  async scheduled(ev, env, ctx) {
+    // BBC erişim denemesi: günde 4 kez (3 ayrı Cron: BBC_PROBE_CRON + gece hazırlığının ilk çalışması)
+    if (ev.cron === BBC_PROBE_CRON || new Date(ev.scheduledTime).getUTCMinutes() < 2) ctx.waitUntil(bbcProbe(env, ctx).catch(() => {}));
+    if (ev.cron !== BBC_PROBE_CRON) ctx.waitUntil(prefetch(env, ctx).catch(() => {}));
+  },
   async fetch(req, env, ctx) {
     try {
       return await handle(req, env, ctx);
@@ -280,42 +284,68 @@ function kvPut(env, ctx, key, val, ttl) {
   if (ctx && ctx.waitUntil) ctx.waitUntil(p);
 }
 
-/* ---------- Haberler (BBC RSS) ---------- */
+/* ---------- Haberler (NPR + ABC Australia RSS; BBC sayfaları 403 verdiği için kapalı) ---------- */
+// BBC şu an haber sayfalarını Worker'a vermiyor (403). BBC_LIST = true yapılırsa BBC yeniden listeye girer.
+const BBC_LIST = false;
+const NPR = "https://feeds.npr.org/", ABC = "https://www.abc.net.au/news/feed/";
 const FEEDS = {
-  top: "https://feeds.bbci.co.uk/news/rss.xml",
-  world: "https://feeds.bbci.co.uk/news/world/rss.xml",
-  tech: "https://feeds.bbci.co.uk/news/technology/rss.xml",
-  science: "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
-  health: "https://feeds.bbci.co.uk/news/health/rss.xml",
-  business: "https://feeds.bbci.co.uk/news/business/rss.xml",
-  culture: "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml",
+  top: [["bbc", "https://feeds.bbci.co.uk/news/rss.xml"], ["npr", NPR + "1001/rss.xml"], ["abc", ABC + "45910/rss.xml"]],
+  world: [["bbc", "https://feeds.bbci.co.uk/news/world/rss.xml"], ["npr", NPR + "1004/rss.xml"], ["abc", ABC + "104217382/rss.xml"]],
+  tech: [["bbc", "https://feeds.bbci.co.uk/news/technology/rss.xml"], ["npr", NPR + "1019/rss.xml"]],
+  science: [["bbc", "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml"], ["npr", NPR + "1007/rss.xml"]],
+  health: [["bbc", "https://feeds.bbci.co.uk/news/health/rss.xml"], ["npr", NPR + "1128/rss.xml"], ["abc", ABC + "1616/rss.xml"]],
+  business: [["bbc", "https://feeds.bbci.co.uk/news/business/rss.xml"], ["npr", NPR + "1006/rss.xml"], ["abc", ABC + "51892/rss.xml"]],
+  culture: [["bbc", "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"], ["npr", NPR + "1008/rss.xml"]],
 };
+// Hangi adresler haber sayfası sayılır (canlı yayın, video, galeri vb. atlanır)
+const LINK_OK = {
+  bbc: /bbc\.(co\.uk|com)\/news\/articles\//,
+  npr: /^https:\/\/www\.npr\.org\/\d{4}\/\d{2}\/\d{2}\//,
+  abc: /^https:\/\/www\.abc\.net\.au\/news\/\d{4}-\d{2}-\d{2}\//,
+};
+const NEWS_URL = /^https:\/\/(www\.bbc\.(co\.uk|com)\/news\/|www\.npr\.org\/\d{4}\/|www\.abc\.net\.au\/news\/)/;
+const srcOf = url => /bbc\./.test(url) ? "bbc" : /npr\.org/.test(url) ? "npr" : /abc\.net\.au/.test(url) ? "abc" : "x";
+const h36 = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(36); };
 const unx = s => String(s || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
   .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").trim();
 
 async function news(q, env, ctx) {
   const cat = FEEDS[q && q.cat] ? q.cat : "top";
-  const key = "rss2:" + cat, fresh = q && q.fresh;
+  const key = "rss3:" + cat, fresh = q && q.fresh;
   const mem = MEM.get(key);
   if (!fresh && mem && Date.now() - mem.t < 30 * 60000) return withReady(mem.v, env);
   const hit = fresh ? null : await kvGet(env, key);   // "yenile" tuşu önbelleği atlar
   if (hit) { const v = JSON.parse(hit); MEM.set(key, { t: Date.now(), v }); return withReady(v, env); }
-  const r = await fetch(FEEDS[cat], { headers: { "User-Agent": "Mozilla/5.0 KelimeSaati" } });
-  if (!r.ok) throw new HttpError(502, "Haberler alınamadı (" + r.status + ")");
-  const xml = await r.text();
-  const items = [];
-  for (const m of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
-    const it = m[1], g = t => { const x = it.match(new RegExp("<" + t + "[^>]*>([\\s\\S]*?)<\/" + t + ">")); return x ? unx(x[1]) : ""; };
-    const link = g("link").split("?")[0];
-    if (!/bbc\.(co\.uk|com)\/news\/articles\//.test(link)) continue; // canlı yayın, video ve galeri sayfalarını atla
-    const th = it.match(/<media:thumbnail[^>]*url="([^"]+)"/);
-    items.push({
-      id: link.split("/").pop(), title: g("title"), desc: g("description"), link,
-      date: new Date(g("pubDate") || Date.now()).toISOString(), cat,
-      img: th ? th[1].replace(/\/standard\/\d+\//, "/standard/800/") : "",
-    });
-    if (items.length >= 15) break;
-  }
+  const lists = [];
+  let lastErr = "";
+  await Promise.all(FEEDS[cat].filter(([s]) => s !== "bbc" || BBC_LIST).map(async ([s, u]) => {
+    try {
+      const r = await fetch(u, { headers: { "User-Agent": "Mozilla/5.0 KelimeSaati" } });
+      if (!r.ok) { lastErr = s + " " + r.status; return; }
+      const xml = await r.text(), L = [];
+      for (const m of xml.matchAll(/<item>([\s\S]*?)<\/item>/g)) {
+        const it = m[1], g = t => { const x = it.match(new RegExp("<" + t + "[^>]*>([\\s\\S]*?)<\/" + t + ">")); return x ? unx(x[1]) : ""; };
+        const link = g("link").split("?")[0];
+        if (!LINK_OK[s].test(link)) continue;
+        const th = it.match(/<media:thumbnail[^>]*url="([^"]+)"/) || it.match(/<media:content[^>]*url="([^"]+\.(?:jpe?g|png|webp)[^"]*)"/i) || it.match(/<enclosure[^>]*url="([^"]+\.(?:jpe?g|png|webp)[^"]*)"/i);
+        // NPR görseli RSS'te <content:encoded> içindeki <img>'dedir ve çok büyüktür; 800 px genişliğe küçült
+        const ni = th ? null : it.match(/<img[^>]+src=['"]([^'"]+)['"]/i);
+        const nimg = ni ? unx(ni[1]).replace(/\/resize\/(\d+)x(\d+)!/, (_, w, h) => "/resize/800x" + Math.round(800 * h / w) + "!") : "";
+        L.push({
+          id: s === "bbc" ? link.split("/").pop() : s + "-" + h36(link), src: s, title: g("title").replace(/<[^>]+>/g, ""), desc: g("description").replace(/<[^>]+>/g, "").trim(), link,
+          date: new Date(g("pubDate") || Date.now()).toISOString(), cat,
+          img: th ? th[1].replace(/\/standard\/\d+\//, "/standard/800/") : nimg,
+        });
+        if (L.length >= 15) break;
+      }
+      lists.push(L);
+    } catch (e) { lastErr = s + " " + (e.message || "hata"); }
+  }));
+  if (!lists.length) throw new HttpError(502, "Haberler alınamadı (" + lastErr + ")");
+  // Kaynaklar sırayla karışık dizilir (NPR, ABC, NPR, ABC …); aynı haber iki kez girmez
+  const items = [], seen = new Set();
+  for (let i = 0; items.length < 15 && i < 15; i++)
+    for (const L of lists) { const it = L[i]; if (it && items.length < 15 && !seen.has(it.link)) { seen.add(it.link); items.push(it); } }
   const out = { items };
   MEM.set(key, { t: Date.now(), v: out });
   kvPut(env, ctx, key, JSON.stringify(out), 3600);   // 1 saat (KV yazma hakkı günde 1000)
@@ -336,20 +366,23 @@ async function withReady(out, env) {
 // Haber sayfasından paragrafları çıkar (HTMLRewriter: hızlı ve az işlemci harcar)
 async function articleText(url) {
   const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 KelimeSaati" } });
-  qAdd(r.ok ? "bbc_ok" : r.status === 403 ? "bbc_403" : "bbc_x", 1);   // yönetici ekranında BBC erişimi izlensin (davranış değişmez)
+  const sc = srcOf(url);
+  qAdd(sc + (r.ok ? "_ok" : r.status === 403 ? "_403" : "_x"), 1);   // yönetici ekranında kaynak erişimi izlensin (davranış değişmez)
   if (!r.ok) {
-    qErr("bbc", r.status + " · " + url.replace(/^https:\/\/www\.bbc\.(co\.uk|com)/, "").slice(0, 60));
+    qErr(sc, r.status + " · " + url.replace(/^https:\/\/www\.[a-z.]+/, "").slice(0, 60));
     throw new HttpError(502, "Haber sayfası açılamadı (" + r.status + ")");
   }
-  // Önce BBC'nin metin bloklarını, olmazsa sayfadaki <article> paragraflarını al
-  const A = [], B = []; let ca = null, cb = null;
+  // Önce BBC'nin metin bloklarını, olmazsa (NPR, ABC dahil) sayfadaki <article> paragraflarını al
+  // NPR (#storytext) ve ABC (ArticleWeb) için kendi haber gövdesi; kısa satırlar (yazar adı, etiket, resim altyazısı) atılır
+  const A = [], B = [], S = []; let ca = null, cb = null, cs = null;
   const rw = new HTMLRewriter()
     .on('[data-component="text-block"] p', { element() { ca = { t: "" }; A.push(ca); }, text(t) { if (ca) ca.t += t.text; } })
+    .on('#storytext p, [data-component="ArticleWeb"] p', { element() { cs = { t: "" }; S.push(cs); }, text(t) { if (cs) cs.t += t.text; } })
     .on('article p', { element() { cb = { t: "" }; B.push(cb); }, text(t) { if (cb) cb.t += t.text; } });
   await rw.transform(r).arrayBuffer();
-  const join = arr => arr.map(p => unx(p.t).replace(/\s+/g, " ").trim()).filter(x => x.length > 1).join("\n");
-  const ta = join(A), tb = join(B);
-  return (ta.length >= 300 ? ta : tb.length > ta.length ? tb : ta).slice(0, 7000);
+  const join = (arr, min) => arr.map(p => unx(p.t).replace(/&#x27;|&#039;/g, "'").replace(/\s+/g, " ").trim()).filter(x => x.length > (min || 1)).join("\n");
+  const ta = join(A), ts = join(S, 40), tb = join(B, sc === "bbc" ? 1 : 40);
+  return (ta.length >= 300 ? ta : ts.length >= 300 ? ts : tb.length > ta.length ? tb : ta).slice(0, 7000);
 }
 
 // BBC News kanalında, haber tarihine yakın videoları ara
@@ -474,7 +507,7 @@ Return ONLY JSON: {"quiz":[{"q":"question","o":["option A","option B","option C"
 // sonuç metnin özetiyle önbelleğe alınır, aynı seviyeyi açan diğer kişiler için tekrar üretilmez.
 async function articleQuiz(q, env, ctx) {
   const url = String(q.url || "");
-  if (!/^https:\/\/www\.bbc\.(co\.uk|com)\/news\//.test(url)) throw new HttpError(400, "Geçersiz haber adresi");
+  if (!NEWS_URL.test(url)) throw new HttpError(400, "Geçersiz haber adresi");
   const n = [1, 2, 3].includes(+q.lv) ? +q.lv : 2;
   let paras = (Array.isArray(q.paras) ? q.paras : []).slice(0, 12).map(p => ({ en: (Array.isArray(p && p.en) ? p.en : []).slice(0, 12).map(x => noCJK(String(x)).slice(0, 400)).filter(Boolean) })).filter(p => p.en.length);
   if (!paras.length) { const hit = await kvGet(env, "art4:" + await sha(url) + ":" + n); if (hit) paras = JSON.parse(hit).paras || []; }
@@ -490,6 +523,7 @@ async function articleQuiz(q, env, ctx) {
 
 // Video eşleştirme (sorular artık her seviyenin kendi metniyle birlikte üretiliyor)
 async function artMeta(q, text, env) {
+  if (q.url && srcOf(String(q.url)) !== "bbc") return { quiz: [], video: null };   // video eşleştirme sadece BBC News kanalı için
   const vids = await ytCandidates(q.title, q.date, env);
   if (!vids.length) return { quiz: [], video: null };                 // aday yoksa yapay zekâya hiç sorulmaz
   const prompt = `News story (title: "${String(q.title || "").slice(0, 200)}"):
@@ -507,7 +541,7 @@ Return ONLY JSON: {"video":-1}`;
 // Seviye ve sorular aynı anda (paralel) üretilir; her parça ayrı saklanır
 async function article(q, env, ctx) {
   const url = String(q.url || "");
-  if (!/^https:\/\/www\.bbc\.(co\.uk|com)\/news\//.test(url)) throw new HttpError(400, "Geçersiz haber adresi");
+  if (!NEWS_URL.test(url)) throw new HttpError(400, "Geçersiz haber adresi");
   const n = [1, 2, 3].includes(+q.lv) ? +q.lv : 2;
   const h = await sha(url), kL = "art4:" + h + ":" + n, kM = "art4:" + h + ":m";
   const [hL, hM] = await Promise.all([kvGet(env, kL), kvGet(env, kM)]);
@@ -582,7 +616,7 @@ const MINW = { 1: 35, 2: 50, 3: 70 };
 const enWords = paras => (paras || []).reduce((s, p) => s + (p.en || []).join(" ").split(/\s+/).filter(Boolean).length, 0);
 async function articleStream(q, env, ctx, cors) {
   const url = String(q.url || "");
-  if (!/^https:\/\/www\.bbc\.(co\.uk|com)\/news\//.test(url)) throw new HttpError(400, "Geçersiz haber adresi");
+  if (!NEWS_URL.test(url)) throw new HttpError(400, "Geçersiz haber adresi");
   const n = [1, 2, 3].includes(+q.lv) ? +q.lv : 2;
   const h = await sha(url), kL = "art4:" + h + ":" + n;
   // Önbellekteki seviye yarımsa (yapay zekâ metni yarıda bırakmışsa) ya da istemci "fresh" istediyse yeniden yaz
@@ -625,7 +659,7 @@ EVIDENCE: the exact sentence copied from your English text that proves the answe
 
 async function articleMeta(q, env, ctx) {
   const url = String(q.url || "");
-  if (!/^https:\/\/www\.bbc\.(co\.uk|com)\/news\//.test(url)) throw new HttpError(400, "Geçersiz haber adresi");
+  if (!NEWS_URL.test(url)) throw new HttpError(400, "Geçersiz haber adresi");
   const h = await sha(url), kM = "art4:" + h + ":m";
   const hit = await kvGet(env, kM);
   if (hit) return JSON.parse(hit);
@@ -1309,7 +1343,7 @@ async function prefetchRun(env0, ctx) {
       }
       if (!(await has("art4:" + h + ":m"))) {
         if (budget-- <= 0) return;
-        try { const t = await src(); if (t.length >= 200) { const M = await artMeta({ title: it.title, date: it.date }, t, env); await ksPut(env, "art4:" + h + ":m", JSON.stringify(M), { expirationTtl: 30 * 86400 }); } } catch {}
+        try { const t = await src(); if (t.length >= 200) { const M = await artMeta({ title: it.title, date: it.date, url: it.link }, t, env); await ksPut(env, "art4:" + h + ":m", JSON.stringify(M), { expirationTtl: 30 * 86400 }); } } catch {}
       }
       const gk = "gls1:" + await sha(it.link);
       if (!(await has(gk))) {
@@ -1373,36 +1407,20 @@ function qMaybeFlush(env, ctx) {
   const p = qFlush(env).catch(() => {});
   if (ctx && ctx.waitUntil) ctx.waitUntil(p);
 }
-// Yönetici denemesi: aday haber kaynaklarının RSS'i ve bir haber sayfası Worker'dan (Cloudflare) açılıyor mu? Sadece okur, hiçbir şey kaydetmez.
-const PROBE_SRC = [
-  ["NPR", "https://feeds.npr.org/1001/rss.xml"],
-  ["ABC Australia", "https://www.abc.net.au/news/feed/2942460/rss.xml"],
-  ["CBC", "https://www.cbc.ca/webfeed/rss/rss-topstories"],
-  ["Al Jazeera", "https://www.aljazeera.com/xml/rss/all.xml"],
-  ["UN News", "https://news.un.org/feed/subscribe/en/news/all/rss.xml"],
-];
-async function probeSources() {
-  const H = { headers: { "User-Agent": "KelimeSaati/1.0" } };
-  return Promise.all(PROBE_SRC.map(async ([n, u]) => {
-    const o = { n, rss: 0, art: 0, chars: 0, link: "" };
-    try {
-      const r = await fetch(u, Object.assign({ signal: AbortSignal.timeout(12000) }, H)); o.rss = r.status;
-      if (!r.ok) return o;
-      const links = [...(await r.text()).matchAll(/<item>[\s\S]*?<link>([\s\S]*?)<\/link>/g)].map(m => unx(m[1]).split("?")[0]).filter(l => /^https?:\/\//.test(l) && !/\/video\/|\/livestream|\/podcast/i.test(l));
-      o.link = links[0] || "";
-      if (!o.link) return o;
-      const a = await fetch(o.link, Object.assign({ signal: AbortSignal.timeout(12000) }, H)); o.art = a.status;
-      if (!a.ok) return o;
-      const P = []; let c = null;
-      await new HTMLRewriter().on("article p", { element() { c = { t: "" }; P.push(c); }, text(t) { if (c) c.t += t.text; } }).transform(a).arrayBuffer();
-      o.chars = P.map(p => unx(p.t).replace(/\s+/g, " ").trim()).filter(x => x.length > 1).join("\n").length;
-    } catch (e) { o.err = String(e.message || e).slice(0, 80); }
-    return o;
-  }));
+// BBC erişim denemesi: BBC listeden çıkarıldı ama haber sayfaları hâlâ açılıyor mu izlenir (sayaçlar "BBC haber sayfası" satırında).
+// Cloudflare'de ayrıca bir Cron Trigger eklenmeli: 0 5,9,15 * * *  (TR 08:00, 12:00, 18:00); gece denemesi gece hazırlığıyla birlikte yapılır.
+const BBC_PROBE_CRON = "0 5,9,15 * * *";
+async function bbcProbe(env, ctx) {
+  try {
+    const r = await fetch(FEEDS.world[0][1], { headers: { "User-Agent": "Mozilla/5.0 KelimeSaati" } });
+    const m = r.ok ? (await r.text()).match(/https:\/\/www\.bbc\.(?:co\.uk|com)\/news\/articles\/[A-Za-z0-9]+/) : null;
+    if (m) await articleText(m[0]).catch(() => {});
+    else qAdd("bbc_x", 1);
+  } finally { qMaybeFlush(env, ctx); }
 }
 async function quotaInfo(q, env, ctx) {
   if (!env.ADMIN) throw new HttpError(403, "Bu bilgi sadece yönetici içindir");
-  if (q && q.probe) return { probe: await probeSources() };
+  if (q && q.bbc) await bbcProbe(env, ctx).catch(() => {});      // yönetici "BBC'yi dene" düğmesi
   if (q && q.now && env.GROQ_API_KEY) {           // Groq'un kesin kalan sayısı için küçük bir istek
     const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + env.GROQ_API_KEY },
@@ -1436,6 +1454,8 @@ async function quotaInfo(q, env, ctx) {
     yt: { used: v("yt"), limit: 10000 },
     night: { ready, total },
     bbc: { ok: v("bbc_ok"), e403: v("bbc_403"), other: v("bbc_x") },
+    npr: { ok: v("npr_ok"), e403: v("npr_403"), other: v("npr_x") },
+    abc: { ok: v("abc_ok"), e403: v("abc_403"), other: v("abc_x") },
     hasGroq: !!env.GROQ_API_KEY, hasAI: !!env.AI,
   };
 }

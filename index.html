@@ -1100,7 +1100,7 @@ const EN={
 'Hesap':'Account','Şifreyi değiştir':'Change password','Değiştir':'Change','Şifre değiştirildi ✓':'Password changed ✓','Mevcut şifre yanlış':'Current password is wrong','Yeni şifreler aynı değil':'New passwords don\'t match','Yeni şifre en az 6 karakter olmalı':'New password must be at least 6 characters','Üç alanı da doldur':'Fill in all three fields','Yeni şifre mevcut şifreden farklı olmalı':'New password must differ from the current one','Güvenlik için çıkış yapıp tekrar giriş yap':'For security, sign out and sign in again','Veriler':'Data','Yedek':'Backup','Widget kaydı için Firebase kuralı eksik':'Firebase rule for the widget record is missing',
 'Kelimeler eklendi':'Words added','Hepsi zaten listende':'They\'re all in your list already','Hepsini kartlara ekle':'Add all to cards','Eklenemedi, tekrar dene':'Couldn\'t add, try again',
 'Seviye 1':'Level 1','Seviye 2':'Level 2','Seviye 3':'Level 3','📝 3 soruyla test et':'📝 Test yourself with 3 questions','Sonucu gör':'See result','Kusursuz! 🎉':'Perfect! 🎉','Güzel, devam!':'Nice, keep going!','Bir daha oku, sonra tekrar dene':'Read it again, then retry',
-'🌐 BBC\'de aslını oku':'🌐 Read the original on BBC','▶️ YouTube\'da ara':'▶️ Search on YouTube','BBC News · YouTube\'da izle':'BBC News · Watch on YouTube',
+'🌐 BBC\'de aslını oku':'🌐 Read the original on BBC','🌐 NPR\'de aslını oku':'🌐 Read the original on NPR','🌐 ABC\'de aslını oku':'🌐 Read the original on ABC','Güncel haberler':'Latest news','▶️ YouTube\'da ara':'▶️ Search on YouTube','BBC News · YouTube\'da izle':'BBC News · Watch on YouTube',
 '📝 Hikâyedeki kelimelerle pratik yap':'📝 Practice the story\'s words','Hikâyeyi yaz':'Write the story','Hikâyelerim':'My stories','Hikâyelerim\'de':'in My stories',
 'Ya da kendi konunu yaz… (örneğin İstanbul\'da kaybolan bir kedi)':'Or type your own topic… (for example a cat lost in Istanbul)','Uzunluk':'Length',
 'Haberler alınamadı':'Couldn\'t get the news','Haber bulunamadı.':'No news found.','Haber 3 seviyeye hazırlanıyor…':'Preparing the article in 3 levels…',
@@ -1171,7 +1171,7 @@ const ENP=[
 [/^Üretilemedi: (.+)$/,'Couldn\'t generate: $1'],[/^Hikâye yazılamadı: (.+)$/,'Couldn\'t write the story: $1'],[/^Kart hazırlanamadı: (.+)$/,'Couldn\'t prepare the card: $1'],[/^Haberler alınamadı: (.+)$/,'Couldn\'t get the news: $1'],
 [/^Eşitleme hatası: (.+)$/,'Sync error: $1'],[/^(.+) · ↻ ile tekrar deneyebilirsin$/,'$1 · you can retry with ↻'],[/^📰 Günün haberi · (.+)$/,'📰 Story of the day · $1'],
 [/^(.+) · (\d+) kelime$/,'$1 · $2 words'],[/^(\d+) kelime · (.+)$/,'$1 words · $2'],
-[/^BBC · (.+) · (.+)$/,'BBC · $1 · $2'],[/^(.+) · (\d+) kelime · (.+)$/,'$1 · $2 words · $3'],
+[/^(BBC|NPR|ABC) · (.+) · (.+)$/,'$1 · $2 · $3'],[/^(.+) · (\d+) kelime · (.+)$/,'$1 · $2 words · $3'],
 [/^(A2|B1|B2|C1) · (.+) · (\d+) kelime · (.+)$/,'$1 · $2 · $3 words · $4'],
 [/^([^A-Za-zÇĞİÖŞÜçğıöşü0-9\s]+) (.+)$/,'$1 $2'],
 ];
@@ -1562,11 +1562,11 @@ async function renderFam(){
   renderQuota();
 }
 /* Kota durumu (sadece yönetici) */
-let QDAT=null,QBUSY=false,QPROBE=null;
+let QDAT=null,QBUSY=false;
 function grRes(t){const m=String(t).match(/(?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?/)||[];const h=+m[1]||0,mi=+m[2]||0;return h?`${h} sa ${mi} dk`:mi?`${mi} dk`:'1 dk'}
 function ptClock(){const la=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'})),m=new Date(la);m.setHours(0,0,0,0);const nx=new Date(m);nx.setDate(nx.getDate()+1);return {start:Date.now()-(la-m),reset:new Date(Date.now()+(nx-la))}}
 const hhmm=d=>new Date(d).toLocaleTimeString(LOC,{hour:'2-digit',minute:'2-digit'});
-async function loadQuota(now){if(QBUSY)return;QBUSY=true;renderQuota();try{const d=await workerCall({quota:now?{now:1}:{}},30000);if(!d||!d.groq||!d.gem)throw new Error('worker güncel değil');QDAT=d}catch(e){if(now)toast('Kota bilgisi alınamadı: '+e.message)}QBUSY=false;renderQuota()}
+async function loadQuota(now,bbc){if(QBUSY)return;QBUSY=true;renderQuota();try{const d=await workerCall({quota:now?(bbc?{now:1,bbc:1}:{now:1}):{}},30000);if(!d||!d.groq||!d.gem)throw new Error('worker güncel değil');QDAT=d}catch(e){if(now)toast('Kota bilgisi alınamadı: '+e.message)}QBUSY=false;renderQuota()}
 function renderQuota(){
   const box=$('quotaBox'),rw=$('qtRow');if(!box)return;
   if(!ME||!ME.admin){rw.style.display='none';box.style.display='none';return}
@@ -1588,15 +1588,16 @@ function renderQuota(){
     const kp=pc(q.kvw.used/q.kvw.limit*100);if(kp>=85)warn.push('Önbellek');rows+=row('💾','Önbellek yazma',`Bugün ${q.kvw.used} / ${q.kvw.limit.toLocaleString(LOC)}`,`%${kp}`,kp,'https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces');
     const yp=pc(q.yt.used/q.yt.limit*100);rows+=row('▶️','YouTube',`Bugün ~${q.yt.used.toLocaleString(LOC)} / ${q.yt.limit.toLocaleString(LOC)} birim`,`%${yp}`,yp,'https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas');
     if(q.bbc){const b=q.bbc;if(b.e403)warn.push('BBC');rows+=row('📰','BBC haber sayfası',`Bugün ${b.ok} başarılı · ${b.e403} reddedildi (403)${b.other?` · ${b.other} başka hata`:''}`+qErrL('bbc'),b.e403?'⚠':b.ok?'✓':'—',null,'')}
+    for(const [k,n] of [['npr','NPR haber sayfası'],['abc','ABC haber sayfası']]){const b=q[k];if(!b)continue;if(b.e403)warn.push(n.split(' ')[0]);rows+=row('📰',n,`Bugün ${b.ok} başarılı`+(b.e403?` · ${b.e403} reddedildi (403)`:'')+(b.other?` · ${b.other} başka hata`:'')+qErrL(k),b.e403?'⚠':b.ok?'✓':'—',null,'')}
     rows+=row('🌙','Gece hazırlığı',`Bu gece ${q.night.total} haberin ${q.night.ready}'i hazır`,q.night.ready>=q.night.total&&q.night.total?'✓':`${q.night.ready}/${q.night.total}`,null,'');
-    rows+=`<div class="qrow" style="display:block"><button class="ghost" id="qProbe" ${QPROBE==='busy'?'disabled':''}>${QPROBE==='busy'?'<span class="spin" style="width:11px;height:11px;margin:0"></span> Deneniyor…':'🧪 Haber kaynaklarını dene'}</button>${Array.isArray(QPROBE)?QPROBE.map(p=>{const ok=p.rss===200&&p.art===200&&p.chars>=1500;return `<div style="font-size:13px;margin-top:6px;color:${ok?'#2E9E5E':'#D2463A'}">${ok?'✓':'✗'} <b>${esc(p.n)}</b> · RSS ${p.rss||'—'} · sayfa ${p.art||'—'} · ${p.chars} karakter${p.err?' · '+esc(p.err):''}</div>`}).join(''):''}</div>`;
+    rows+=`<div class="qrow" style="display:block"><button class="ghost" id="qBbc" ${QBUSY?'disabled':''}>🧪 BBC'yi şimdi dene</button><p class="hint" style="margin:6px 2px 0;font-size:12px">BBC listeden çıkarıldı; sayfaları açılıyor mu günde 4 kez (sabah, öğle, akşam, gece) denenir.</p></div>`;
   }else rows=`<p class="hint" style="margin:6px 2px">${QBUSY?'Yükleniyor…':'Görmek için ↻ Güncelle\'ye bas'}</p>`;
   $('qtV').textContent=!q?'':warn.length?'⚠ '+warn[0]+(warn.length>1?' +'+(warn.length-1):''):'✓ Normal';
   $('qtV').style.color=!q?'':warn.length?'#D2463A':'#2E9E5E';
   box.innerHTML=`<div class="qtop"><span>${q?`Son kayıt: ${q.saved?hhmm(q.saved):'—'}`:''}</span><button id="qRef" ${QBUSY?'disabled':''}>${QBUSY?'<span class="spin" style="width:11px;height:11px;margin:0"></span>':'↻'} Güncelle</button></div>${rows}
     <p class="hint" style="margin:8px 2px 2px;font-size:12px;line-height:1.45">Sayılar saatte bir kaydedilir, ↻ ile anında güncellenir. Groq dışındakiler yaklaşıktır; kesin rakam için ↗ ile paneli aç. Bu bölümü sadece sen görürsün.</p>`;
   $('qRef').onclick=()=>loadQuota(true);
-  if($('qProbe'))$('qProbe').onclick=async()=>{QPROBE='busy';renderQuota();try{const d=await workerCall({quota:{probe:1}},40000);QPROBE=(d&&d.probe)||null;if(!QPROBE)toast('Worker güncel değil')}catch(e){QPROBE=null;toast('Deneme başarısız: '+e.message)}renderQuota()};
+  if($('qBbc'))$('qBbc').onclick=()=>loadQuota(true,true);
   if(!q&&!QBUSY&&!QDAT_T){QDAT_T=1;loadQuota(false)}
 }
 $('qtRow').onclick=()=>{const b=$('quotaBox'),o=b.style.display==='none';b.style.display=o?'':'none';$('qtChev').style.transform=o?'rotate(180deg)':''};
@@ -2340,7 +2341,7 @@ function renderToday(){
   const tiles=[
     ['t-peach','📖','Yeni Kelimeler',`${unseen().length} görülmemiş`,()=>{showTab('home');navBack=null;S.cUnseen=true;save();cSetOn(false)}],
     ['t-sand','🎯','Kelime Testi',`En iyi seri: ${S.best}`,()=>{pView='setup';showTab('quiz')}],
-    ['t-news','📰','Haberler',newsFresh()?`Bugün ${newsFresh()} yeni haber`:'Güncel BBC haberleri',()=>showTab('news'),newsFresh()>0],
+    ['t-news','📰','Haberler',newsFresh()?`Bugün ${newsFresh()} yeni haber`:'Güncel haberler',()=>showTab('news'),newsFresh()>0],
     ['t-story','📚','Hikâyeler',S.stories.length?`${S.stories.length} hikâyen var`:'Kelimelerinle yazılmış sesli hikâyeler',()=>showTab('stories'),!S.stories.length],
     ['t-sage','🎬','Videolar',(()=>{const n=VIDS?weekVideos().filter(v=>!(S.vWatched||{})[v.id]).length:0;return n?`${n} izlenmemiş video`:'İngilizce altyazılı videolar'})(),()=>showTab('videos')],
     ['t-sky','📅','Öğren Listem',ln?`${ln} kelime bekliyor`:'Bekleyen kelime yok',()=>{if(!ln)return toast('Öğren grubu boş. Pratikte yanlış yaptığın kelimeler buraya gelir.');showTab('quiz');startPractice('learn',ln)}],
@@ -2634,7 +2635,7 @@ const GD=[
   '<b>Öğren Listem:</b> Yanlış yaptığın her kelime buraya girer. Üst üste 3 kez doğru bilince listeden çıkar.',
   '<b>Akıllı karışım:</b> Testlerin en fazla %30\'u Öğren Listem\'den, en fazla %10\'u bildiğin kelimelerden (unutmadığını kontrol için) gelir.',
   '<b>Öğren Listem şeridi:</b> Bekleyen kelime varsa "Çalış" ile listedeki her kelime bir kez sorulur, tur bitince test tamamlanır. Yeniden basınca kalan kelimelerle yeni tur başlar.'],go:['Pratiğe git',()=>{pView='setup';showTab('quiz')}]},
- {id:'haber',e:'📰',t:'Haberler',p:['BBC haberleri, seviyene göre yeniden yazılmış hâlleriyle. Her haber 3 seviyede okunabilir: Kolay, Orta, İleri.'],li:[
+ {id:'haber',e:'📰',t:'Haberler',p:['Güncel haberler (NPR, ABC), seviyene göre yeniden yazılmış hâlleriyle. Her haber 3 seviyede okunabilir: Kolay, Orta, İleri.'],li:[
   '<b>⚡ Hazır:</b> Her gece önceden hazırlanan haberler. Anında açılır, beklemezsin. Testini çözdüğün haber buradan çıkar.',
   '<b>Kelimeye dokun:</b> Anlamı hemen çıkar; 🔊 ile dinler, "＋ Karta ekle" ile kartlarına eklersin.',
   '<b>Dinle:</b> Haberi doğal sesle dinle; okunan cümle vurgulanır. Türkçe çeviriyi açıp kapatabilirsin.',
@@ -2791,7 +2792,7 @@ function renderHub(){
     <div class="learnbox"><div class="n">${ln}</div><div class="tx"><b>Öğren</b>Yanlış yaptığın kelimeler burada birikir. Üst üste 3 doğru cevapta gruptan çıkar.</div><button id="pLearn" ${ln?'':'disabled'}>Çalış</button></div>
     <h2 class="h">Ne çalışalım?</h2>
     <button class="hub h1" id="hbQ"><div class="he">🎯</div><div class="ht"><b>Kelime Pratiği</b><small>Çoktan seçmeli test · grup, seviye ve yön seç</small><span class="hm">En iyi seri ${S.best}</span></div>${CHEV}</button>
-    <button class="hub h2" id="hbN"><div class="he">📰</div><div class="ht"><b>Haberler</b><small>Güncel haberler 3 seviyede · sesli dinle · 3 soruyla test et</small><span class="hm">${fresh?`Bugün ${fresh} yeni haber`:'BBC haberleri'}</span></div>${CHEV}</button>
+    <button class="hub h2" id="hbN"><div class="he">📰</div><div class="ht"><b>Haberler</b><small>Güncel haberler 3 seviyede · sesli dinle · 3 soruyla test et</small><span class="hm">${fresh?`Bugün ${fresh} yeni haber`:'Güncel haberler'}</span></div>${CHEV}</button>
     <button class="hub h4" id="hbV"><div class="he">🎬</div><div class="ht"><b>Videolar</b><small>Haftanın 20 videosu · İngilizce altyazılı</small><span class="hm">${VIDS?weekVideos().filter(v=>!(S.vWatched||{})[v.id]).length+' izlenmemiş':'Talk show, dizi, ders'}</span></div>${CHEV}</button>
     <button class="hub h3" id="hbS"><div class="he">📚</div><div class="ht"><b>Hikâyeler</b><small>Senin kelimelerinle yazılmış iki dilli, sesli hikâyeler</small><span class="hm">${S.stories.length?S.stories.length+' hikâyen var':'İlk hikâyeni yaz'}</span></div>${CHEV}</button>
   </div>`;
@@ -2859,6 +2860,7 @@ $('nRefresh').onclick=async()=>{
 
 /* ---------- Haber okuma ---------- */
 let RD=null; // {item, art, lv, quiz}
+const SRCN={bbc:'BBC',npr:'NPR',abc:'ABC'},newsSrc=it=>SRCN[(it&&it.src)||'bbc']||'BBC';
 const artCache=()=>lsGet('ks:arts',{});
 function artSave(item,fn){const c=artCache(),a=c[item.id]||{levels:[null,null,null],quiz:[],video:null};fn(a);delete c[item.id];c[item.id]=a;const ks=Object.keys(c);while(ks.length>25)delete c[ks.shift()];lsSet('ks:arts',c);if(RD&&RD.item.id===item.id)RD.art=a;return a}
 // Düz metin biçimini çöz: EN:/TR: satırları, --- paragraf, WORDS: listesi, TITLE/EMOJI/USED
@@ -3062,7 +3064,7 @@ function renderRead(){
   const it=RD.item,a=RD.art;
   const date=new Date(it.date).toLocaleDateString(LOC,{day:'numeric',month:'short'});
   $('rdBox').innerHTML=`<div class="hero" style="background-image:url('${esc(it.img)}')"><button class="bk" data-back>${BACKSVG}</button></div>
-  <div class="sec rd"><div class="rt"><b>${esc(it.title)}</b><small>BBC · ${date} · ${NCATS[it.cat]||''}</small></div>
+  <div class="sec rd"><div class="rt"><b>${esc(it.title)}</b><small>${newsSrc(it)} · ${date} · ${NCATS[it.cat]||''}</small></div>
   <div class="seg" id="lvSeg" style="margin:14px 0 12px">${[1,2,3].map(n=>`<button class="${RD.lv===n?'on':''}" data-n="${n}">Seviye ${n}</button>`).join('')}</div>
   <div id="rdBody"></div></div>`;
   $('lvSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{RD.lv=+b.dataset.n;S.newsLv=RD.lv;RD.err='';RD.q=null;RD.qzErr=null;RD.qzLoad=false;save();stopPlayer();renderRead();loadLevel()});
@@ -3098,7 +3100,7 @@ function findCtx(paras,w){const lw=w.toLowerCase();for(const p of paras)for(cons
 function renderVid(){
   const box=$('vidBox');if(!box||!RD)return;const it=RD.item,a=RD.art||{};
   box.innerHTML=`${a.video?`<a class="vcard" href="https://www.youtube.com/watch?v=${esc(a.video.id)}" target="_blank" rel="noopener"><div class="vt" style="background-image:url('${esc(a.video.thumb||'')}')">▶</div><div><b>${esc(a.video.title)}</b><small>BBC News · YouTube'da izle</small></div></a>`:''}
-    <div class="lnks"><a class="ghost" href="${/^https?:\/\//i.test(it.link)?esc(it.link):'#'}" target="_blank" rel="noopener">🌐 BBC'de aslını oku</a>${a.video?'':`<a class="ghost" href="https://www.youtube.com/results?search_query=${encodeURIComponent('BBC News '+it.title)}" target="_blank" rel="noopener">▶️ YouTube'da ara</a>`}</div>`;
+    <div class="lnks"><a class="ghost" href="${/^https?:\/\//i.test(it.link)?esc(it.link):'#'}" target="_blank" rel="noopener">🌐 ${newsSrc(it)}'de aslını oku</a>${a.video?'':`<a class="ghost" href="https://www.youtube.com/results?search_query=${encodeURIComponent((newsSrc(it)==='BBC'?'BBC News':newsSrc(it))+' '+it.title)}" target="_blank" rel="noopener">▶️ YouTube'da ara</a>`}</div>`;
 }
 // Seviyenin sorusu yoksa ya da eksikse, ekrandaki seviye metnini sunucuya gönderip soru iste
 // Açık haberin bu seviyesini silip sunucudan baştan yazdır (metin eksik ya da kötü geldiyse)
@@ -3193,7 +3195,7 @@ function renderQuiz(){
     return}
   const q=RD.q;
   if(!q){const d=S.newsDone[RD.item.id];box.innerHTML=`<button class="primary" id="qzGo" style="margin-top:14px">📝 ${d&&d.s>=0?`Testi tekrar çöz (önceki: ${d.s}/3)`:qs.length+' soruyla test et'}</button>`;$('qzGo').onclick=()=>{RD.q={i:0,ok:0,done:false};renderQuiz()};return}
-  if(q.i>=qs.length){const prev=S.newsDone[RD.item.id]||{};const it=RD.item;S.newsDone[it.id]={s:Math.max(q.ok,prev.s??-1),lv:RD.lv,mx:Math.max(prev.mx||prev.lv||0,RD.lv),t:Date.now(),it:{id:it.id,title:it.title,desc:it.desc,link:it.link,date:it.date,cat:it.cat,img:it.img}};pruneNews();save();newsCount(it.id,RD.lv);
+  if(q.i>=qs.length){const prev=S.newsDone[RD.item.id]||{};const it=RD.item;S.newsDone[it.id]={s:Math.max(q.ok,prev.s??-1),lv:RD.lv,mx:Math.max(prev.mx||prev.lv||0,RD.lv),t:Date.now(),it:{id:it.id,title:it.title,src:it.src,desc:it.desc,link:it.link,date:it.date,cat:it.cat,img:it.img}};pruneNews();save();newsCount(it.id,RD.lv);
     box.innerHTML=`<div class="qz" style="text-align:center"><h4>SONUÇ</h4><div class="res-big" style="font-size:52px">${q.ok} / ${qs.length}</div><p class="hint">${q.ok===qs.length?'Kusursuz! 🎉':q.ok?'Güzel, devam!':'Bir daha oku, sonra tekrar dene'}</p>${newsNeedsPr(it.id,RD.lv)?'<p class="hint">📚 Haber hedefine sayılması için yukarıdaki kelime pratiğini de tamamla.</p>':''}<button class="ghost" id="qzAgain">Tekrar çöz</button></div>`;
     $('qzAgain').onclick=()=>{RD.q={i:0,ok:0};renderQuiz()};return}
   const x=qs[q.i];
