@@ -3840,15 +3840,15 @@ function openVideo(v){
   if($('vpNext'))$('vpNext').onclick=()=>openVideo(nx);
   if($('vpAll'))$('vpAll').onclick=()=>showTab('videos');
   $('vpBox').querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const x=ws.find(y=>y.id===b.dataset.v);if(x)openVideo(x)});
-  const me=VP={v,pl:null,tm:0,done:!!(S.vWatched||{})[v.id]};
+  const me=VP={v,pl:null,tm:0,pt:0,lt:null,done:!!(S.vWatched||{})[v.id]};   // pt: gerçekten oynayan süre (ileri sarma sayılmaz)
   if(v.emb===false){$('vpPl').style.display='none';$('vpFb').style.display='flex';return}
   loadYTApi().then(()=>{
     if(VP!==me)return;
     if(!(window.YT&&YT.Player)){$('vpPl').outerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${esc(v.id)}?playsinline=1&cc_load_policy=1&cc_lang_pref=en&hl=en&rel=0&fs=0" allow="autoplay; encrypted-media"></iframe>`;return}
     me.pl=new YT.Player('vpPl',{videoId:v.id,host:'https://www.youtube-nocookie.com',playerVars:{playsinline:1,cc_load_policy:1,cc_lang_pref:'en',hl:'en',rel:0,modestbranding:1,fs:0},
       events:{onError:e=>{if([100,101,150].includes(e.data)){$('vpFb').style.display='flex';const f=$('vpBox').querySelector('iframe');if(f)f.style.display='none'}},
-        onStateChange:e=>{if(e.data===0&&!me.done){me.done=true;markWatched(v);$('vpSt').textContent='✓ İzlendi, günlük hedefine sayıldı'}}}});
-    me.tm=setInterval(()=>{if(VP!==me||me.done||!me.pl||!me.pl.getDuration)return;const d=me.pl.getDuration(),t=me.pl.getCurrentTime();if(d>0&&t/d>=0.7){me.done=true;markWatched(v);$('vpSt').textContent='✓ İzlendi, günlük hedefine sayıldı'}},3000);
+        onStateChange:e=>{const dd=me.pl&&me.pl.getDuration?me.pl.getDuration():0;if(e.data===0&&!me.done&&dd>0&&me.pt/dd>=0.7){me.done=true;markWatched(v);$('vpSt').textContent='✓ İzlendi, günlük hedefine sayıldı'}}}});
+    me.tm=setInterval(()=>{if(VP!==me||me.done||!me.pl||!me.pl.getDuration)return;const d=me.pl.getDuration(),t=me.pl.getCurrentTime();if(me.pl.getPlayerState&&me.pl.getPlayerState()===1&&me.lt!=null){const dt=t-me.lt;if(dt>0&&dt<=8)me.pt+=dt}me.lt=t;if(d>0&&me.pt/d>=0.7){me.done=true;markWatched(v);$('vpSt').textContent='✓ İzlendi, günlük hedefine sayıldı'}},3000);
   });
 }
 
