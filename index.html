@@ -1562,7 +1562,7 @@ async function renderFam(){
   renderQuota();
 }
 /* Kota durumu (sadece yönetici) */
-let QDAT=null,QBUSY=false;
+let QDAT=null,QBUSY=false,QPROBE=null;
 function grRes(t){const m=String(t).match(/(?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?/)||[];const h=+m[1]||0,mi=+m[2]||0;return h?`${h} sa ${mi} dk`:mi?`${mi} dk`:'1 dk'}
 function ptClock(){const la=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Los_Angeles'})),m=new Date(la);m.setHours(0,0,0,0);const nx=new Date(m);nx.setDate(nx.getDate()+1);return {start:Date.now()-(la-m),reset:new Date(Date.now()+(nx-la))}}
 const hhmm=d=>new Date(d).toLocaleTimeString(LOC,{hour:'2-digit',minute:'2-digit'});
@@ -1589,12 +1589,14 @@ function renderQuota(){
     const yp=pc(q.yt.used/q.yt.limit*100);rows+=row('▶️','YouTube',`Bugün ~${q.yt.used.toLocaleString(LOC)} / ${q.yt.limit.toLocaleString(LOC)} birim`,`%${yp}`,yp,'https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas');
     if(q.bbc){const b=q.bbc;if(b.e403)warn.push('BBC');rows+=row('📰','BBC haber sayfası',`Bugün ${b.ok} başarılı · ${b.e403} reddedildi (403)${b.other?` · ${b.other} başka hata`:''}`+qErrL('bbc'),b.e403?'⚠':b.ok?'✓':'—',null,'')}
     rows+=row('🌙','Gece hazırlığı',`Bu gece ${q.night.total} haberin ${q.night.ready}'i hazır`,q.night.ready>=q.night.total&&q.night.total?'✓':`${q.night.ready}/${q.night.total}`,null,'');
+    rows+=`<div class="qrow" style="display:block"><button class="ghost" id="qProbe" ${QPROBE==='busy'?'disabled':''}>${QPROBE==='busy'?'<span class="spin" style="width:11px;height:11px;margin:0"></span> Deneniyor…':'🧪 Haber kaynaklarını dene'}</button>${Array.isArray(QPROBE)?QPROBE.map(p=>{const ok=p.rss===200&&p.art===200&&p.chars>=1500;return `<div style="font-size:13px;margin-top:6px;color:${ok?'#2E9E5E':'#D2463A'}">${ok?'✓':'✗'} <b>${esc(p.n)}</b> · RSS ${p.rss||'—'} · sayfa ${p.art||'—'} · ${p.chars} karakter${p.err?' · '+esc(p.err):''}</div>`}).join(''):''}</div>`;
   }else rows=`<p class="hint" style="margin:6px 2px">${QBUSY?'Yükleniyor…':'Görmek için ↻ Güncelle\'ye bas'}</p>`;
   $('qtV').textContent=!q?'':warn.length?'⚠ '+warn[0]+(warn.length>1?' +'+(warn.length-1):''):'✓ Normal';
   $('qtV').style.color=!q?'':warn.length?'#D2463A':'#2E9E5E';
   box.innerHTML=`<div class="qtop"><span>${q?`Son kayıt: ${q.saved?hhmm(q.saved):'—'}`:''}</span><button id="qRef" ${QBUSY?'disabled':''}>${QBUSY?'<span class="spin" style="width:11px;height:11px;margin:0"></span>':'↻'} Güncelle</button></div>${rows}
     <p class="hint" style="margin:8px 2px 2px;font-size:12px;line-height:1.45">Sayılar saatte bir kaydedilir, ↻ ile anında güncellenir. Groq dışındakiler yaklaşıktır; kesin rakam için ↗ ile paneli aç. Bu bölümü sadece sen görürsün.</p>`;
   $('qRef').onclick=()=>loadQuota(true);
+  if($('qProbe'))$('qProbe').onclick=async()=>{QPROBE='busy';renderQuota();try{const d=await workerCall({quota:{probe:1}},40000);QPROBE=(d&&d.probe)||null;if(!QPROBE)toast('Worker güncel değil')}catch(e){QPROBE=null;toast('Deneme başarısız: '+e.message)}renderQuota()};
   if(!q&&!QBUSY&&!QDAT_T){QDAT_T=1;loadQuota(false)}
 }
 $('qtRow').onclick=()=>{const b=$('quotaBox'),o=b.style.display==='none';b.style.display=o?'':'none';$('qtChev').style.transform=o?'rotate(180deg)':''};

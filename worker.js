@@ -1373,8 +1373,36 @@ function qMaybeFlush(env, ctx) {
   const p = qFlush(env).catch(() => {});
   if (ctx && ctx.waitUntil) ctx.waitUntil(p);
 }
+// Yönetici denemesi: aday haber kaynaklarının RSS'i ve bir haber sayfası Worker'dan (Cloudflare) açılıyor mu? Sadece okur, hiçbir şey kaydetmez.
+const PROBE_SRC = [
+  ["NPR", "https://feeds.npr.org/1001/rss.xml"],
+  ["ABC Australia", "https://www.abc.net.au/news/feed/2942460/rss.xml"],
+  ["CBC", "https://www.cbc.ca/webfeed/rss/rss-topstories"],
+  ["Al Jazeera", "https://www.aljazeera.com/xml/rss/all.xml"],
+  ["UN News", "https://news.un.org/feed/subscribe/en/news/all/rss.xml"],
+];
+async function probeSources() {
+  const H = { headers: { "User-Agent": "KelimeSaati/1.0" } };
+  return Promise.all(PROBE_SRC.map(async ([n, u]) => {
+    const o = { n, rss: 0, art: 0, chars: 0, link: "" };
+    try {
+      const r = await fetch(u, Object.assign({ signal: AbortSignal.timeout(12000) }, H)); o.rss = r.status;
+      if (!r.ok) return o;
+      const links = [...(await r.text()).matchAll(/<item>[\s\S]*?<link>([\s\S]*?)<\/link>/g)].map(m => unx(m[1]).split("?")[0]).filter(l => /^https?:\/\//.test(l) && !/\/video\/|\/livestream|\/podcast/i.test(l));
+      o.link = links[0] || "";
+      if (!o.link) return o;
+      const a = await fetch(o.link, Object.assign({ signal: AbortSignal.timeout(12000) }, H)); o.art = a.status;
+      if (!a.ok) return o;
+      const P = []; let c = null;
+      await new HTMLRewriter().on("article p", { element() { c = { t: "" }; P.push(c); }, text(t) { if (c) c.t += t.text; } }).transform(a).arrayBuffer();
+      o.chars = P.map(p => unx(p.t).replace(/\s+/g, " ").trim()).filter(x => x.length > 1).join("\n").length;
+    } catch (e) { o.err = String(e.message || e).slice(0, 80); }
+    return o;
+  }));
+}
 async function quotaInfo(q, env, ctx) {
   if (!env.ADMIN) throw new HttpError(403, "Bu bilgi sadece yönetici içindir");
+  if (q && q.probe) return { probe: await probeSources() };
   if (q && q.now && env.GROQ_API_KEY) {           // Groq'un kesin kalan sayısı için küçük bir istek
     const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + env.GROQ_API_KEY },
