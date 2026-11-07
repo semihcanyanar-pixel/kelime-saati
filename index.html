@@ -3922,6 +3922,9 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 /* ---------- Oturumu koru: iPhone uygulamayı arka planda kapatırsa kaldığın yerden devam et ---------- */
 const SESS='ks:sess'+SFX;
+// Açılış türü: uygulama tamamen kapatılıp açıldıysa oturum belleği boştur → ana sayfada başla.
+// Başka uygulamaya kısa geçişten dönüldüyse (sayfa yeniden yüklense bile bellek durur) kaldığın yerden devam et.
+const WARM=(()=>{try{const w=sessionStorage.getItem('ks:warm')==='1';sessionStorage.setItem('ks:warm','1');return w}catch(e){return false}})();
 function curView(){return ([...document.querySelectorAll('.view.on')][0]||{id:'v-today'}).id.slice(2)}
 function sessSave(){
   try{
@@ -3976,7 +3979,7 @@ async function init0(){
   renderLevels();
   const p=new URLSearchParams(location.search).get('w');
   const target=p&&all().find(w=>w.w.toLowerCase()===p.toLowerCase());
-  if(target){searchList=[target];setMode('search');showTab('home')}else{showTab('today');setMode(TOPICS[mode]||['hour','new','mix','favs','custom','known','learn','_week','uncat'].includes(mode)||String(mode).startsWith('u:')?mode:'hour');sessRestore()}
+  if(target){searchList=[target];setMode('search');showTab('home')}else{showTab('today');setMode(TOPICS[mode]||['hour','new','mix','favs','custom','known','learn','_week','uncat'].includes(mode)||String(mode).startsWith('u:')?mode:'hour');if(WARM)sessRestore()}
   try{WIDGET_SRC=window.__WIDGET__||await (await fetch('widget.js',{cache:'no-cache'})).text()}catch(e){}
   speechSynthesis&&speechSynthesis.getVoices();
   classifyAi();
