@@ -3801,16 +3801,17 @@ function renderVideos(){
   if(!ws.length){box.innerHTML=vBusy?'<div class="loadbox"><span class="spin"></span>Videolar getiriliyor…</div>':`<div class="loadbox">${esc(vErr||'Video bulunamadı. Ayarlar → Video kanalları\'ndan kanal aç ya da ekle.')}<br><button class="ghost" id="vRetry" style="max-width:200px;margin:14px auto 0">Tekrar dene</button></div>`;if($('vRetry'))$('vRetry').onclick=()=>fetchVidsUI(true);return}
   const list=ws.filter(v=>(!vFilter.lv||vChOf(v).lv===vFilter.lv)&&(!vFilter.ty||vChOf(v).ty===vFilter.ty));
   const wn=ws.filter(v=>(S.vWatched||{})[v.id]).length;
-  const lu=list.filter(v=>!(S.vWatched||{})[v.id]),lw=list.filter(v=>(S.vWatched||{})[v.id]);
+  const lu=list.filter(v=>!(S.vWatched||{})[v.id]),lw=list.filter(v=>(S.vWatched||{})[v.id]).sort((a,b)=>S.vWatched[b.id]-S.vWatched[a.id]),lwShow=vWMore?lw:lw.slice(0,5);
   box.innerHTML=`<p class="hint" style="margin:10px 4px 4px">Önünde ${ws.length-wn} izlenmemiş video var. Birini izleyince aynı kanaldan yenisi eklenir.</p>`
     +(lu.length?lu.map(vRow).join(''):'<p class="hint">Bu filtrede izlenmemiş video yok.</p>')
-    +(lw.length?`<div class="lsec" style="margin-top:18px"><span>İzlediklerin · ${lw.length}</span></div>`+lw.map(vRow).join(''):'');
+    +(lw.length?`<div class="lsec" style="margin-top:18px"><span>İzlediklerin · ${lw.length}</span></div>`+lwShow.map(vRow).join('')+(lw.length>5?`<button class="ghost" id="vwMore" style="margin-top:10px">${vWMore?'▴ Daha az göster':`▾ Devamını gör (${lw.length-5})`}</button>`:''):'');
+  if($('vwMore'))$('vwMore').onclick=()=>{vWMore=!vWMore;renderVideos()};
   box.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{const v=ws.find(x=>x.id===b.dataset.v);if(v){vFrom='videos';openVideo(v)}});
 }
 async function fetchVidsUI(force){vBusy=true;vErr='';renderVideos();try{await loadVids(force)}catch(e){vErr='Videolar alınamadı: '+e.message}vBusy=false;if($('v-videos').classList.contains('on'))renderVideos()}
 
 /* ---------- Oynatıcı (uygulama içinde, İngilizce altyazılı) ---------- */
-let VP=null,vFrom='videos',ytApi=null;
+let VP=null,vFrom='videos',ytApi=null,vWMore=false;
 function loadYTApi(){if(ytApi)return ytApi;return ytApi=new Promise(ok=>{if(window.YT&&YT.Player)return ok();window.onYouTubeIframeAPIReady=()=>ok();const sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';document.head.appendChild(sc);setTimeout(ok,8000)})}
 function markWatched(v){S.vWatched=S.vWatched||{};const first=!S.vWatched[v.id];S.vWatched[v.id]=Date.now();if(first){vCount(v.ref);vRefill(v.ref)}const ks=Object.keys(S.vWatched);if(ks.length>400){ks.sort((a,b)=>S.vWatched[a]-S.vWatched[b]).slice(0,ks.length-400).forEach(k=>delete S.vWatched[k])}save();markRead('v',v.id);return first}
 // iOS: telefonu yan çevirip geri düzeltince sayfa yukarı kayık kalabiliyor; üst kısım durum çubuğunun altına giriyor ve
