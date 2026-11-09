@@ -624,6 +624,7 @@ async function articleStream(q, env, ctx, cors) {
   // Önbellekteki seviye yarımsa (yapay zekâ metni yarıda bırakmışsa) ya da istemci "fresh" istediyse yeniden yaz
   const hit = q.fresh ? null : await kvGet(env, kL);
   if (hit) { const c = JSON.parse(hit); if (enWords(c.paras) >= MINW[n]) return new Response(levelToLines(c), { headers: textHead(cors) }); }
+  if (q.cacheOnly) throw new HttpError(404, "Bu seviye kayıtlı değil");   // eski haberde başka seviye aranırken kaynak sayfaya gitme
   const text = await srcText(url, h, env, ctx);
   if (text.length < 200) throw new HttpError(422, "Bu haberin metni alınamadı, başka bir haber dene");
   const prompt = `You are writing a graded news reader for a native Turkish speaker learning English.
@@ -685,6 +686,7 @@ async function storyStream(q, env, cors) {
   const prompt = `Write an original short story for a native Turkish speaker learning English.
 Topic / idea: "${topic}" (may be written in Turkish: understand what it means and write about that in English; never put the Turkish topic word itself into the English text, e.g. topic "Doğa" means nature and is NOT a place name).
 CEFR level: ${level}. Length: about ${len} words, 3-6 paragraphs. Use vivid but level-appropriate language and natural dialogue where it fits.
+${nameRule()}
 ${storyWordsRule(words)}
 Write ONLY in this exact plain-text format (no JSON, no markdown, no extra text):
 TITLE: English title
@@ -773,7 +775,7 @@ Return ONLY a JSON object:
 Rules:
 - "d" is a short, natural everyday conversation between the two speakers (0 and 1). The phrase appears exactly once, wrapped in *asterisks* in the English line, and its Turkish equivalent is wrapped in *asterisks* in that line's Turkish translation.
 - "q" is a DIFFERENT 2-line mini conversation for a quiz: in exactly one English line the phrase is replaced by ___ (three underscores). In that line's Turkish translation, wrap the Turkish equivalent in *asterisks*. The blank must clearly fit only this phrase.
-- Modern, natural English. Turkish must be natural Turkish with correct Turkish letters (ç, ğ, ı, ö, ş, ü). Use common English first names.`;
+- Modern, natural English. Turkish must be natural Turkish with correct Turkish letters (ç, ğ, ı, ö, ş, ü). Use common non-Turkish first names for the speakers, for example: ${CHAR_NAMES.slice().sort(() => Math.random() - 0.5).slice(0, 6).join(", ")} (pick any two, vary them).`;
   for (const chain of [["gemini", "groq"], ["gemini", "groq"]]) {
     try {
       const x = await llmJSON(prompt, env, { chain, hedge: 25000, obj: true, temperature: 0.8 });
@@ -885,6 +887,13 @@ async function gloss(q, env, ctx) {
 }
 
 /* ---------- Hikâye ---------- */
+// Hikâye kişi isimleri: model hep aynı (Türkçe) isimlere kayıyordu; her istekte rastgele yabancı isimler önerilir
+const CHAR_NAMES = ["Daniel", "Emma", "Marcus", "Sofia", "Liam", "Olivia", "Noah", "Priya", "Mateo", "Chloe", "Ethan", "Amara", "Lucas", "Hannah", "Oliver", "Nora", "Jack", "Isabel", "Leo", "Grace", "Samuel", "Mia", "Henry", "Clara", "Omar", "Anna", "Diego", "Ruby", "Felix", "Tessa", "Kenji", "Alice", "Victor", "Maya", "Ben", "Lena", "Adam", "Zoe", "Carlos", "Ingrid", "Theo", "Aaron", "Rosa", "Ivan", "Yuki", "Peter", "Naomi", "George", "Elena", "Tom", "Maria", "Ravi", "Julia", "Hugo", "Nina", "Max", "Rachel", "Andre", "Lucy", "Sam", "Kofi", "Helen", "Jonas", "Paula", "Ahmed", "Emily"];
+function nameRule() {
+  const a = CHAR_NAMES.slice(), pick = [];
+  while (pick.length < 6) pick.push(a.splice(Math.floor(Math.random() * a.length), 1)[0]);
+  return `Character names: if people appear, give them non-Turkish, international first names — NEVER Turkish names (no Leyla, Ayşe, Elif, Zeynep, Mehmet, Ali, Can, Deniz, etc.). Choose from these (use only the ones you need, any order): ${pick.join(", ")}. Keep names unchanged in the Turkish lines.`;
+}
 async function story(q, env) {
   const level = LEVELS.includes(q.level) ? q.level : "B1";
   const topic = String(q.topic || "an everyday adventure").slice(0, 120);
@@ -893,6 +902,7 @@ async function story(q, env) {
   const prompt = `Write an original short story for a native Turkish speaker learning English.
 Topic / idea: "${topic}" (may be written in Turkish: understand what it means and write about that in English; never put the Turkish topic word itself into the English text, e.g. topic "Doğa" means nature and is NOT a place name).
 CEFR level: ${level}. Length: about ${len} words. Use vivid but level-appropriate language and natural dialogue where it fits.
+${nameRule()}
 ${storyWordsRule(words)}
 Split the story into 3-6 paragraphs. Each paragraph is a list of sentences, with a natural Turkish translation for every sentence (same count, same order).
 Return ONLY JSON:

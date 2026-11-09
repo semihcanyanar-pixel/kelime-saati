@@ -2993,13 +2993,13 @@ function healArts(){
   Object.values(c).forEach(a=>(a.levels||[]).forEach((L,i)=>{if(L&&L.paras&&enWc(L.paras)<LV_MINW[i+1]){a.levels[i]=null;ch=true}}));
   if(ch)lsSet('ks:arts',c);
 }
-function getLevel(item,n,onText){
+function getLevel(item,n,onText,co){
   const c0=artCache()[item.id];if(c0&&c0.levels&&c0.levels[n-1])return Promise.resolve(c0);
   const key=item.id+':'+n;
   if(PEND[key]){if(onText){PEND[key].subs.add(onText);if(PEND[key].text)onText(PEND[key].text)}return PEND[key].p}
   const P2={subs:new Set(onText?[onText]:[]),text:''};PEND[key]=P2;
   // Önceki deneme yarım geldiyse sunucuya "önbelleği atla" denir
-  P2.p=streamCall({article:{url:item.link,title:item.title,date:item.date,lv:n,stream:true,fresh:FORCE[key]?true:undefined}},t=>{P2.text=t;P2.subs.forEach(f=>f(t))},60000).then(t=>{
+  P2.p=streamCall({article:{url:item.link,title:item.title,date:item.date,lv:n,stream:true,fresh:FORCE[key]?true:undefined,cacheOnly:co?true:undefined}},t=>{P2.text=t;P2.subs.forEach(f=>f(t))},60000).then(t=>{
     let L,x=null;
     if(/^\s*\{/.test(t)){const d=JSON.parse(t);L=d.level;if(d.video)artSave(item,a=>{if(!a.video)a.video=d.video})} // eski Worker
     else{x=parseLines(t);L={paras:x.paras,words:cleanWords(x.words,x.paras).slice(0,8),quiz:validQuiz(x.quiz,x.paras)}}
@@ -3029,7 +3029,12 @@ async function loadLevel(){
   if(me.art&&me.art.levels&&me.art.levels[n-1])return prefetchRest(me);
   me.err='';
   const live=t=>{if(RD===me&&me.lv===n)liveType(t)};
-  try{await getLevel(me.item,n,live)}catch(e){if(RD===me&&me.lv===n){me.err=e.message;renderRead()}return}
+  try{await getLevel(me.item,n,live)}catch(e){
+    if(RD===me&&me.lv===n){
+      // Eski haberin kaynak sayfası artık açılmıyorsa (örn. BBC 403), kayıtlı başka seviye varsa onu aç
+      if(/403|açılamadı|alınamadı/.test(e.message||''))for(const m of [2,1,3].filter(x=>x!==n)){try{await getLevel(me.item,m,null,true);if(RD===me&&me.lv===n){me.lv=m;S.newsLv=m;me.err='';save();renderRead();toast('Seviye '+n+' kayıtlı değil, Seviye '+m+' açıldı')}return}catch(e2){}}
+      me.err=e.message+(/403|açılamadı|alınamadı/.test(e.message||'')?' · Bu eski haberin kayıtlı başka seviyesi de yok':'');renderRead()}
+    return}
   if(RD===me&&me.lv===n){await liveFinish();if(RD===me&&me.lv===n)renderRead()}
   prefetchRest(me);
 }
